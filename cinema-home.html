@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vvel Universe | Cinema</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root {
+      --navy-100: #0b1a3a;
+      --navy-200: #0f2a5a;
+      --navy-300: #123571;
+      --navy-400: #174ea6;
+      --glass-bg: rgba(13, 31, 74, 0.26);
+      --glass-border: 1.4px solid rgba(23, 78, 166, 0.55);
+      --panel-shadow: 0 20px 50px rgba(3, 10, 24, 0.55);
+      --title-color: #ffffff;
+      --body-color: #e5e7eb;
+      --muted-color: #c7c9d4;
+      --font-title: 'Orbitron', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      --font-body: 'Outfit', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: #000;
+      color: var(--body-color);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      background-image:
+        url('Space-bg.jpg'),
+        url('Space-bg.png'),
+        url('Space-bg.jpeg'),
+        url('space-bg.jpg'),
+        url('space-bg.png'),
+        url('space-bg.jpeg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(1200px 900px at 20% 20%, rgba(0,0,0,0.35), transparent 55%),
+                  linear-gradient(180deg, rgba(0,0,0,0.42), rgba(0,0,0,0.55));
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .content-wrapper {
+      position: relative;
+      z-index: 2;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 2rem clamp(1rem, 4vw, 3rem);
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: var(--glass-border);
+      box-shadow: var(--panel-shadow);
+    }
+
+    .card-hover {
+      transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    }
+
+    .card-hover:hover {
+      transform: translateY(-6px) scale(1.02);
+      box-shadow: 0 18px 40px rgba(139, 92, 246, 0.45);
+      border-color: rgba(167, 139, 250, 0.8);
+    }
+
+    .card-hover:active {
+      transform: translateY(-2px) scale(1.01);
+    }
+
+    .title-text {
+      font-family: var(--font-title);
+      color: var(--title-color);
+      letter-spacing: 0.02em;
+      font-weight: 800;
+    }
+
+    .badge {
+      background: linear-gradient(120deg, rgba(139, 92, 246, 0.4), rgba(124, 58, 237, 0.4));
+      border: 1px solid rgba(139, 92, 246, 0.5);
+      border-radius: 9999px;
+      padding: 4px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #e9d5ff;
+      letter-spacing: 0.06em;
+    }
+
+    .cinema-list {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1.5rem;
+      max-width: 1400px;
+      margin: 2rem auto;
+      width: 100%;
+    }
+
+    @media (max-width: 1200px) {
+      .cinema-list {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    @media (max-width: 900px) {
+      .cinema-list {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 600px) {
+      .cinema-list {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .cinema-card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 16px;
+      padding: 1.5rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+    }
+
+    .cinema-card:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(139, 92, 246, 0.3);
+      border-color: rgba(139, 92, 246, 0.6);
+    }
+
+    .cinema-icon {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .cinema-name {
+      font-family: var(--font-title);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 0.25rem;
+    }
+
+    .cinema-desc {
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.7);
+    }
+  </style>
+</head>
+<body>
+  <div class="content-wrapper">
+    <header class="text-center mb-10 space-y-3">
+      <div class="badge inline-flex items-center gap-2 uppercase tracking-widest">
+        <i data-lucide="film" class="w-4 h-4"></i>
+        Cinema Universe
+      </div>
+      <h1 class="title-text text-4xl md:text-6xl">Explore World Cinema</h1>
+      <p class="text-[#c7c9d4] text-base md:text-lg max-w-2xl mx-auto">
+        Select a cinema industry to explore movies, actors, directors, and cinematic discussions from around the world.
+      </p>
+    </header>
+
+    <main class="flex-1 flex justify-center">
+      <div class="cinema-list">
+        <div class="cinema-card glass-card card-hover" data-cinema="hollywood" onclick="openCinema('hollywood')">
+          <div class="cinema-icon">🎬</div>
+          <div class="cinema-name">Hollywood</div>
+          <div class="cinema-desc">American Cinema</div>
+        </div>
+        <div class="cinema-card glass-card card-hover" data-cinema="bollywood" onclick="openCinema('bollywood')">
+          <div class="cinema-icon">🎭</div>
+          <div class="cinema-name">Bollywood</div>
+          <div class="cinema-desc">Indian Hindi Cinema</div>
+        </div>
+        <div class="cinema-card glass-card card-hover" data-cinema="tollywood" onclick="openCinema('tollywood')">
+          <div class="cinema-icon">🎪</div>
+          <div class="cinema-name">Tollywood</div>
+          <div class="cinema-desc">Telugu Cinema</div>
+        </div>
+        <div class="cinema-card glass-card card-hover" data-cinema="kollywood" onclick="openCinema('kollywood')">
+          <div class="cinema-icon">🎨</div>
+          <div class="cinema-name">Kollywood</div>
+          <div class="cinema-desc">Tamil Cinema</div>
+        </div>
+        <div class="cinema-card glass-card card-hover" data-cinema="sandalwood" onclick="openCinema('sandalwood')">
+          <div class="cinema-icon">🌲</div>
+          <div class="cinema-name">Sandalwood</div>
+          <div class="cinema-desc">Kannada Cinema</div>
+        </div>
+        <div class="cinema-card glass-card card-hover" data-cinema="nollywood" onclick="openCinema('nollywood')">
+          <div class="cinema-icon">🎥</div>
+          <div class="cinema-name">Nollywood</div>
+          <div class="cinema-desc">Nigerian Cinema</div>
+        </div>
+        <div class="cinema-card glass-card card-hover" data-cinema="lollywood" onclick="openCinema('lollywood')">
+          <div class="cinema-icon">🎞️</div>
+          <div class="cinema-name">Lollywood</div>
+          <div class="cinema-desc">Pakistani Cinema</div>
+        </div>
+        <div class="cinema-card glass-card card-hover" data-cinema="dhollywood" onclick="openCinema('dhollywood')">
+          <div class="cinema-icon">🎬</div>
+          <div class="cinema-name">Dhollywood</div>
+          <div class="cinema-desc">Dhallywood Cinema</div>
+        </div>
+        <div class="cinema-card glass-card card-hover" data-cinema="chinese-cinema" onclick="openCinema('chinese-cinema')">
+          <div class="cinema-icon">🏮</div>
+          <div class="cinema-name">Chinese Cinema</div>
+          <div class="cinema-desc">Mainland China</div>
+        </div>
+        <div class="cinema-card glass-card card-hover" data-cinema="hong-kong-cinema" onclick="openCinema('hong-kong-cinema')">
+          <div class="cinema-icon">🏙️</div>
+          <div class="cinema-name">Hong Kong Cinema</div>
+          <div class="cinema-desc">HK Film Industry</div>
+        </div>
+        <div class="cinema-card glass-card card-hover" data-cinema="japanese-cinema" onclick="openCinema('japanese-cinema')">
+          <div class="cinema-icon">🎌</div>
+          <div class="cinema-name">Japanese Cinema</div>
+          <div class="cinema-desc">Nihon Eiga</div>
+        </div>
+        <div class="cinema-card glass-card card-hover" data-cinema="korean-cinema" onclick="openCinema('korean-cinema')">
+          <div class="cinema-icon">🎎</div>
+          <div class="cinema-name">Korean Cinema</div>
+          <div class="cinema-desc">Hallyuwood</div>
+        </div>
+        <div class="cinema-card glass-card card-hover" data-cinema="iranian-cinema" onclick="openCinema('iranian-cinema')">
+          <div class="cinema-icon">🕌</div>
+          <div class="cinema-name">Iranian Cinema</div>
+          <div class="cinema-desc">Persian Cinema</div>
+        </div>
+        <div class="cinema-card glass-card card-hover" data-cinema="french-cinema" onclick="openCinema('french-cinema')">
+          <div class="cinema-icon">🥖</div>
+          <div class="cinema-name">French Cinema</div>
+          <div class="cinema-desc">Cinéma Français</div>
+        </div>
+        <div class="cinema-card glass-card card-hover" data-cinema="british-cinema" onclick="openCinema('british-cinema')">
+          <div class="cinema-icon">🇬🇧</div>
+          <div class="cinema-name">British Cinema</div>
+          <div class="cinema-desc">UK Film Industry</div>
+        </div>
+        <div class="cinema-card glass-card card-hover" data-cinema="italian-cinema" onclick="openCinema('italian-cinema')">
+          <div class="cinema-icon">🍝</div>
+          <div class="cinema-name">Italian Cinema</div>
+          <div class="cinema-desc">Cinema Italiano</div>
+        </div>
+        <div class="cinema-card glass-card card-hover" data-cinema="world-cinema" onclick="openCinema('world-cinema')">
+          <div class="cinema-icon">🌍</div>
+          <div class="cinema-name">World Cinema</div>
+          <div class="cinema-desc">International Films</div>
+        </div>
+        <div class="cinema-card glass-card card-hover" data-cinema="german-cinema" onclick="openCinema('german-cinema')">
+          <div class="cinema-icon">🇩🇪</div>
+          <div class="cinema-name">German Cinema</div>
+          <div class="cinema-desc">Deutsches Kino</div>
+        </div>
+        <div class="cinema-card glass-card card-hover" data-cinema="russian-cinema" onclick="openCinema('russian-cinema')">
+          <div class="cinema-icon">🇷🇺</div>
+          <div class="cinema-name">Russian Cinema</div>
+          <div class="cinema-desc">Russian Film</div>
+        </div>
+        <div class="cinema-card glass-card card-hover" data-cinema="turkish-cinema" onclick="openCinema('turkish-cinema')">
+          <div class="cinema-icon">🇹🇷</div>
+          <div class="cinema-name">Turkish Cinema</div>
+          <div class="cinema-desc">Türk Sineması</div>
+        </div>
+        <div class="cinema-card glass-card card-hover" data-cinema="spanish-cinema" onclick="openCinema('spanish-cinema')">
+          <div class="cinema-icon">🇪🇸</div>
+          <div class="cinema-name">Spanish Cinema</div>
+          <div class="cinema-desc">Cine Español</div>
+        </div>
+        <div class="cinema-card glass-card card-hover" data-cinema="brazilian-cinema" onclick="openCinema('brazilian-cinema')">
+          <div class="cinema-icon">🇧🇷</div>
+          <div class="cinema-name">Brazilian Cinema</div>
+          <div class="cinema-desc">Cinema Brasileiro</div>
+        </div>
+        <div class="cinema-card glass-card card-hover" data-cinema="australian-cinema" onclick="openCinema('australian-cinema')">
+          <div class="cinema-icon">🇦🇺</div>
+          <div class="cinema-name">Australian Cinema</div>
+          <div class="cinema-desc">Aussie Films</div>
+        </div>
+        <div class="cinema-card glass-card card-hover" data-cinema="mexican-cinema" onclick="openCinema('mexican-cinema')">
+          <div class="cinema-icon">🇲🇽</div>
+          <div class="cinema-name">Mexican Cinema</div>
+          <div class="cinema-desc">Cine Mexicano</div>
+        </div>
+        <div class="cinema-card glass-card card-hover" data-cinema="others" onclick="openCinema('others')">
+          <div class="cinema-icon">🌐</div>
+          <div class="cinema-name">Others</div>
+          <div class="cinema-desc">Other Cinema Industries</div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    lucide.createIcons();
+
+    const routes = {
+      'hollywood': 'cinema-hollywood.html',
+      'bollywood': 'cinema-bollywood.html',
+      'tollywood': 'cinema-tollywood.html',
+      'kollywood': 'cinema-kollywood.html',
+      'sandalwood': 'cinema-sandalwood.html',
+      'nollywood': 'cinema-nollywood.html',
+      'lollywood': 'cinema-lollywood.html',
+      'dhollywood': 'cinema-dhollywood.html',
+      'chinese-cinema': 'cinema-chinese-cinema.html',
+      'hong-kong-cinema': 'cinema-hong-kong-cinema.html',
+      'japanese-cinema': 'cinema-japanese-cinema.html',
+      'korean-cinema': 'cinema-korean-cinema.html',
+      'iranian-cinema': 'cinema-iranian-cinema.html',
+      'french-cinema': 'cinema-french-cinema.html',
+      'british-cinema': 'cinema-british-cinema.html',
+      'italian-cinema': 'cinema-italian-cinema.html',
+      'world-cinema': 'cinema-world-cinema.html',
+      'german-cinema': 'cinema-german-cinema.html',
+      'russian-cinema': 'cinema-russian-cinema.html',
+      'turkish-cinema': 'cinema-turkish-cinema.html',
+      'spanish-cinema': 'cinema-spanish-cinema.html',
+      'brazilian-cinema': 'cinema-brazilian-cinema.html',
+      'australian-cinema': 'cinema-australian-cinema.html',
+      'mexican-cinema': 'cinema-mexican-cinema.html',
+      'others': 'cinema-others.html'
+    };
+
+    function openCinema(cinema) {
+      const target = routes[cinema];
+      if (target) {
+        localStorage.setItem('selectedCinema', cinema);
+        window.location.href = target;
+      }
+    }
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vvel Universe | Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="loading-styles.css">
+  <style>
+    :root {
+      --navy-100: #0b1a3a;
+      --navy-200: #0f2a5a;
+      --navy-300: #123571;
+      --navy-400: #174ea6;
+      --glass-bg: rgba(13, 31, 74, 0.26);
+      --glass-blur: blur(18px);
+      --glass-border: 1.4px solid rgba(23, 78, 166, 0.55);
+      --panel-shadow: 0 20px 50px rgba(3, 10, 24, 0.55);
+      --title-color: #ffffff;
+      --body-color: #e5e7eb;
+      --muted-color: #c7c9d4;
+      --field-border: 1.2px solid rgba(23, 78, 166, 0.35);
+      --field-border-focus: 1.6px solid rgba(23, 78, 166, 0.85);
+      --button-bg: linear-gradient(90deg, #0f2a5a 0%, #123571 55%, #174ea6 100%);
+      --button-shadow: 0 12px 26px rgba(23, 78, 166, 0.45);
+      --font-title: 'Orbitron', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      --font-body: 'Outfit', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      height: 100%;
+    }
+
+    body {
+      margin: 0;
+      background: #000;
+      color: var(--body-color);
+      font-family: var(--font-body);
+      overflow-y: auto;
+      min-height: 100vh;
+      /* Try common filename variants in the same folder as this HTML */
+      background-image:
+        url('Space-bg.jpg'),
+        url('Space-bg.png'),
+        url('Space-bg.jpeg'),
+        url('space-bg.jpg'),
+        url('space-bg.png'),
+        url('space-bg.jpeg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+    }
+
+    /* dark veil to improve contrast */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(1200px 900px at 20% 20%, rgba(0,0,0,0.35), transparent 55%),
+                  linear-gradient(180deg, rgba(0,0,0,0.42), rgba(0,0,0,0.55));
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    main {
+      position: relative;
+      z-index: 2;
+      height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    .panel {
+      width: min(460px, 92vw);
+      background: var(--glass-bg);
+      border: var(--glass-border);
+      border-radius: 22px;
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      box-shadow: var(--panel-shadow);
+      padding: 30px 30px 24px 30px;
+      animation: enter 700ms ease both;
+    }
+
+    @keyframes enter { 0% { opacity: 0; transform: translateY(28px) scale(0.98) } 100% { opacity: 1; transform: translateY(0) scale(1) } }
+
+    .title {
+      font-family: var(--font-title);
+      font-size: clamp(26px, 4.4vw, 36px);
+      letter-spacing: 0.02em;
+      color: var(--title-color);
+      text-align: left;
+      margin: 2px 0 6px 0;
+      font-weight: 800;
+    }
+
+    .tagline {
+      text-align: left;
+      color: var(--muted-color);
+      font-size: clamp(13px, 2.6vw, 15px);
+      margin: 0 0 22px 0;
+      font-weight: 500;
+    }
+
+    form {
+      display: grid;
+      gap: 16px;
+      animation: fadein 1s ease both;
+      animation-delay: 120ms;
+    }
+
+    @keyframes fadein { from { opacity: 0; transform: translateY(14px) } to { opacity: 1; transform: none } }
+
+    .field { display: grid; gap: 6px; }
+
+    label { color: #dbeafe; font-weight: 600; font-size: 14px; }
+
+    input {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: var(--field-border);
+      outline: none;
+      background: rgba(255,255,255,0.06);
+      color: #ffffff;
+      font-size: 15px;
+      transition: border-color .2s ease, box-shadow .2s ease, transform .12s ease;
+    }
+
+    input::placeholder { color: rgba(255,255,255,0.7); }
+    input:focus { border: var(--field-border-focus); box-shadow: 0 0 0 6px rgba(23, 78, 166, 0.25); transform: translateY(-1px); }
+
+    .submit {
+      margin-top: 4px;
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      background: var(--button-bg);
+      color: #fff;
+      font-weight: 800;
+      font-family: var(--font-title);
+      letter-spacing: 0.02em;
+      font-size: 16px;
+      box-shadow: var(--button-shadow);
+      transition: filter .18s ease, box-shadow .2s ease, transform .12s ease;
+    }
+
+    .submit:hover, .submit:focus {
+      filter: brightness(1.06) saturate(1.05);
+      box-shadow: 0 12px 30px rgba(23, 78, 166, 0.55);
+      transform: translateY(-1px);
+      outline: none;
+    }
+
+    .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 8px; }
+
+    .remember { display: inline-flex; align-items: center; gap: 10px; color: var(--muted-color); font-size: 14px; }
+    .remember input { width: 16px; height: 16px; border-radius: 6px; }
+
+    .links { display: flex; justify-content: center; gap: 6px; margin-top: 18px; }
+    .links span { color: var(--muted-color); font-size: 14px; }
+    .links a { color: #bfdbfe; text-decoration: none; font-weight: 700; font-size: 14px; }
+    .links a:hover { color: #93c5fd; text-decoration: underline; }
+
+    /* Subtle staged entrance for fields */
+    .field input, .submit { opacity: 0; transform: translateY(18px); animation: lift .9s ease both; }
+    .field:nth-child(1) input { animation-delay: .35s; }
+    .field:nth-child(2) input { animation-delay: .5s; }
+    .submit { animation-delay: .65s; }
+
+    @keyframes lift { to { opacity: 1; transform: none } }
+
+    /* Responsive refinements */
+    @media (max-width: 480px) {
+      .panel { padding: 18px 16px 14px 16px; border-radius: 18px; }
+    }
+
+    /* Error message styling */
+    .error-message {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.5);
+      color: #fca5a5;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 14px;
+      margin-bottom: 12px;
+      display: none;
+    }
+    .error-message.show { display: block; }
+    
+    .success-message {
+      background: rgba(34, 197, 94, 0.15);
+      border: 1px solid rgba(34, 197, 94, 0.5);
+      color: #86efac;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 14px;
+      margin-bottom: 12px;
+      display: none;
+    }
+    .success-message.show { display: block; }
+
+    .submit:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .social-btn.loading {
+      position: relative;
+      opacity: 0.7;
+      pointer-events: none;
+    }
+
+    .divider { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 12px; margin: 8px 0; color: #d1d5db; font-size: 13px; }
+    .divider::before, .divider::after { content: ""; height: 1px; background: rgba(255,255,255,0.25); }
+
+    .socials { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 6px; }
+    .social-btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 10px 12px;
+      border-radius: 12px; border: 1.2px solid rgba(255,255,255,0.28); background: rgba(255,255,255,0.06);
+      color: #fff; cursor: pointer; text-decoration: none; font-weight: 700; font-size: 14px;
+      transition: background .18s ease, transform .12s ease, border-color .18s ease;
+      backdrop-filter: blur(8px);
+    }
+    .social-btn:hover { background: rgba(255,255,255,0.12); transform: translateY(-1px); border-color: rgba(255,255,255,0.42); }
+
+    .admin-access {
+      margin-top: 26px;
+      padding-top: 22px;
+      border-top: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .admin-toggle {
+      width: 100%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 11px 14px;
+      border-radius: 12px;
+      border: 1.2px solid rgba(255,255,255,0.22);
+      background: rgba(255,255,255,0.06);
+      color: #bfdbfe;
+      font-family: var(--font-title);
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      transition: background .18s ease, transform .12s ease, border-color .18s ease;
+    }
+
+    .admin-toggle:hover,
+    .admin-toggle.open {
+      background: rgba(99,102,241,0.18);
+      border-color: rgba(129,140,248,0.42);
+      color: #e0e7ff;
+      transform: translateY(-1px);
+    }
+
+    #adminPortalForm {
+      margin-top: 18px;
+      display: none;
+      gap: 16px;
+    }
+
+    #adminPortalForm[data-open="true"] {
+      display: grid;
+    }
+
+    #adminPortalError {
+      margin-bottom: 0;
+    }
+
+    .admin-note {
+      font-size: 12px;
+      color: rgba(226,232,240,0.65);
+      text-align: left;
+    }
+
+    /* Language Switcher Styles */
+    .language-switcher {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+    }
+
+    .language-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      background: var(--glass-bg);
+      border: var(--glass-border);
+      border-radius: 12px;
+      color: #fff;
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .language-btn:hover {
+      background: rgba(255,255,255,0.12);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+    }
+
+    .language-btn .flag {
+      font-size: 18px;
+    }
+
+    .language-dropdown {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      min-width: 200px;
+      background: var(--glass-bg);
+      border: var(--glass-border);
+      border-radius: 12px;
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      padding: 8px;
+      display: none;
+      flex-direction: column;
+      gap: 4px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .language-dropdown.show {
+      display: flex;
+    }
+
+    .language-option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .language-option:hover {
+      background: rgba(255,255,255,0.1);
+    }
+
+    .language-option.active {
+      background: rgba(23, 78, 166, 0.3);
+      font-weight: 600;
+    }
+
+    .language-option .flag {
+      font-size: 20px;
+    }
+
+    @media (max-width: 480px) {
+      .language-switcher {
+        top: 12px;
+        right: 12px;
+      }
+      .language-btn {
+        padding: 8px 12px;
+        font-size: 13px;
+      }
+      .language-dropdown {
+        min-width: 180px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Language Switcher -->
+  <div class="language-switcher">
+    <button class="language-btn" id="languageBtn" aria-label="Select Language">
+      <span class="flag" id="currentFlag">🇬🇧</span>
+      <span id="currentLang">English</span>
+      <span style="margin-left: 4px;">▼</span>
+    </button>
+    <div class="language-dropdown" id="languageDropdown"></div>
+  </div>
+
+  <main>
+    <!-- AUTH GATE (shown only if not registered) -->
+    <section id="authGate" class="panel" aria-label="Authentication options" style="display:none; max-width: 520px;">
+      <h1 class="title" data-i18n="authGate.title">Access Restricted</h1>
+      <p class="tagline" style="margin-bottom:12px" data-i18n="authGate.notRegistered">🚫 You're not a registered user.</p>
+      <p class="tagline" data-i18n="authGate.message">Please sign up or continue using one of the official partner logins below.</p>
+
+      <div class="divider" style="margin-top:10px" data-i18n="authGate.continueWith">Continue with</div>
+      <div class="socials" style="grid-template-columns: repeat(3, 1fr);">
+        <a class="social-btn" href="/api/auth/google" aria-label="Continue with Google" onclick="handleSocialLogin(event, 'Google')">
+          <span class="icon" aria-hidden="true">🌐</span>
+          Google
+        </a>
+        <a class="social-btn" href="#" onclick="alert('Facebook authentication coming soon'); return false;" aria-label="Continue with Facebook">
+          <span class="icon" aria-hidden="true">📘</span>
+          Facebook
+        </a>
+        <a class="social-btn" href="/api/auth/instagram" aria-label="Continue with Instagram" onclick="handleSocialLogin(event, 'Instagram')">
+          <span class="icon" aria-hidden="true">📸</span>
+          Instagram
+        </a>
+      </div>
+
+      <div class="links" style="margin-top:16px"><span data-i18n="authGate.alreadyRegistered">Already registered?</span> <a href="#" id="showLogin" data-i18n="authGate.signIn">Sign in</a></div>
+      <div class="links"><span data-i18n="authGate.newHere">New here?</span> <a href="./register.html" data-i18n="authGate.signUp">Sign up</a></div>
+    </section>
+
+    <!-- REGULAR SIGN IN FORM (hidden if not registered) -->
+    <section id="loginPanel" class="panel" aria-label="Login to your account">
+      <h1 class="title" data-i18n="login.title">Login</h1>
+      <p class="tagline" data-i18n="login.tagline">Welcome back please login to your account</p>
+      
+      <div id="errorMessage" class="error-message"></div>
+      <div id="successMessage" class="success-message"></div>
+
+      <form id="signinForm" onsubmit="event.preventDefault(); handleLogin();">
+        <div class="field">
+          <label for="identifier" data-i18n="login.email">Email</label>
+          <input id="identifier" name="identifier" type="email" required autocomplete="username" autofocus />
+        </div>
+        <div class="field">
+          <label for="password" data-i18n="login.password">Password</label>
+          <input id="password" name="password" type="password" required autocomplete="current-password" />
+        </div>
+        <div class="row">
+          <label class="remember"><input type="checkbox" id="remember" /> <span data-i18n="login.remember">Remember me</span></label>
+        </div>
+        <button class="submit" type="submit" id="submitBtn" data-i18n="login.submit">Sign In</button>
+      </form>
+      <div class="links"><span data-i18n="login.noAccount">Don't have an account?</span> <a href="./register.html" data-i18n="login.signup">Signup</a></div>
+
+      <div class="admin-access">
+        <button type="button" class="admin-toggle" id="adminToggleBtn">
+          <span aria-hidden="true">👑</span>
+          <span data-i18n="admin.portal">Admin Portal</span>
+        </button>
+        <form id="adminPortalForm" onsubmit="event.preventDefault(); handleAdminPortalLogin();" data-open="false">
+          <div id="adminPortalError" class="error-message"></div>
+          <div class="field">
+            <label for="adminPortalEmail" data-i18n="admin.email">Admin Email</label>
+            <input id="adminPortalEmail" type="email" placeholder="admin@vveluniverse.com" autocomplete="off" />
+          </div>
+          <div class="field">
+            <label for="adminPortalPassword" data-i18n="admin.password">Password</label>
+            <input id="adminPortalPassword" type="password" placeholder="Enter admin password" autocomplete="off" />
+          </div>
+          <button class="submit" type="submit" id="adminPortalSubmit" data-i18n="admin.submit">Access Admin Panel</button>
+          <p class="admin-note" data-i18n="admin.note">Admin access is limited to authorised mentors and community managers.</p>
+        </form>
+      </div>
+    </section>
+  </main>
+  <script src="i18n.js"></script>
+  <script src="admin-config.js"></script>
+  <script src="app-state.js"></script>
+  <script src="loading-utils.js"></script>
+  <script>
+    // API base URL - adjust if your backend runs on a different port
+    const API_BASE = '/api';
+    const ADMIN_SESSION_KEY = 'vvelAdminSession';
+    const adminPortalForm = document.getElementById('adminPortalForm');
+    const adminToggleBtn = document.getElementById('adminToggleBtn');
+    const adminPortalError = document.getElementById('adminPortalError');
+    const adminPortalSubmit = document.getElementById('adminPortalSubmit');
+    const adminPortalEmail = document.getElementById('adminPortalEmail');
+    const adminPortalPassword = document.getElementById('adminPortalPassword');
+
+    // Show error message
+    function showError(message) {
+      const errorDiv = document.getElementById('errorMessage');
+      const successDiv = document.getElementById('successMessage');
+      if (errorDiv) {
+        errorDiv.textContent = message;
+        errorDiv.classList.add('show');
+      }
+      if (successDiv) {
+        successDiv.classList.remove('show');
+      }
+    }
+
+    // Show success message
+    function showSuccess(message) {
+      const successDiv = document.getElementById('successMessage');
+      const errorDiv = document.getElementById('errorMessage');
+      if (successDiv) {
+        successDiv.textContent = message;
+        successDiv.classList.add('show');
+      }
+      if (errorDiv) {
+        errorDiv.classList.remove('show');
+      }
+    }
+
+    // Hide messages
+    function hideMessages() {
+      const errorDiv = document.getElementById('errorMessage');
+      const successDiv = document.getElementById('successMessage');
+      if (errorDiv) errorDiv.classList.remove('show');
+      if (successDiv) successDiv.classList.remove('show');
+    }
+
+    // Check authentication status on page load
+    async function checkAuthStatus() {
+      try {
+        showLoadingOverlay(window.i18n.t('login.checking'));
+        const response = await fetch(`${API_BASE}/auth/status`, {
+          credentials: 'include'
+        });
+        const data = await response.json();
+        
+        if (data.success && data.authenticated) {
+          // User is authenticated, redirect to categories
+          showLoadingOverlay(window.i18n.t('login.redirecting'));
+          setTimeout(() => {
+            window.location.href = '/categories.html';
+          }, 500);
+        } else {
+          hideLoadingOverlay();
+        }
+      } catch (error) {
+        console.error('Auth check error:', error);
+        hideLoadingOverlay();
+      }
+    }
+
+    // Handle login form submission
+    async function handleLogin() {
+      hideMessages();
+      
+      const email = document.getElementById('identifier').value.trim();
+      const password = document.getElementById('password').value;
+      const submitBtn = document.getElementById('submitBtn');
+
+      // Client-side validation
+      if (!email || !password) {
+        showError(window.i18n.t('login.error'));
+        return;
+      }
+
+      // Show loading state
+      setButtonLoading(submitBtn, true, window.i18n.t('login.signingIn'));
+      showLoadingOverlay(window.i18n.t('login.authenticating'));
+
+      try {
+        const response = await fetch(`${API_BASE}/login`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include', // Include cookies for session
+          body: JSON.stringify({
+            email,
+            password
+          })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          showSuccess(window.i18n.t('login.success'));
+          showLoadingOverlay(window.i18n.t('login.success'));
+          // Redirect to categories page after successful login
+          setTimeout(() => {
+            window.location.href = '/categories.html';
+          }, 800);
+        } else {
+          hideLoadingOverlay();
+          showError(data.message || window.i18n.t('login.error'));
+          setButtonLoading(submitBtn, false);
+        }
+      } catch (error) {
+        console.error('Login error:', error);
+        hideLoadingOverlay();
+        showError('Network error. Please check your connection and try again.');
+        setButtonLoading(submitBtn, false);
+      }
+    }
+
+    // Handle social login
+    function handleSocialLogin(event, provider) {
+      event.preventDefault();
+      const button = event.currentTarget;
+      setSocialButtonLoading(button, true);
+      showLoadingOverlay(`Redirecting to ${provider}...`);
+      
+      // Allow navigation to proceed
+      setTimeout(() => {
+        window.location.href = button.href;
+      }, 300);
+    }
+
+    function toggleAdminPortal() {
+      if (!adminPortalForm) return;
+      const isOpen = adminPortalForm.dataset.open === 'true';
+      adminPortalForm.dataset.open = isOpen ? 'false' : 'true';
+      adminPortalForm.style.display = isOpen ? 'none' : 'grid';
+      if (adminToggleBtn) {
+        adminToggleBtn.classList.toggle('open', !isOpen);
+      }
+      clearAdminError();
+    }
+
+    function showAdminError(message) {
+      if (!adminPortalError) return;
+      adminPortalError.textContent = message;
+      adminPortalError.classList.add('show');
+    }
+
+    function clearAdminError() {
+      if (adminPortalError) {
+        adminPortalError.classList.remove('show');
+      }
+    }
+
+    function handleAdminPortalLogin() {
+      if (!adminPortalForm) return;
+      clearAdminError();
+
+      const email = adminPortalEmail ? adminPortalEmail.value.trim().toLowerCase() : '';
+      const password = adminPortalPassword ? adminPortalPassword.value : '';
+
+      if (!email || !password) {
+        showAdminError(window.i18n.t('admin.error'));
+        return;
+      }
+
+      if (adminPortalSubmit) {
+        setButtonLoading(adminPortalSubmit, true, window.i18n.t('admin.verifying'));
+      }
+
+      try {
+        const result = vvelAppState.authenticateAdmin(email, password);
+        if (!result.success) {
+          showAdminError(result.reason === 'invalid_password'
+            ? 'Incorrect admin password.'
+            : result.reason === 'not_found'
+              ? 'Admin account not recognised.'
+              : 'Unable to authenticate admin credentials.');
+          return;
+        }
+
+        sessionStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify({
+          email,
+          password,
+          timestamp: Date.now()
+        }));
+
+        showLoadingOverlay(window.i18n.t('admin.opening'));
+        setTimeout(() => {
+          window.location.href = 'admin.html';
+        }, 400);
+      } catch (error) {
+        console.error('Admin login error:', error);
+        showAdminError('Unexpected error. Please try again.');
+      } finally {
+        if (adminPortalSubmit) {
+          setButtonLoading(adminPortalSubmit, false);
+        }
+        if (!sessionStorage.getItem(ADMIN_SESSION_KEY)) {
+          hideLoadingOverlay();
+        }
+      }
+    }
+
+    // Initialize page
+    (function(){
+      const loginPanel = document.getElementById('loginPanel');
+      const authGate = document.getElementById('authGate');
+      const showLogin = document.getElementById('showLogin');
+      const form = document.getElementById('signinForm');
+
+      // Check auth status first
+      checkAuthStatus();
+
+      // Show login form by default (backend will handle auth check)
+      if (authGate) authGate.style.display = 'none';
+      if (loginPanel) loginPanel.style.display = 'block';
+
+      // Show login form when "Sign in" is clicked from auth gate
+      if (showLogin) {
+        showLogin.addEventListener('click', function(e){
+          e.preventDefault();
+          if (authGate) authGate.style.display = 'none';
+          if (loginPanel) loginPanel.style.display = 'block';
+        });
+      }
+
+      // Clear messages when user starts typing
+      if (form) {
+        form.addEventListener('input', hideMessages);
+      }
+      if (adminPortalForm) {
+        adminPortalForm.addEventListener('input', clearAdminError);
+      }
+      if (adminToggleBtn) {
+        adminToggleBtn.addEventListener('click', toggleAdminPortal);
+      }
+
+      // Initialize language switcher
+      initLanguageSwitcher();
+    })();
+
+    // Language Switcher Functions
+    function initLanguageSwitcher() {
+      const languageBtn = document.getElementById('languageBtn');
+      const languageDropdown = document.getElementById('languageDropdown');
+      const currentFlag = document.getElementById('currentFlag');
+      const currentLang = document.getElementById('currentLang');
+
+      if (!languageBtn || !languageDropdown) return;
+
+      // Populate dropdown
+      const languages = window.i18n.getSupportedLanguages();
+      const currentLangCode = window.i18n.getLanguage();
+      
+      languageDropdown.innerHTML = '';
+      languages.forEach(lang => {
+        const option = document.createElement('div');
+        option.className = 'language-option';
+        if (lang.code === currentLangCode) {
+          option.classList.add('active');
+        }
+        option.innerHTML = `
+          <span class="flag">${lang.flag}</span>
+          <span>${lang.name}</span>
+        `;
+        option.addEventListener('click', () => {
+          window.i18n.setLanguage(lang.code);
+          updateLanguageSwitcher();
+          languageDropdown.classList.remove('show');
+        });
+        languageDropdown.appendChild(option);
+      });
+
+      // Update current language display
+      updateLanguageSwitcher();
+
+      // Toggle dropdown
+      languageBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        languageDropdown.classList.toggle('show');
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!languageBtn.contains(e.target) && !languageDropdown.contains(e.target)) {
+          languageDropdown.classList.remove('show');
+        }
+      });
+    }
+
+    function updateLanguageSwitcher() {
+      const currentLangCode = window.i18n.getLanguage();
+      const languages = window.i18n.getSupportedLanguagesObject();
+      const currentLang = languages[currentLangCode];
+      
+      if (currentLang) {
+        const currentFlag = document.getElementById('currentFlag');
+        const currentLangText = document.getElementById('currentLang');
+        if (currentFlag) currentFlag.textContent = currentLang.flag;
+        if (currentLangText) currentLangText.textContent = currentLang.name;
+      }
+
+      // Update active state in dropdown
+      const options = document.querySelectorAll('.language-option');
+      options.forEach(option => {
+        option.classList.remove('active');
+        const langCode = Array.from(option.querySelectorAll('.flag'))[0]?.textContent;
+        const languages = window.i18n.getSupportedLanguages();
+        const matchingLang = languages.find(l => l.flag === langCode);
+        if (matchingLang && matchingLang.code === currentLangCode) {
+          option.classList.add('active');
+        }
+      });
+    }
+
+    // Listen for language changes
+    document.addEventListener('languageChanged', () => {
+      updateLanguageSwitcher();
+    });
+  </script>
+</body>
+</html>

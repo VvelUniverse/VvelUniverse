@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vvel Universe | Science - Community</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="loading-styles.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: linear-gradient(to bottom, #1e1b4b, #581c87, #000000);
+      min-height: 100vh;
+      color: white;
+      padding-bottom: 80px; /* Space for bottom nav */
+    }
+
+    .community-container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+
+    .community-header {
+      margin-bottom: 1.5rem;
+    }
+
+    .live-session-card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 16px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .live-session-card.live {
+      border-color: rgba(239, 68, 68, 0.6);
+      box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+    }
+
+    .live-session-card.live::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #ef4444, #f87171, #ef4444);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .live-badge {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: #ef4444;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      z-index: 10;
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      background: white;
+      border-radius: 50%;
+      animation: blink 1s ease-in-out infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .session-header {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .host-avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-center;
+      font-size: 28px;
+      flex-shrink: 0;
+      border: 2px solid rgba(102, 126, 234, 0.6);
+    }
+
+    .session-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .host-name {
+      font-size: 18px;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .verified-badge {
+      width: 18px;
+      height: 18px;
+      background: linear-gradient(135deg, #10b981, #059669);
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+    }
+
+    .session-title {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 8px;
+    }
+
+    .session-stats {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .participants-section {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .participants-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.75rem;
+    }
+
+    .participants-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .participants-count {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .participants-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .participant-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(168, 85, 247, 0.3));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      position: relative;
+    }
+
+    .participant-avatar.more {
+      background: rgba(255, 255, 255, 0.1);
+      border-style: dashed;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .join-button {
+      width: 100%;
+      padding: 12px 16px;
+      background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+      border: none;
+      border-radius: 12px;
+      color: white;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .join-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+    }
+
+    .join-button.requested {
+      background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+      cursor: not-allowed;
+    }
+
+    .join-button.requested:hover {
+      transform: none;
+    }
+
+    .join-button.approved {
+      background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+    }
+
+    .join-button.joined {
+      background: linear-gradient(135deg, #6366f1 0%, #818cf8 100%);
+    }
+
+    .price-info {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.75rem;
+      padding: 0.75rem;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+    }
+
+    .price-label {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .price-amount {
+      font-size: 18px;
+      font-weight: 700;
+      color: #10b981;
+    }
+
+    .meeting-details {
+      margin-top: 0.75rem;
+      padding: 0.75rem;
+      background: rgba(99, 102, 241, 0.12);
+      border: 1px solid rgba(99, 102, 241, 0.25);
+      border-radius: 10px;
+    }
+
+    .meeting-details-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.75);
+      margin-bottom: 6px;
+    }
+
+    .meeting-details-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .meeting-details-label {
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .meeting-details-value {
+      font-weight: 700;
+      color: #c4c8ff;
+    }
+
+    .meeting-actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .meeting-actions .action-button {
+      flex: 1;
+      padding: 10px 16px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 10px;
+      color: white;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .meeting-actions .action-button.primary {
+      background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+      border-color: rgba(99, 102, 241, 0.6);
+    }
+
+    .meeting-actions .action-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(99, 102, 241, 0.35);
+    }
+
+    .request-status {
+      padding: 8px 12px;
+      background: rgba(245, 158, 11, 0.2);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      border-radius: 8px;
+      font-size: 12px;
+      color: #fbbf24;
+      text-align: center;
+      margin-bottom: 0.75rem;
+      display: none;
+    }
+
+    .request-status.show {
+      display: block;
+    }
+
+    .request-status.approved {
+      background: rgba(59, 130, 246, 0.2);
+      border-color: rgba(59, 130, 246, 0.4);
+      color: #60a5fa;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 4rem 1rem;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .empty-state-icon {
+      font-size: 64px;
+      margin-bottom: 1rem;
+    }
+
+    .empty-state-text {
+      font-size: 18px;
+      font-weight: 600;
+      color: white;
+      margin-bottom: 0.5rem;
+    }
+
+    .empty-state-subtext {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    /* Bottom Navigation */
+    .bottom-nav {
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .nav-icon {
+      transition: all 0.3s ease;
+    }
+
+    .nav-icon:hover {
+      transform: scale(1.2);
+      filter: drop-shadow(0 0 8px rgba(147, 197, 253, 0.8));
+    }
+
+    .nav-icon.active {
+      color: #ef4444;
+    }
+
+    .nav-icon.active .icon-wrapper {
+      border: 2px solid #ef4444;
+      border-radius: 4px;
+      padding: 6px 8px;
+      background: rgba(239, 68, 68, 0.1);
+    }
+    
+    .nav-icon.active .text-xs {
+      color: #ef4444;
+      font-weight: 600;
+    }
+
+    .glow-text {
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .modal {
+      background: linear-gradient(135deg, #1e1b4b 0%, #581c87 100%);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      padding: 1.5rem;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+    }
+
+    .modal-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: white;
+    }
+
+    .close-button {
+      width: 32px;
+      height: 32px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      color: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+
+    .close-button:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-label {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.8);
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 12px 16px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 12px;
+      color: white;
+      font-size: 16px;
+      transition: all 0.3s ease;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: rgba(102, 126, 234, 0.6);
+      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2);
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .submit-button {
+      width: 100%;
+      padding: 12px 16px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      border-radius: 12px;
+      color: white;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 1rem;
+    }
+
+    .submit-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="text-center py-6 px-4">
+    <h1 class="text-3xl md:text-4xl font-bold glow-text mb-2" style="font-family: 'Orbitron', sans-serif;">
+      👥 Community
+    </h1>
+    <p class="text-sm md:text-base text-gray-300">Join group live sessions and connect with influencers</p>
+  </header>
+
+  <!-- Community Container -->
+  <div class="community-container">
+    <div id="liveSessionsList">
+      <!-- Live sessions will be dynamically populated here -->
+    </div>
+  </div>
+
+  <!-- Request Modal -->
+  <div class="modal-overlay" id="requestModal">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">Send Join Request</div>
+        <button class="close-button" onclick="closeRequestModal()">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div id="requestModalContent">
+        <!-- Content will be dynamically populated -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Payment Modal -->
+  <div class="modal-overlay" id="paymentModal">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">Complete Payment</div>
+        <button class="close-button" onclick="closePaymentModal()">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div id="paymentModalContent">
+        <!-- Content will be dynamically populated -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Meeting Details Modal -->
+  <div class="modal-overlay" id="meetingModal">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">Session Confirmed</div>
+        <button class="close-button" onclick="closeMeetingModal()">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <div id="meetingModalContent">
+        <!-- Content will be dynamically populated -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav fixed bottom-0 left-0 right-0 border-t border-white/20">
+    <div class="max-w-2xl mx-auto flex justify-around items-center py-4 px-4">  
+      <button onclick="window.location.href='categories.html'" class="nav-icon flex flex-col items-center gap-1">
+        <i data-lucide="home" class="w-6 h-6"></i>
+        <span class="text-xs">Home</span>
+      </button>
+      <button class="nav-icon active flex flex-col items-center gap-1">
+        <div class="icon-wrapper">
+          <i data-lucide="users" class="w-6 h-6"></i>
+        </div>
+        <span class="text-xs">Community</span>
+      </button>
+      <button onclick="window.location.href='search.html'" class="nav-icon flex flex-col items-center gap-1">
+        <i data-lucide="search" class="w-6 h-6"></i>
+        <span class="text-xs">Search</span>
+      </button>
+      <button onclick="window.location.href='wallet.html'" class="nav-icon flex flex-col items-center gap-1">
+        <i data-lucide="wallet" class="w-6 h-6"></i>
+        <span class="text-xs">Wallet</span>
+      </button>
+      <button onclick="window.location.href='alerts.html'" class="nav-icon flex flex-col items-center gap-1">
+        <i data-lucide="bell" class="w-6 h-6"></i>
+        <span class="text-xs">Alerts</span>
+      </button>
+      <button onclick="window.location.href='celebrations.html'" class="nav-icon flex flex-col items-center gap-1">
+        <i data-lucide="party-popper" class="w-6 h-6"></i>
+        <span class="text-xs">Celebrations</span>
+      </button>
+    </div>
+  </nav>
+
+  <script src="app-state.js"></script>
+  <script src="loading-utils.js"></script>
+  <script>
+    lucide.createIcons();
+
+    const currentUser = {
+      id: 'local-user',
+      name: 'You',
+      email: 'you@vvel.app'
+    };
+
+    // Sample live sessions data
+    let liveSessions = [
+      {
+        id: 1,
+        hostName: 'Pastor John',
+        hostAvatar: '👤',
+        verified: true,
+        sessionTitle: 'Spiritual Guidance & Prayer Circle',
+        participants: ['👤', '👤', '👤', '👤', '👤', '👤', '👤'],
+        maxParticipants: 10,
+        currentCount: 7,
+        price: 150.00,
+        status: 'available', // available, requested, approved, joined
+        requestStatus: null
+      },
+      {
+        id: 2,
+        hostName: 'Rev. Sarah',
+        hostAvatar: '👤',
+        verified: true,
+        sessionTitle: 'Bible Study & Discussion Group',
+        participants: ['👤', '👤', '👤', '👤', '👤'],
+        maxParticipants: 10,
+        currentCount: 5,
+        price: 200.00,
+        status: 'available',
+        requestStatus: null
+      },
+      {
+        id: 3,
+        hostName: 'Brother Michael',
+        hostAvatar: '👤',
+        verified: false,
+        sessionTitle: 'Meditation & Reflection Session',
+        participants: ['👤', '👤', '👤', '👤', '👤', '👤', '👤', '👤', '👤', '👤'],
+        maxParticipants: 10,
+        currentCount: 10,
+        price: 100.00,
+        status: 'full',
+        requestStatus: null
+      },
+      {
+        id: 4,
+        hostName: 'Sister Grace',
+        hostAvatar: '👤',
+        verified: true,
+        sessionTitle: 'Community Prayer & Fellowship',
+        participants: ['👤', '👤', '👤'],
+        maxParticipants: 10,
+        currentCount: 3,
+        price: 120.00,
+        status: 'requested',
+        requestStatus: 'pending'
+      },
+      {
+        id: 5,
+        hostName: 'Father David',
+        hostAvatar: '👤',
+        verified: true,
+        sessionTitle: 'Theology Discussion Group',
+        participants: ['👤', '👤', '👤', '👤', '👤', '👤'],
+        maxParticipants: 10,
+        currentCount: 6,
+        price: 180.00,
+        status: 'approved',
+        requestStatus: 'approved'
+      }
+    ];
+
+    // Initialize community
+    function initCommunity() {
+      showLoadingOverlay('Loading live sessions...');
+      // Simulate loading time
+      setTimeout(() => {
+        hydrateSessionState();
+        renderLiveSessions();
+        hideLoadingOverlay();
+      }, 800);
+    }
+
+    function hydrateSessionState() {
+      const state = vvelAppState.getState();
+      const joinRequests = state.joinRequests || [];
+      const sessionRecords = state.sessions || {};
+
+      liveSessions.forEach(session => {
+        const sessionKey = String(session.id);
+        const relatedRequest = joinRequests.find(request => request.sessionId === sessionKey && (!request.userId || request.userId === currentUser.id));
+        const sessionRecord = sessionRecords[sessionKey];
+
+        session.requestId = relatedRequest ? relatedRequest.id : null;
+        session.requestStatus = relatedRequest ? relatedRequest.status : null;
+        session.requestNotes = relatedRequest ? relatedRequest.notes : null;
+        session.requestOutcome = relatedRequest ? relatedRequest.outcome : null;
+        session.meetingDetails = (sessionRecord && sessionRecord.meetingDetails) || (relatedRequest && relatedRequest.meetingDetails) || null;
+
+        if (sessionRecord && sessionRecord.status === 'confirmed') {
+          session.status = 'joined';
+        } else if (relatedRequest) {
+          if (relatedRequest.status === 'pending') {
+            session.status = 'requested';
+          } else if (relatedRequest.status === 'needs_payment') {
+            session.status = 'approved';
+          } else if (relatedRequest.status === 'approved') {
+            session.status = 'joined';
+          } else if (relatedRequest.status === 'rejected') {
+            if (session.status !== 'full') {
+              session.status = 'available';
+            }
+          }
+        } else if (session.status !== 'full') {
+          session.status = 'available';
+        }
+
+        if (session.status === 'joined' && session.meetingDetails) {
+          if (!session.hasUserJoined) {
+            session.hasUserJoined = true;
+            session.participants = session.participants || [];
+            if (session.participants.length < session.maxParticipants) {
+              session.participants.push('👤');
+            }
+            session.currentCount = Math.min(session.maxParticipants, session.currentCount + 1);
+          }
+        } else if (session.hasUserJoined) {
+          session.hasUserJoined = false;
+        }
+      });
+    }
+
+    // Render live sessions
+    function renderLiveSessions() {
+      const container = document.getElementById('liveSessionsList');
+      container.innerHTML = '';
+
+      hydrateSessionState();
+
+      const availableSessions = liveSessions.filter(session => session.status !== 'full');
+
+      if (availableSessions.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">👥</div>
+            <div class="empty-state-text">No live sessions available</div>
+            <div class="empty-state-subtext">Check back later for new group sessions</div>
+          </div>
+        `;
+        return;
+      }
+
+      availableSessions.forEach(session => {
+        container.appendChild(createSessionCard(session));
+      });
+    }
+
+    // Create session card
+    function createSessionCard(session) {
+      const card = document.createElement('div');
+      card.className = `live-session-card live`;
+      card.dataset.sessionId = session.id;
+
+      let buttonLabel = '📩 Request to Join';
+      let buttonClass = '';
+      let buttonDisabled = '';
+
+      if (session.status === 'requested') {
+        buttonLabel = '⏳ Request Sent';
+        buttonClass = 'requested';
+        buttonDisabled = 'disabled';
+      } else if (session.status === 'approved') {
+        buttonLabel = '💳 Pay & Join';
+        buttonClass = 'approved';
+      } else if (session.status === 'joined' && session.meetingDetails) {
+        buttonLabel = '🎥 Open Call Room';
+        buttonClass = 'joined';
+      } else if (session.status === 'full') {
+        buttonLabel = 'Group Full';
+        buttonDisabled = 'disabled';
+      }
+
+      let requestStatusHtml = '';
+      if (session.requestStatus && session.requestStatus !== 'rejected') {
+        let statusClass = 'show';
+        let statusMessage = '';
+        if (session.requestStatus === 'pending') {
+          statusMessage = '⏳ Request pending approval';
+        } else if (session.requestStatus === 'needs_payment') {
+          statusClass += ' approved';
+          statusMessage = '✓ Request approved! Complete payment to join';
+        } else if (session.requestStatus === 'approved') {
+          statusClass += ' approved';
+          statusMessage = '🎉 You are confirmed for this session';
+        }
+        if (statusMessage) {
+          requestStatusHtml = `
+            <div class="request-status ${statusClass}">
+              ${statusMessage}
+            </div>
+          `;
+        }
+      }
+
+      const meetingDetailsHtml = session.meetingDetails ? `
+        <div class="meeting-details">
+          <div class="meeting-details-row">
+            <span class="meeting-details-label">Meeting Code</span>
+            <span class="meeting-details-value">${session.meetingDetails.meetingCode}</span>
+          </div>
+          <div class="meeting-details-row">
+            <span class="meeting-details-label">Starts</span>
+            <span class="meeting-details-value">${session.meetingDetails.scheduledStartDisplay}</span>
+          </div>
+          <div class="meeting-details-row">
+            <span class="meeting-details-label">Duration</span>
+            <span class="meeting-details-value">${session.meetingDetails.durationMinutes} mins</span>
+          </div>
+        </div>
+        <div class="meeting-actions">
+          <button class="action-button primary" onclick="event.stopPropagation(); openCall('${session.id}', 'video')">
+            <i data-lucide="video" class="w-4 h-4"></i>
+            <span>Join Video</span>
+          </button>
+          <button class="action-button" onclick="event.stopPropagation(); openCall('${session.id}', 'audio')">
+            <i data-lucide="mic" class="w-4 h-4"></i>
+            <span>Join Audio</span>
+          </button>
+        </div>
+      ` : '';
+
+      // Display participants (max 10)
+      const displayParticipants = session.participants.slice(0, 10);
+      const moreCount = session.currentCount > 10 ? session.currentCount - 10 : 0;
+      
+      const participantsHtml = displayParticipants.map((avatar, index) => `
+        <div class="participant-avatar" title="Participant ${index + 1}">
+          ${avatar}
+        </div>
+      `).join('') + (moreCount > 0 ? `
+        <div class="participant-avatar more" title="${moreCount} more">
+          +${moreCount}
+        </div>
+      ` : '');
+
+      card.innerHTML = `
+        <div class="live-badge">
+          <div class="live-dot"></div>
+          LIVE
+        </div>
+        <div class="session-header">
+          <div class="host-avatar">${session.hostAvatar}</div>
+          <div class="session-info">
+            <div class="host-name">
+              ${session.hostName}
+              ${session.verified ? '<span class="verified-badge">✓</span>' : ''}
+            </div>
+            <div class="session-title">${session.sessionTitle}</div>
+            <div class="session-stats">
+              <span>👥 ${session.currentCount}/${session.maxParticipants}</span>
+              <span>⏱️ 45 min</span>
+            </div>
+          </div>
+        </div>
+        <div class="participants-section">
+          <div class="participants-header">
+            <div class="participants-title">
+              <i data-lucide="users" class="w-4 h-4"></i>
+              Participants
+            </div>
+            <div class="participants-count">${session.currentCount} people</div>
+          </div>
+          <div class="participants-grid">
+            ${participantsHtml}
+          </div>
+        </div>
+        ${requestStatusHtml}
+        <div class="price-info">
+          <div class="price-label">Join Fee</div>
+          <div class="price-amount">₹${session.price.toFixed(2)}</div>
+        </div>
+        ${meetingDetailsHtml}
+        <button class="join-button ${buttonClass}" id="joinBtn-${session.id}" onclick="handleJoinRequest(${session.id})" ${buttonDisabled}>
+          ${buttonLabel}
+        </button>
+      `;
+
+      lucide.createIcons();
+      return card;
+    }
+
+    // Handle join request
+    function handleJoinRequest(sessionId) {
+      const session = liveSessions.find(s => s.id === sessionId);
+      if (!session) return;
+
+      if (session.status === 'joined' && session.meetingDetails) {
+        openCall(session.id, 'video');
+      } else if (session.status === 'approved') {
+        // Show payment modal
+        showPaymentModal(session);
+      } else if (session.status === 'available') {
+        // Show request modal
+        showRequestModal(session);
+      } else if (session.status === 'requested') {
+        alert('Your request is awaiting approval.');
+      }
+    }
+
+    // Show request modal
+    function showRequestModal(session) {
+      const modal = document.getElementById('requestModal');
+      const content = document.getElementById('requestModalContent');
+      
+      content.innerHTML = `
+        <div style="text-align: center; margin-bottom: 1.5rem;">
+          <div style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; font-size: 40px; margin: 0 auto 1rem;">
+            ${session.hostAvatar}
+          </div>
+          <div style="font-size: 18px; font-weight: 700; color: white; margin-bottom: 0.5rem;">
+            ${session.hostName}
+          </div>
+          <div style="font-size: 14px; color: rgba(255,255,255,0.7); margin-bottom: 1rem;">
+            ${session.sessionTitle}
+          </div>
+          <div style="padding: 1rem; background: rgba(255,255,255,0.05); border-radius: 12px; margin-bottom: 1rem;">
+            <div style="font-size: 12px; color: rgba(255,255,255,0.6); margin-bottom: 4px;">Join Fee</div>
+            <div style="font-size: 24px; font-weight: 700; color: #10b981;">₹${session.price.toFixed(2)}</div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Message (Optional)</label>
+          <textarea id="joinMessageInput" class="form-input" placeholder="Add a message to your request..." rows="3" style="resize: none;"></textarea>
+        </div>
+        <button class="submit-button" id="sendRequestBtn-${session.id}" onclick="sendJoinRequest(${session.id})">
+          Send Request
+        </button>
+      `;
+      
+      modal.classList.add('show');
+      lucide.createIcons();
+    }
+
+    // Send join request
+    function sendJoinRequest(sessionId) {
+      const session = liveSessions.find(s => s.id === sessionId);
+      if (!session) return;
+
+      const button = document.querySelector(`button[onclick*="${sessionId}"]`);
+      if (button) {
+        setButtonLoading(button, true, 'Sending Request...');
+      }
+      
+      showLoadingOverlay('Sending join request...');
+      
+      // Simulate API call
+      setTimeout(() => {
+        const messageInput = document.getElementById('joinMessageInput');
+        const message = messageInput ? messageInput.value : '';
+
+        const createdRequest = vvelAppState.createJoinRequest({
+          sessionId: session.id,
+          hostName: session.hostName,
+          hostAvatar: session.hostAvatar,
+          sessionTitle: session.sessionTitle,
+          amount: session.price,
+          message,
+          userId: currentUser.id,
+          userName: currentUser.name,
+          userEmail: currentUser.email,
+          durationMinutes: 45
+        });
+
+        if (createdRequest) {
+          session.status = 'requested';
+          session.requestStatus = 'pending';
+          session.requestId = createdRequest.id;
+        }
+
+        closeRequestModal();
+        hideLoadingOverlay();
+        hydrateSessionState();
+        renderLiveSessions();
+
+        if (button) {
+          setButtonLoading(button, false);
+        }
+
+        alert('Join request sent! You will be notified when the influencer approves your request.');
+      }, 1000);
+    }
+
+    // Show payment modal
+    function showPaymentModal(session) {
+      const modal = document.getElementById('paymentModal');
+      const content = document.getElementById('paymentModalContent');
+      
+      content.innerHTML = `
+        <div style="text-align: center; margin-bottom: 1.5rem;">
+          <div style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #10b981 0%, #34d399 100%); display: flex; align-items: center; justify-content: center; font-size: 40px; margin: 0 auto 1rem;">
+            ✓
+          </div>
+          <div style="font-size: 18px; font-weight: 700; color: white; margin-bottom: 0.5rem;">
+            Request Approved!
+          </div>
+          <div style="font-size: 14px; color: rgba(255,255,255,0.7); margin-bottom: 1rem;">
+            ${session.hostName} has approved your request to join "${session.sessionTitle}"
+          </div>
+          <div style="padding: 1rem; background: rgba(255,255,255,0.05); border-radius: 12px; margin-bottom: 1rem;">
+            <div style="font-size: 12px; color: rgba(255,255,255,0.6); margin-bottom: 4px;">Amount to Pay</div>
+            <div style="font-size: 28px; font-weight: 700; color: #10b981;">₹${session.price.toFixed(2)}</div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Payment Method</label>
+          <select class="form-input" id="paymentMethod">
+            <option value="">Select payment method</option>
+            <option value="wallet">Wallet Balance</option>
+            <option value="upi">UPI</option>
+            <option value="card">Credit/Debit Card</option>
+          </select>
+        </div>
+        <button class="submit-button" id="payBtn-${session.id}" onclick="completePayment(${session.id})">
+          Pay & Join Session
+        </button>
+      `;
+      
+      modal.classList.add('show');
+      lucide.createIcons();
+    }
+
+    // Complete payment
+    function completePayment(sessionId) {
+      const session = liveSessions.find(s => s.id === sessionId);
+      if (!session) return;
+
+      const paymentMethod = document.getElementById('paymentMethod').value;
+      if (!paymentMethod) {
+        alert('Please select a payment method');
+        return;
+      }
+
+      const methodNames = {
+        wallet: 'Wallet Balance',
+        upi: 'UPI',
+        card: 'Credit/Debit Card'
+      };
+
+      const submitButton = document.querySelector('#paymentModalContent .submit-button');
+      if (submitButton) {
+        setButtonLoading(submitButton, true, 'Processing Payment...');
+      }
+      
+      showLoadingOverlay('Processing payment...');
+      
+      // Simulate payment processing
+      setTimeout(() => {
+        const outcome = vvelAppState.recordManualConnectionPayment({
+          sessionId: session.id,
+          hostName: session.hostName,
+          sessionTitle: session.sessionTitle,
+          amount: session.price,
+          paymentMethod: methodNames[paymentMethod],
+          processedBy: currentUser.email
+        });
+
+        vvelAppState.updateWalletBalance(-session.price, {
+          type: 'debit',
+          title: 'Connection Payment',
+          subtitle: `${session.hostName} • ${session.sessionTitle}`,
+          amount: session.price,
+          date: 'Just now',
+          status: 'completed'
+        });
+
+        if (outcome && outcome.meetingDetails) {
+          session.meetingDetails = outcome.meetingDetails;
+        }
+        session.status = 'joined';
+        session.requestStatus = 'approved';
+        session.currentCount = Math.min(session.maxParticipants, session.currentCount + 1);
+        session.participants.push('👤'); // Add user to participants
+        session.hasUserJoined = true;
+
+        closePaymentModal();
+        hideLoadingOverlay();
+        hydrateSessionState();
+        renderLiveSessions();
+        alert(`Payment successful! You have joined ${session.hostName}'s live session.`);
+      }, 1500);
+    }
+
+    // Close request modal
+    function closeRequestModal() {
+      document.getElementById('requestModal').classList.remove('show');
+    }
+
+    // Close payment modal
+    function closePaymentModal() {
+      document.getElementById('paymentModal').classList.remove('show');
+    }
+
+    function openCall(sessionId, mode = 'video') {
+      const sessionKey = String(sessionId);
+      const params = new URLSearchParams({
+        sessionId: sessionKey,
+        mode
+      });
+      window.location.href = `call-room.html?${params.toString()}`;
+    }
+
+    // Close modals on overlay click
+    document.getElementById('requestModal').addEventListener('click', (e) => {
+      if (e.target.id === 'requestModal') {
+        closeRequestModal();
+      }
+    });
+
+    document.getElementById('paymentModal').addEventListener('click', (e) => {
+      if (e.target.id === 'paymentModal') {
+        closePaymentModal();
+      }
+    });
+
+    // Initialize on page load
+    initCommunity();
+
+    // Swipe gesture detection for left-to-right swipe to go to categories
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchEndX = 0;
+    let touchEndY = 0;
+
+    document.addEventListener('touchstart', function(e) {
+      touchStartX = e.changedTouches[0].screenX;
+      touchStartY = e.changedTouches[0].screenY;
+    }, { passive: true });
+
+    document.addEventListener('touchend', function(e) {
+      touchEndX = e.changedTouches[0].screenX;
+      touchEndY = e.changedTouches[0].screenY;
+      handleSwipe();
+    }, { passive: true });
+
+    function handleSwipe() {
+      const deltaX = touchEndX - touchStartX;
+      const deltaY = touchEndY - touchStartY;
+      const minSwipeDistance = 100; // Minimum swipe distance in pixels
+      
+      // Check if it's a horizontal swipe (more horizontal than vertical)
+      if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        // Left to right swipe (positive deltaX) - swipe from anywhere on screen
+        if (deltaX > minSwipeDistance) {
+          window.location.href = 'categories.html';
+        }
+      }
+    }
+  </script>
+</body>
+</html>
+

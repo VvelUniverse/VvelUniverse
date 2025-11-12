@@ -1,0 +1,413 @@
+/**
+ * Loading Animation Styles for Vvel Universe
+ * Matches the space theme and glassmorphism design
+ */
+
+/* Full-page loading overlay */
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.loading-overlay.show {
+  opacity: 1;
+}
+
+.loading-content {
+  text-align: center;
+  padding: 2rem;
+  background: rgba(13, 31, 74, 0.4);
+  border: 1.4px solid rgba(23, 78, 166, 0.55);
+  border-radius: 22px;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 0 20px 50px rgba(3, 10, 24, 0.55);
+}
+
+/* Main spinner animation */
+.spinner {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 1.5rem;
+  border: 4px solid rgba(23, 78, 166, 0.3);
+  border-top-color: rgba(96, 165, 250, 0.9);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  position: relative;
+}
+
+.spinner::after {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  border: 4px solid transparent;
+  border-top-color: rgba(34, 211, 238, 0.6);
+  border-radius: 50%;
+  animation: spin 1.5s linear infinite reverse;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Small spinner for inline use */
+.spinner-small {
+  width: 24px;
+  height: 24px;
+  border: 3px solid rgba(23, 78, 166, 0.3);
+  border-top-color: rgba(96, 165, 250, 0.9);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+}
+
+/* Tiny spinner for buttons */
+.spinner-tiny {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  display: inline-block;
+}
+
+/* Button spinner */
+.button-spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+/* Loading message */
+.loading-message {
+  color: #e5e7eb;
+  font-family: 'Outfit', sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  margin: 0;
+}
+
+/* Inline loader */
+.inline-loader {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.inline-loader-small {
+  padding: 0.5rem;
+}
+
+.inline-loader-medium {
+  padding: 1rem;
+}
+
+.inline-loader-large {
+  padding: 2rem;
+}
+
+/* Button loading state */
+.button-loading {
+  opacity: 0.7;
+  cursor: not-allowed !important;
+  position: relative;
+}
+
+.button-loading::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: inherit;
+}
+
+/* Social button loading */
+.social-button-loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.social-button-loading .icon {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Skeleton loaders */
+.skeleton-container {
+  display: grid;
+  gap: 1rem;
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s ease-in-out infinite;
+  border-radius: 12px;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.skeleton-card {
+  height: 120px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 1rem;
+}
+
+.skeleton-result {
+  height: 80px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+.skeleton-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.skeleton-text {
+  height: 16px;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.skeleton-text.short {
+  width: 60%;
+}
+
+.skeleton-text.medium {
+  width: 80%;
+}
+
+.skeleton-text.long {
+  width: 100%;
+}
+
+/* Results loading */
+.results-loading {
+  padding: 1rem 0;
+}
+
+/* Page transition loading */
+.page-loading {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #000;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.page-loading.hide {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Pulse animation for elements */
+.pulse {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(96, 165, 250, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(96, 165, 250, 0);
+  }
+}
+
+/* Shimmer effect */
+.shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Loading dots */
+.loading-dots {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.loading-dots span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(96, 165, 250, 0.9);
+  animation: loading-dots 1.4s ease-in-out infinite;
+}
+
+.loading-dots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.loading-dots span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes loading-dots {
+  0%, 80%, 100% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+}
+
+/* Form field loading */
+.form-field-loading {
+  position: relative;
+}
+
+.form-field-loading::after {
+  content: '';
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(23, 78, 166, 0.3);
+  border-top-color: rgba(96, 165, 250, 0.9);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* Card loading state */
+.card-loading {
+  position: relative;
+  overflow: hidden;
+}
+
+.card-loading::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  animation: card-shimmer 1.5s infinite;
+}
+
+@keyframes card-shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .loading-content {
+    padding: 1.5rem;
+    margin: 1rem;
+  }
+  
+  .spinner {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .loading-message {
+    font-size: 14px;
+  }
+}
+
+
+
+
+
+

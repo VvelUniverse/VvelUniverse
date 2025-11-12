@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vvel Universe | Cinema - Alerts</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: linear-gradient(to bottom, #0f2a5a, #123571, #000000);
+      min-height: 100vh;
+      color: white;
+      padding-bottom: 80px; /* Space for bottom nav */
+    }
+
+    .alerts-container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+
+    .alerts-header {
+      margin-bottom: 1.5rem;
+    }
+
+    .header-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 1rem;
+    }
+
+    .mark-all-read {
+      padding: 8px 16px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      color: white;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .mark-all-read:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .notification-card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 16px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .notification-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+      border-color: rgba(102, 126, 234, 0.6);
+    }
+
+    .notification-card.unread {
+      background: rgba(102, 126, 234, 0.15);
+      border-color: rgba(102, 126, 234, 0.4);
+    }
+
+    .notification-card.unread::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 16px 0 0 16px;
+    }
+
+    .notification-content {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+
+    .notification-avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
+    .notification-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
+    .notification-icon.like {
+      background: linear-gradient(135deg, #ec4899 0%, #f472b6 100%);
+    }
+
+    .notification-icon.comment {
+      background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+    }
+
+    .notification-icon.follow {
+      background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+    }
+
+    .notification-icon.connection {
+      background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
+    }
+
+    .notification-icon.mention {
+      background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+    }
+
+    .notification-icon.system {
+      background: linear-gradient(135deg, #6366f1 0%, #818cf8 100%);
+    }
+
+    .notification-details {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .notification-text {
+      font-size: 14px;
+      line-height: 1.5;
+      color: white;
+      margin-bottom: 4px;
+    }
+
+    .notification-text strong {
+      font-weight: 700;
+      color: #93c5fd;
+    }
+
+    .notification-time {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.6);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .notification-actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .action-button {
+      flex: 1;
+      padding: 6px 12px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 8px;
+      color: white;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .action-button:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateY(-1px);
+    }
+
+    .action-button.primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-color: rgba(102, 126, 234, 0.6);
+    }
+
+    .action-button.primary:hover {
+      background: linear-gradient(135deg, #7c8ef5 0%, #8a6ccf 100%);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 4rem 1rem;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .empty-state-icon {
+      font-size: 64px;
+      margin-bottom: 1rem;
+    }
+
+    .empty-state-text {
+      font-size: 18px;
+      font-weight: 600;
+      color: white;
+      margin-bottom: 0.5rem;
+    }
+
+    .empty-state-subtext {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .filter-tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .filter-tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .filter-tab {
+      padding: 8px 16px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      color: rgba(255, 255, 255, 0.7);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 14px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .filter-tab:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .filter-tab.active {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-color: rgba(102, 126, 234, 0.6);
+      color: white;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 20px;
+      height: 20px;
+      padding: 0 6px;
+      background: #ef4444;
+      color: white;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 700;
+      margin-left: 4px;
+    }
+
+    /* Bottom Navigation */
+    .bottom-nav {
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .nav-icon {
+      transition: all 0.3s ease;
+    }
+
+    .nav-icon:hover {
+      transform: scale(1.2);
+      filter: drop-shadow(0 0 8px rgba(147, 197, 253, 0.8));
+    }
+
+    .nav-icon.active {
+      color: #ef4444;
+    }
+
+    .nav-icon.active .icon-wrapper {
+      border: 2px solid #ef4444;
+      border-radius: 4px;
+      padding: 6px 8px;
+      background: rgba(239, 68, 68, 0.1);
+    }
+    
+    .nav-icon.active .text-xs {
+      color: #ef4444;
+      font-weight: 600;
+    }
+
+    .glow-text {
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="text-center py-6 px-4">
+    <h1 class="text-3xl md:text-4xl font-bold glow-text mb-2" style="font-family: 'Orbitron', sans-serif;">
+      🔔 Alerts
+    </h1>
+    <div class="header-actions">
+      <p class="text-sm md:text-base text-gray-300">Stay updated with your notifications</p>
+      <button class="mark-all-read" onclick="markAllAsRead()">Mark all as read</button>
+    </div>
+  </header>
+
+  <!-- Alerts Container -->
+  <div class="alerts-container">
+    <!-- Filter Tabs -->
+    <div class="filter-tabs">
+      <button class="filter-tab active" onclick="filterNotifications('all', this)">All</button>
+      <button class="filter-tab" onclick="filterNotifications('unread', this)">Unread</button>
+      <button class="filter-tab" onclick="filterNotifications('likes', this)">Likes</button>
+      <button class="filter-tab" onclick="filterNotifications('comments', this)">Comments</button>
+      <button class="filter-tab" onclick="filterNotifications('follows', this)">Follows</button>
+      <button class="filter-tab" onclick="filterNotifications('connections', this)">Connections</button>
+    </div>
+
+    <!-- Notifications List -->
+    <div id="notificationsList" class="notifications-list">
+      <!-- Notifications will be dynamically populated here -->
+    </div>
+  </div>
+
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav fixed bottom-0 left-0 right-0 border-t border-white/20">
+    <div class="max-w-2xl mx-auto flex justify-around items-center py-4 px-4">  
+      <button onclick="window.location.href='cinema-home.html'" class="nav-icon flex flex-col items-center gap-1">
+        <i data-lucide="home" class="w-6 h-6"></i>
+        <span class="text-xs">Home</span>
+      </button>
+      <button onclick="window.location.href='cinema-community.html'" class="nav-icon flex flex-col items-center gap-1">
+        <i data-lucide="users" class="w-6 h-6"></i>
+        <span class="text-xs">Community</span>
+      </button>
+      <button onclick="window.location.href='cinema-search.html'" class="nav-icon flex flex-col items-center gap-1">
+        <i data-lucide="search" class="w-6 h-6"></i>
+        <span class="text-xs">Search</span>
+      </button>
+      <button onclick="window.location.href='cinema-wallet.html'" class="nav-icon flex flex-col items-center gap-1">
+        <i data-lucide="wallet" class="w-6 h-6"></i>
+        <span class="text-xs">Wallet</span>
+      </button>
+      <button class="nav-icon active flex flex-col items-center gap-1">
+        <div class="icon-wrapper">
+          <i data-lucide="bell" class="w-6 h-6"></i>
+        </div>
+        <span class="text-xs">Alerts</span>
+      </button>
+      <button onclick="window.location.href='cinema-celebrations.html'" class="nav-icon flex flex-col items-center gap-1">
+        <i data-lucide="party-popper" class="w-6 h-6"></i>
+        <span class="text-xs">Celebrations</span>
+      </button>
+    </div>
+  </nav>
+
+  <script src="app-state.js"></script>
+  <script>
+    lucide.createIcons();
+
+    let notifications = [];
+    let currentFilter = 'all';
+    let displayedNotifications = [];
+
+    function refreshNotifications() {
+      notifications = vvelAppState.getNotifications() || [];
+    }
+
+    // Initialize notifications
+    function initNotifications() {
+      refreshNotifications();
+      displayedNotifications = applyFilter(currentFilter);
+      renderNotifications();
+      updateUnreadBadge();
+    }
+
+    // Render notifications
+    function renderNotifications() {
+      const container = document.getElementById('notificationsList');
+      container.innerHTML = '';
+
+      if (displayedNotifications.length === 0 && notifications.length > 0 && currentFilter === 'all') {
+        displayedNotifications = [...notifications];
+      }
+
+      if (displayedNotifications.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">🔔</div>
+            <div class="empty-state-text">No notifications</div>
+            <div class="empty-state-subtext">You're all caught up! Check back later for new updates.</div>
+          </div>
+        `;
+        return;
+      }
+
+      displayedNotifications.forEach(notification => {
+        container.appendChild(createNotificationCard(notification));
+      });
+    }
+
+    // Create notification card
+    function createNotificationCard(notification) {
+      const card = document.createElement('div');
+      const unread = isNotificationUnread(notification);
+      card.className = `notification-card ${unread ? 'unread' : ''}`;
+      card.onclick = () => markAsRead(notification.id);
+
+      const iconKey = notification.icon || notification.type;
+      const iconClass = `notification-icon ${iconKey || 'system'}`;
+      const iconEmoji = getNotificationIcon(iconKey);
+
+      let actionButtons = '';
+      if (notification.action) {
+        const actionText = getActionText(notification.action);
+        const isPrimary = ['accept', 'follow_back', 'reply'].includes(notification.action);
+        actionButtons = `
+          <div class="notification-actions">
+            <button class="action-button ${isPrimary ? 'primary' : ''}" onclick="event.stopPropagation(); handleAction('${notification.id}', '${notification.action}')">
+              ${actionText}
+            </button>
+            ${notification.action === 'accept' ? `
+              <button class="action-button" onclick="event.stopPropagation(); handleAction('${notification.id}', 'decline')">
+                Decline
+              </button>
+            ` : ''}
+          </div>
+        `;
+      }
+
+      const meetingSummary = notification.meetingDetails ? `
+        <div class="text-xs text-gray-400 mt-2">
+          Starts ${notification.meetingDetails.startsIn || 'soon'} • Code ${notification.meetingDetails.meetingCode}
+        </div>
+      ` : '';
+
+      const meetingActions = notification.sessionId && notification.meetingDetails ? `
+        <div class="notification-actions">
+          <button class="action-button primary" onclick="event.stopPropagation(); openCallFromNotification('${notification.sessionId}', 'video')">
+            Join Call
+          </button>
+          <button class="action-button" onclick="event.stopPropagation(); openCallFromNotification('${notification.sessionId}', 'audio')">
+            Audio Only
+          </button>
+        </div>
+      ` : '';
+
+      const headline = notification.title || notification.user || 'Notification';
+      const bodyText = notification.message || notification.commentPreview || notification.postPreview || '';
+      const timeText = notification.time || formatRelativeTime(notification.createdAt);
+
+      const bodyMarkup = bodyText
+        ? `<div class="text-xs text-gray-300 mt-1">${bodyText}</div>`
+        : '';
+
+      card.innerHTML = `
+        <div class="notification-content">
+          <div class="${iconClass}">
+            ${iconEmoji}
+          </div>
+          <div class="notification-details">
+            <div class="notification-text">
+              <strong>${headline}</strong>
+            </div>
+            ${bodyMarkup}
+            ${meetingSummary}
+            <div class="notification-time">
+              <i data-lucide="clock" class="w-3 h-3"></i>
+              ${timeText}
+            </div>
+            ${actionButtons}
+            ${meetingActions}
+          </div>
+        </div>
+      `;
+
+      lucide.createIcons();
+      return card;
+    }
+
+    // Get notification icon
+    function getNotificationIcon(type) {
+      const icons = {
+        like: '🌹',
+        comment: '💬',
+        follow: '👤',
+        connection: '🤝',
+        mention: '@',
+        system: '🔔',
+        video: '📹',
+        audio: '🎧',
+        'alert-triangle': '⚠️'
+      };
+      return icons[type] || '🔔';
+    }
+
+    function isNotificationUnread(notification) {
+      if (!notification) {
+        return false;
+      }
+      if (notification.unread !== undefined) {
+        return !!notification.unread;
+      }
+      return !notification.read;
+    }
+
+    function formatRelativeTime(value) {
+      if (!value) {
+        return 'Just now';
+      }
+      const date = typeof value === 'number' ? new Date(value) : new Date(value);
+      if (Number.isNaN(date.getTime())) {
+        return 'Just now';
+      }
+      const diff = date.getTime() - Date.now();
+      const absDiff = Math.abs(diff);
+      const ranges = [
+        { limit: 60 * 1000, divisor: 1000, unit: 'second' },
+        { limit: 60 * 60 * 1000, divisor: 60 * 1000, unit: 'minute' },
+        { limit: 24 * 60 * 60 * 1000, divisor: 60 * 60 * 1000, unit: 'hour' },
+        { limit: 7 * 24 * 60 * 60 * 1000, divisor: 24 * 60 * 60 * 1000, unit: 'day' },
+        { limit: 30 * 24 * 60 * 60 * 1000, divisor: 7 * 24 * 60 * 60 * 1000, unit: 'week' },
+        { limit: 365 * 24 * 60 * 60 * 1000, divisor: 30 * 24 * 60 * 60 * 1000, unit: 'month' }
+      ];
+      let unit = 'year';
+      let divisor = 365 * 24 * 60 * 60 * 1000;
+      for (const range of ranges) {
+        if (absDiff < range.limit) {
+          unit = range.unit;
+          divisor = range.divisor;
+          break;
+        }
+      }
+      const rtf = new Intl.RelativeTimeFormat(undefined, { numeric: 'auto' });
+      return rtf.format(Math.round(diff / divisor), unit);
+    }
+
+    function applyFilter(filter) {
+      let list = [...notifications];
+      switch (filter) {
+        case 'unread':
+          list = list.filter(isNotificationUnread);
+          break;
+        case 'likes':
+          list = list.filter(notification => notification.type === 'like');
+          break;
+        case 'comments':
+          list = list.filter(notification => notification.type === 'comment');
+          break;
+        case 'follows':
+          list = list.filter(notification => notification.type === 'follow');
+          break;
+        case 'connections':
+          list = list.filter(notification => notification.type === 'connection');
+          break;
+        default:
+          break;
+      }
+      return list;
+    }
+
+    function openCallFromNotification(sessionId, mode = 'video') {
+      const params = new URLSearchParams({
+        sessionId,
+        mode
+      });
+      window.location.href = `call-room.html?${params.toString()}`;
+    }
+
+    // Get action text
+    function getActionText(action) {
+      const actions = {
+        view: 'View',
+        reply: 'Reply',
+        follow_back: 'Follow Back',
+        message: 'Message',
+        accept: 'Accept',
+        decline: 'Decline',
+        explore: 'Explore'
+      };
+      return actions[action] || 'View';
+    }
+
+    // Filter notifications
+    function filterNotifications(filter, buttonElement) {
+      currentFilter = filter;
+      
+      // Update active tab
+      document.querySelectorAll('.filter-tab').forEach(btn => btn.classList.remove('active'));
+      buttonElement.classList.add('active');
+
+      // Refresh data and apply filter
+      refreshNotifications();
+      displayedNotifications = applyFilter(filter);
+
+      renderNotifications();
+    }
+
+    // Mark as read
+    function markAsRead(id) {
+      vvelAppState.markNotificationRead(id);
+      refreshNotifications();
+      displayedNotifications = applyFilter(currentFilter);
+      renderNotifications();
+      updateUnreadBadge();
+    }
+
+    // Mark all as read
+    function markAllAsRead() {
+      vvelAppState.markAllNotificationsRead();
+      refreshNotifications();
+      displayedNotifications = applyFilter(currentFilter);
+      renderNotifications();
+      updateUnreadBadge();
+    }
+
+    // Handle action
+    function handleAction(id, action) {
+      const notification = notifications.find(n => n.id === id);
+      if (!notification) return;
+      const actorName = notification.user || notification.title || 'the creator';
+
+      switch (action) {
+        case 'accept':
+          alert(`Connection request from ${actorName} accepted!`);
+          break;
+        case 'decline':
+          alert(`Connection request from ${actorName} declined.`);
+          break;
+        case 'follow_back':
+          alert(`Now following ${actorName}!`);
+          break;
+        case 'reply':
+          alert(`Replying to ${actorName}...`);
+          break;
+        case 'view':
+          alert(`Viewing ${actorName}'s update...`);
+          break;
+        case 'message':
+          alert(`Messaging ${actorName}...`);
+          break;
+        case 'explore':
+          alert('Exploring new content...');
+          break;
+      }
+
+      vvelAppState.markNotificationRead(id);
+      refreshNotifications();
+      displayedNotifications = applyFilter(currentFilter);
+      renderNotifications();
+      updateUnreadBadge();
+    }
+
+    // Update unread badge (for future use in navigation)
+    function updateUnreadBadge() {
+      const unreadCount = notifications.filter(isNotificationUnread).length;
+      // You can update a badge in the navigation bar here if needed
+      console.log(`Unread notifications: ${unreadCount}`);
+    }
+
+    // Initialize on page load
+    initNotifications();
+
+    // Swipe gesture detection for left-to-right swipe to go to categories
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchEndX = 0;
+    let touchEndY = 0;
+
+    document.addEventListener('touchstart', function(e) {
+      touchStartX = e.changedTouches[0].screenX;
+      touchStartY = e.changedTouches[0].screenY;
+    }, { passive: true });
+
+    document.addEventListener('touchend', function(e) {
+      touchEndX = e.changedTouches[0].screenX;
+      touchEndY = e.changedTouches[0].screenY;
+      handleSwipe();
+    }, { passive: true });
+
+    function handleSwipe() {
+      const deltaX = touchEndX - touchStartX;
+      const deltaY = touchEndY - touchStartY;
+      const minSwipeDistance = 100; // Minimum swipe distance in pixels
+      
+      // Check if it's a horizontal swipe (more horizontal than vertical)
+      if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        // Left to right swipe (positive deltaX) - swipe from anywhere on screen
+        if (deltaX > minSwipeDistance) {
+          window.location.href = 'cinema-home.html';
+        }
+      }
+    }
+  </script>
+</body>
+</html>
+
+

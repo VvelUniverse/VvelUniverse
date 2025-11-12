@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vvel Universe | Admin Panel</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh;
+      background: radial-gradient(circle at top, rgba(99, 102, 241, 0.2), transparent 60%),
+                  linear-gradient(180deg, #0f172a 0%, #1e1b4b 50%, #000000 100%);
+      color: white;
+      padding-bottom: 120px;
+    }
+
+    .container {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+    }
+
+    .glow-title {
+      font-family: 'Orbitron', sans-serif;
+      text-align: center;
+      margin-bottom: 2rem;
+      font-size: 2.25rem;
+      text-shadow: 0 0 18px rgba(147, 197, 253, 0.6);
+    }
+
+    .card {
+      background: rgba(17, 24, 39, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 18px;
+      padding: 1.75rem;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 25px 80px rgba(15, 23, 42, 0.6);
+    }
+
+    .card + .card {
+      margin-top: 1.5rem;
+    }
+
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .stat-label {
+      font-size: 0.85rem;
+      color: rgba(226, 232, 240, 0.7);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .stat-value {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #f8fafc;
+    }
+
+    .stat-hint {
+      font-size: 0.8rem;
+      color: rgba(226, 232, 240, 0.55);
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    label {
+      font-size: 0.9rem;
+      color: rgba(226, 232, 240, 0.8);
+    }
+
+    input, select, textarea {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 12px;
+      padding: 0.75rem 1rem;
+      color: white;
+      font-size: 0.95rem;
+      transition: border 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: rgba(99, 102, 241, 0.8);
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+    }
+
+    .button {
+      border: none;
+      border-radius: 12px;
+      padding: 0.75rem 1.25rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .button.primary {
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      color: white;
+      box-shadow: 0 12px 35px rgba(99, 102, 241, 0.35);
+    }
+
+    .button.neutral {
+      background: rgba(255, 255, 255, 0.08);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .button.danger {
+      background: linear-gradient(135deg, #ef4444 0%, #f87171 100%);
+      color: white;
+      box-shadow: 0 12px 35px rgba(239, 68, 68, 0.3);
+    }
+
+    .button:hover {
+      transform: translateY(-1px);
+    }
+
+    .button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .request-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .request-card {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 1.25rem;
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .request-header {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .request-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .status-pending {
+      background: rgba(250, 204, 21, 0.2);
+      color: #facc15;
+    }
+
+    .status-approved {
+      background: rgba(34, 197, 94, 0.2);
+      color: #4ade80;
+    }
+
+    .status-needs_payment {
+      background: rgba(59, 130, 246, 0.2);
+      color: #93c5fd;
+    }
+
+    .status-rejected {
+      background: rgba(239, 68, 68, 0.2);
+      color: #f87171;
+    }
+
+    .request-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-top: 0.5rem;
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.3rem 0.6rem;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      background: rgba(255, 255, 255, 0.08);
+      color: rgba(226, 232, 240, 0.9);
+    }
+
+    .admin-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem;
+    }
+
+    .admin-card {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 14px;
+      padding: 1rem;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.3rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      background: rgba(99, 102, 241, 0.2);
+      color: #c7d2fe;
+      margin-right: 0.35rem;
+      margin-top: 0.35rem;
+    }
+
+    .info-banner {
+      background: rgba(59, 130, 246, 0.15);
+      border: 1px solid rgba(59, 130, 246, 0.25);
+      border-radius: 12px;
+      padding: 1rem;
+      font-size: 0.9rem;
+      color: #bfdbfe;
+      margin-bottom: 1.5rem;
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-start;
+    }
+
+    .error-text {
+      margin-top: 0.75rem;
+      font-size: 0.85rem;
+      color: #fca5a5;
+    }
+
+    @media (max-width: 768px) {
+      .card {
+        padding: 1.25rem;
+      }
+
+      .glow-title {
+        font-size: 1.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="glow-title">Vvel Universe Admin Control</h1>
+
+    <div id="loginView" class="card" style="max-width: 480px; margin: 0 auto;">
+      <div class="card-title">
+        <i data-lucide="shield-check" class="w-6 h-6 text-indigo-300"></i>
+        Secure Sign In
+      </div>
+      <p style="color: rgba(226, 232, 240, 0.7); font-size: 0.9rem; margin-bottom: 1.5rem;">
+        Use the credentials provisioned in <code style="background: rgba(255,255,255,0.08); padding: 0.2rem 0.4rem; border-radius: 6px;">admin-config.js</code> or a granted admin account to access the control center.
+      </p>
+      <form id="adminLoginForm">
+        <div class="input-group">
+          <label for="adminEmail">Admin Email</label>
+          <input type="email" id="adminEmail" placeholder="admin@vveluniverse.com" required />
+        </div>
+        <div class="input-group">
+          <label for="adminPassword">Password</label>
+          <input type="password" id="adminPassword" placeholder="********" required />
+        </div>
+        <button type="submit" class="button primary" style="width: 100%; margin-top: 0.5rem;">
+          <i data-lucide="log-in" class="w-5 h-5"></i>
+          Sign In
+        </button>
+        <div id="loginError" class="error-text" style="display: none;"></div>
+      </form>
+    </div>
+
+    <div id="dashboardView" style="display: none; gap: 1.5rem; flex-direction: column;">
+      <div class="info-banner">
+        <i data-lucide="info" class="w-5 h-5"></i>
+        <div>
+          <strong>Welcome back, <span id="adminNameLabel"></span>!</strong><br/>
+          Review live connection requests, approve or decline access, and keep wallet automation aligned with your policies.
+        </div>
+        <button class="button neutral" style="margin-left:auto; white-space:nowrap;" onclick="adminLogout()">
+          <i data-lucide="log-out" class="w-4 h-4"></i>
+          Sign Out
+        </button>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <i data-lucide="activity" class="w-6 h-6 text-indigo-300"></i>
+          Control Center Snapshot
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Wallet Balance</div>
+            <div class="stat-value" id="walletBalanceStat">₹0.00</div>
+            <div class="stat-hint">Auto-pay uses wallet balance when enabled</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Pending Requests</div>
+            <div class="stat-value" id="pendingRequestsStat">0</div>
+            <div class="stat-hint">Awaiting your approval</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Needs Payment</div>
+            <div class="stat-value" id="needsPaymentStat">0</div>
+            <div class="stat-hint">Approved but waiting for manual payment</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Confirmed Sessions</div>
+            <div class="stat-value" id="confirmedSessionsStat">0</div>
+            <div class="stat-hint">Users with meeting links issued</div>
+          </div>
+        </div>
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+          <button class="button neutral" onclick="refreshDashboard()">
+            <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+            Refresh Data
+          </button>
+          <button class="button neutral" onclick="toggleAutopaySetting()">
+            <i data-lucide="zap" class="w-5 h-5"></i>
+            Toggle Auto-Pay
+          </button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <i data-lucide="list-checks" class="w-6 h-6 text-indigo-300"></i>
+          Join Requests Queue
+        </div>
+        <div id="requestsList" class="request-list"></div>
+        <div id="requestsEmpty" style="display: none; text-align: center; padding: 2rem; color: rgba(226,232,240,0.6);">
+          <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🎉</div>
+          All connection requests are handled. Great job!
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <i data-lucide="user-plus" class="w-6 h-6 text-indigo-300"></i>
+          Delegate Admin Access
+        </div>
+        <form id="grantAdminForm">
+          <div class="stats-grid" style="margin-bottom: 1rem;">
+            <div class="input-group">
+              <label for="newAdminEmail">Delegate Email</label>
+              <input type="email" id="newAdminEmail" placeholder="mentor@community.org" required />
+            </div>
+            <div class="input-group">
+              <label for="newAdminName">Name (optional)</label>
+              <input type="text" id="newAdminName" placeholder="Mentor Priya" />
+            </div>
+            <div class="input-group">
+              <label for="newAdminPassword">Temporary Password</label>
+              <input type="text" id="newAdminPassword" placeholder="Generate a secure passphrase" required />
+            </div>
+          </div>
+          <p style="font-size: 0.85rem; color: rgba(226,232,240,0.65); margin-bottom: 1rem;">
+            Delegated admins authenticate with the credentials you set above. They inherit request management permissions only.
+          </p>
+          <button type="submit" class="button primary">
+            <i data-lucide="user-check" class="w-5 h-5"></i>
+            Grant Access
+          </button>
+        </form>
+
+        <div style="margin-top: 2rem;">
+          <div class="card-title" style="font-size: 1rem;">
+            <i data-lucide="shield" class="w-5 h-5 text-indigo-300"></i>
+            Active Admin Accounts
+          </div>
+          <div id="adminAccountsList" class="admin-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="admin-config.js"></script>
+  <script src="app-state.js"></script>
+  <script src="loading-utils.js"></script>
+  <script>
+    lucide.createIcons();
+
+    const ADMIN_SESSION_KEY = 'vvelAdminSession';
+    const state = {
+      admin: null,
+      requests: []
+    };
+
+    const loginForm = document.getElementById('adminLoginForm');
+    const loginView = document.getElementById('loginView');
+    const dashboardView = document.getElementById('dashboardView');
+    const loginError = document.getElementById('loginError');
+
+    loginForm.addEventListener('submit', handleAdminLogin);
+
+    function handleAdminLogin(event) {
+      event.preventDefault();
+      const email = document.getElementById('adminEmail').value.trim();
+      const password = document.getElementById('adminPassword').value;
+      loginError.style.display = 'none';
+      showLoadingOverlay('Authenticating...');
+
+      setTimeout(() => {
+        const result = vvelAppState.authenticateAdmin(email, password);
+        hideLoadingOverlay();
+
+        if (!result.success) {
+          loginError.textContent = result.reason === 'invalid_password'
+            ? 'Incorrect password. Please try again.'
+            : result.reason === 'not_found'
+              ? 'Admin account not found. Verify the email or have a super admin grant access.'
+              : 'Unable to sign in. Please try again.';
+          loginError.style.display = 'block';
+          return;
+        }
+
+        state.admin = result.account;
+        sessionStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify({
+          email,
+          password,
+          timestamp: Date.now()
+        }));
+        document.getElementById('adminNameLabel').textContent = state.admin.name || state.admin.email;
+        loginView.style.display = 'none';
+        dashboardView.style.display = 'flex';
+        refreshDashboard(false);
+      }, 600);
+    }
+
+    function refreshDashboard(showLoader = true) {
+      if (showLoader) {
+        showLoadingOverlay('Syncing latest data...');
+      }
+      setTimeout(() => {
+        syncRequestsAndRender();
+        if (showLoader) {
+          hideLoadingOverlay();
+        }
+      }, showLoader ? 400 : 0);
+    }
+
+    function refreshRequests() {
+      state.requests = vvelAppState.getJoinRequests();
+    }
+
+    function renderStats() {
+      const wallet = vvelAppState.getWallet();
+      document.getElementById('walletBalanceStat').textContent = formatCurrency(wallet.balance);
+
+      const pending = state.requests.filter(req => req.status === 'pending').length;
+      const needsPayment = state.requests.filter(req => req.status === 'needs_payment').length;
+      const confirmed = state.requests.filter(req => req.status === 'approved').length;
+
+      document.getElementById('pendingRequestsStat').textContent = pending;
+      document.getElementById('needsPaymentStat').textContent = needsPayment;
+      document.getElementById('confirmedSessionsStat').textContent = confirmed;
+    }
+
+    function renderRequests() {
+      const list = document.getElementById('requestsList');
+      const empty = document.getElementById('requestsEmpty');
+      list.innerHTML = '';
+
+      if (!state.requests.length) {
+        empty.style.display = 'block';
+        return;
+      }
+
+      empty.style.display = 'none';
+
+      state.requests
+        .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
+        .forEach(request => {
+          const card = document.createElement('div');
+          card.className = 'request-card';
+
+          const statusClass = getStatusClass(request.status);
+          const statusLabel = getStatusLabel(request.status);
+          const updated = request.updatedAt
+            ? formatRelativeTime(request.updatedAt)
+            : 'Just now';
+
+          const amountText = formatCurrency(request.amount || 0);
+
+          card.innerHTML = `
+            <div class="request-header">
+              <div class="request-meta">
+                <div style="font-size: 1.1rem; font-weight: 700;">
+                  ${request.sessionTitle || 'Community Session'}
+                </div>
+                <div style="color: rgba(226,232,240,0.7); font-size: 0.9rem;">
+                  Host: ${request.hostName || 'Unknown'} &nbsp;•&nbsp; Requested by: ${request.userName || 'Member'}
+                </div>
+                <div style="color: rgba(226,232,240,0.55); font-size: 0.85rem;">
+                  Session ID: ${request.sessionId}
+                </div>
+                <div class="tag">
+                  <i data-lucide="wallet" class="w-4 h-4"></i>
+                  ${amountText}
+                </div>
+              </div>
+              <div class="status-badge ${statusClass}">
+                <i data-lucide="dot" class="w-4 h-4"></i>
+                ${statusLabel}
+              </div>
+            </div>
+            ${request.message ? `<div style="font-size: 0.9rem; color: rgba(226,232,240,0.75);">
+              <strong>Message:</strong> ${request.message}
+            </div>` : ''}
+            ${request.notes ? `<div style="font-size: 0.85rem; color: rgba(94,234,212,0.7);">
+              <strong>Notes:</strong> ${request.notes}
+            </div>` : ''}
+            <div style="font-size: 0.8rem; color: rgba(226,232,240,0.55);">
+              Last updated ${updated}
+            </div>
+            <div class="request-actions">
+              <button class="button primary" onclick="approveRequest('${request.id}', this)" ${request.status === 'approved' ? 'disabled' : ''}>
+                <i data-lucide="check-circle" class="w-4 h-4"></i>
+                Auto-Approve & Charge
+              </button>
+              <button class="button neutral" onclick="markManualPayment('${request.id}', this)" ${request.status === 'approved' ? 'disabled' : ''}>
+                <i data-lucide="credit-card" class="w-4 h-4"></i>
+                Confirm Manual Payment
+              </button>
+              <button class="button danger" onclick="rejectRequest('${request.id}', this)">
+                <i data-lucide="x-circle" class="w-4 h-4"></i>
+                Reject Request
+              </button>
+            </div>
+          `;
+
+          list.appendChild(card);
+        });
+
+      lucide.createIcons();
+    }
+
+    function approveRequest(requestId, button) {
+      setButtonState(button, true, 'Approving...');
+      showLoadingOverlay('Confirming request...');
+
+      setTimeout(() => {
+        const outcome = vvelAppState.approveJoinRequest(requestId, {
+          approvedBy: state.admin?.email || 'admin@panel'
+        });
+
+        hideLoadingOverlay();
+        setButtonState(button, false);
+
+        if (!outcome.success) {
+          alert(outcome.reason ? `Approval failed: ${outcome.reason}` : 'Unable to approve request.');
+        } else if (outcome.outcome.status === 'auto_paid') {
+          alert('Request approved and wallet auto-payment succeeded. Meeting details issued.');
+        } else {
+          alert('Request approved. The member must complete payment manually.');
+        }
+
+        refreshDashboard(false);
+      }, 600);
+    }
+
+    function markManualPayment(requestId, button) {
+      const request = state.requests.find(item => item.id === requestId);
+      if (!request) {
+        alert('Request not found.');
+        return;
+      }
+
+      setButtonState(button, true, 'Recording...');
+      showLoadingOverlay('Recording manual payment...');
+
+      setTimeout(() => {
+        const meeting = vvelAppState.recordManualConnectionPayment({
+          sessionId: request.sessionId,
+          hostName: request.hostName,
+          sessionTitle: request.sessionTitle,
+          amount: request.amount,
+          processedBy: state.admin?.email || 'admin@panel',
+          paymentMethod: 'Manual confirmation'
+        });
+
+        hideLoadingOverlay();
+        setButtonState(button, false);
+
+        const walletUpdate = vvelAppState.updateWalletBalance(-request.amount, {
+          type: 'debit',
+          title: 'Manual Connection Payment',
+          subtitle: `${request.hostName} • ${request.sessionTitle}`,
+          amount: request.amount,
+          date: 'Just now',
+          status: 'completed'
+        });
+
+        alert(meeting && meeting.meetingDetails
+          ? 'Manual payment recorded. Meeting code shared with the member.'
+          : 'Manual payment recorded.');
+
+        refreshDashboard(false);
+      }, 600);
+    }
+
+    function rejectRequest(requestId, button) {
+      const reason = prompt('Add an optional note for the member (leave blank to skip):', '');
+      setButtonState(button, true, 'Rejecting...');
+      showLoadingOverlay('Updating request status...');
+
+      setTimeout(() => {
+        const result = vvelAppState.rejectJoinRequest(requestId, {
+          reason: reason || 'Request declined by admin',
+          adminEmail: state.admin?.email || 'admin@panel'
+        });
+
+        hideLoadingOverlay();
+        setButtonState(button, false);
+
+        if (!result || !result.success) {
+          alert('Unable to reject the request.');
+        } else {
+          alert('Request updated. The member has been notified.');
+        }
+
+        refreshDashboard();
+      }, 500);
+    }
+
+    function renderAdminAccounts() {
+      const container = document.getElementById('adminAccountsList');
+      container.innerHTML = '';
+      const accounts = vvelAppState.getAdminAccounts();
+
+      accounts.forEach(account => {
+        const card = document.createElement('div');
+        card.className = 'admin-card';
+        card.innerHTML = `
+          <div style="font-weight: 600; font-size: 1rem;">
+            ${account.name || account.email}
+          </div>
+          <div style="font-size: 0.85rem; color: rgba(226,232,240,0.7); margin: 0.35rem 0;">
+            ${account.email}
+          </div>
+          <div style="font-size: 0.75rem; color: rgba(226,232,240,0.5); margin-bottom: 0.75rem;">
+            ${account.source === 'config' ? 'Super Admin (config-managed)' : `Granted by ${account.addedBy || 'admin'}`}
+          </div>
+          <div>
+            ${(account.permissions || []).map(perm => `<span class="chip">${perm}</span>`).join('')}
+          </div>
+          ${account.source === 'override' ? `
+            <button class="button danger" style="margin-top: 0.75rem;" onclick="revokeAdmin('${account.email}')">
+              <i data-lucide="user-x" class="w-4 h-4"></i>
+              Revoke Access
+            </button>
+          ` : ''}
+        `;
+        container.appendChild(card);
+      });
+
+      if (!accounts.length) {
+        container.innerHTML = `<div style="color: rgba(226,232,240,0.6); padding: 0.75rem;">
+          No delegated admin accounts yet.
+        </div>`;
+      }
+
+      lucide.createIcons();
+    }
+
+    function syncRequestsAndRender() {
+      refreshRequests();
+      renderStats();
+      renderRequests();
+      renderAdminAccounts();
+    }
+
+    const grantForm = document.getElementById('grantAdminForm');
+    grantForm.addEventListener('submit', event => {
+      event.preventDefault();
+      const email = document.getElementById('newAdminEmail').value.trim();
+      const name = document.getElementById('newAdminName').value.trim();
+      const password = document.getElementById('newAdminPassword').value.trim();
+
+      if (!email || !password) {
+        alert('Email and password are required to grant access.');
+        return;
+      }
+
+      const result = vvelAppState.grantAdminAccess({
+        email,
+        name,
+        password,
+        addedBy: state.admin?.email || 'admin@panel',
+        permissions: ['requests:read', 'requests:write']
+      });
+
+      if (result.success) {
+        alert('Admin access granted. Share the credentials securely with the delegate.');
+        grantForm.reset();
+        renderAdminAccounts();
+      } else {
+        alert(result.reason || 'Unable to grant admin access.');
+      }
+    });
+
+    function revokeAdmin(email) {
+      if (!confirm(`Revoke delegated access for ${email}?`)) {
+        return;
+      }
+      const result = vvelAppState.revokeAdminAccess(email);
+      alert(result.success ? 'Access revoked.' : 'Unable to revoke access.');
+      renderAdminAccounts();
+    }
+
+    function toggleAutopaySetting() {
+      const wallet = vvelAppState.getWallet();
+      vvelAppState.setAutopayEnabled(!wallet.autopayEnabled);
+      const stateMessage = !wallet.autopayEnabled ? 'enabled' : 'disabled';
+      alert(`Wallet auto-pay ${stateMessage}.`);
+      renderStats();
+    }
+
+    function adminLogout() {
+      sessionStorage.removeItem(ADMIN_SESSION_KEY);
+      state.admin = null;
+      hideLoadingOverlay();
+      if (dashboardView) {
+        dashboardView.style.display = 'none';
+      }
+      if (loginView) {
+        loginView.style.display = 'block';
+      }
+      if (loginForm) {
+        loginForm.reset();
+      }
+      if (loginError) {
+        loginError.style.display = 'none';
+      }
+      document.getElementById('adminNameLabel').textContent = '';
+    }
+
+    function formatCurrency(value) {
+      return `₹${Number(value || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+
+    function formatRelativeTime(timestamp) {
+      if (!timestamp) return 'Just now';
+      const date = typeof timestamp === 'number' ? new Date(timestamp) : new Date(timestamp);
+      if (Number.isNaN(date.getTime())) return 'Just now';
+      const diff = date.getTime() - Date.now();
+      const absDiff = Math.abs(diff);
+      const ranges = [
+        { limit: 60 * 1000, divisor: 1000, unit: 'second' },
+        { limit: 60 * 60 * 1000, divisor: 60 * 1000, unit: 'minute' },
+        { limit: 24 * 60 * 60 * 1000, divisor: 60 * 60 * 1000, unit: 'hour' },
+        { limit: 7 * 24 * 60 * 60 * 1000, divisor: 24 * 60 * 60 * 1000, unit: 'day' },
+        { limit: 30 * 24 * 60 * 60 * 1000, divisor: 7 * 24 * 60 * 60 * 1000, unit: 'week' },
+        { limit: 365 * 24 * 60 * 60 * 1000, divisor: 30 * 24 * 60 * 60 * 1000, unit: 'month' }
+      ];
+      let unit = 'year';
+      let divisor = 365 * 24 * 60 * 60 * 1000;
+      for (const range of ranges) {
+        if (absDiff < range.limit) {
+          unit = range.unit;
+          divisor = range.divisor;
+          break;
+        }
+      }
+      const rtf = new Intl.RelativeTimeFormat(undefined, { numeric: 'auto' });
+      return rtf.format(Math.round(diff / divisor), unit);
+    }
+
+    function getStatusClass(status) {
+      switch (status) {
+        case 'approved':
+          return 'status-approved';
+        case 'needs_payment':
+          return 'status-needs_payment';
+        case 'rejected':
+          return 'status-rejected';
+        default:
+          return 'status-pending';
+      }
+    }
+
+    function getStatusLabel(status) {
+      switch (status) {
+        case 'approved':
+          return 'Confirmed';
+        case 'needs_payment':
+          return 'Needs Payment';
+        case 'rejected':
+          return 'Rejected';
+        case 'pending':
+        default:
+          return 'Pending';
+      }
+    }
+
+    function setButtonState(button, isLoading, text) {
+      if (!button) return;
+      if (isLoading) {
+        button.dataset.originalText = button.innerHTML;
+        button.innerHTML = text || 'Processing...';
+        button.disabled = true;
+      } else {
+        button.innerHTML = button.dataset.originalText || button.innerHTML;
+        button.disabled = false;
+      }
+    }
+
+    function attemptAutoSignIn() {
+      const stored = sessionStorage.getItem(ADMIN_SESSION_KEY);
+      if (!stored) return;
+      try {
+        const creds = JSON.parse(stored);
+        if (!creds || !creds.email || !creds.password) {
+          sessionStorage.removeItem(ADMIN_SESSION_KEY);
+          return;
+        }
+        const result = vvelAppState.authenticateAdmin(creds.email, creds.password);
+        if (!result.success) {
+          sessionStorage.removeItem(ADMIN_SESSION_KEY);
+          return;
+        }
+        state.admin = result.account;
+        document.getElementById('adminNameLabel').textContent = state.admin.name || state.admin.email;
+        if (loginView) {
+          loginView.style.display = 'none';
+        }
+        if (dashboardView) {
+          dashboardView.style.display = 'flex';
+        }
+        refreshDashboard(false);
+      } catch (error) {
+        console.warn('Failed to restore admin session:', error);
+        sessionStorage.removeItem(ADMIN_SESSION_KEY);
+      }
+    }
+
+    window.addEventListener('storage', (event) => {
+      if (event.key === 'vvelUniverseAppState.v1' && state.admin) {
+        syncRequestsAndRender();
+      }
+    });
+
+    attemptAutoSignIn();
+  </script>
+</body>
+</html>
+

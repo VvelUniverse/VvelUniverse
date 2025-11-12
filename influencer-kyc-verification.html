@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vvel Universe | Influencer KYC Verification</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="loading-styles.css">
+  <style>
+    :root {
+      --navy-100: #0b1a3a;
+      --navy-200: #0f2a5a;
+      --navy-300: #123571;
+      --navy-400: #174ea6;
+      --glass-bg: rgba(13, 31, 74, 0.26);
+      --glass-blur: blur(18px);
+      --glass-border: 1.4px solid rgba(23, 78, 166, 0.55);
+      --panel-shadow: 0 20px 50px rgba(3, 10, 24, 0.55);
+      --title-color: #ffffff;
+      --body-color: #e5e7eb;
+      --muted-color: #c7c9d4;
+      --field-border: 1.2px solid rgba(23, 78, 166, 0.35);
+      --field-border-focus: 1.6px solid rgba(23, 78, 166, 0.85);
+      --button-bg: linear-gradient(90deg, #0f2a5a 0%, #123571 55%, #174ea6 100%);
+      --button-shadow: 0 12px 26px rgba(23, 78, 166, 0.45);
+      --font-title: 'Orbitron', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      --font-body: 'Outfit', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      height: 100%;
+    }
+
+    body {
+      margin: 0;
+      background: #000;
+      color: var(--body-color);
+      font-family: var(--font-body);
+      overflow-y: auto;
+      min-height: 100vh;
+      background-image:
+        url('Space-bg.jpg'),
+        url('Space-bg.png'),
+        url('Space-bg.jpeg'),
+        url('space-bg.jpg'),
+        url('space-bg.png'),
+        url('space-bg.jpeg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(1200px 900px at 20% 20%, rgba(0,0,0,0.35), transparent 55%),
+                  linear-gradient(180deg, rgba(0,0,0,0.42), rgba(0,0,0,0.55));
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    main {
+      position: relative;
+      z-index: 2;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px;
+      padding-top: 80px;
+    }
+
+    .panel {
+      width: min(700px, 95vw);
+      max-width: 100%;
+      background: var(--glass-bg);
+      border: var(--glass-border);
+      border-radius: 22px;
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      box-shadow: var(--panel-shadow);
+      padding: 32px;
+      animation: enter 700ms ease both;
+      margin-bottom: 24px;
+    }
+
+    @keyframes enter { 
+      0% { opacity: 0; transform: translateY(28px) scale(0.98) } 
+      100% { opacity: 1; transform: translateY(0) scale(1) } 
+    }
+
+    .title {
+      font-family: var(--font-title);
+      font-size: clamp(24px, 4vw, 32px);
+      letter-spacing: 0.02em;
+      color: var(--title-color);
+      text-align: center;
+      margin: 0 0 8px 0;
+      font-weight: 800;
+    }
+
+    .tagline {
+      text-align: center;
+      color: var(--muted-color);
+      font-size: clamp(13px, 2.6vw, 15px);
+      margin: 0 0 28px 0;
+      font-weight: 500;
+    }
+
+    .section-title {
+      font-family: var(--font-title);
+      font-size: 18px;
+      color: var(--title-color);
+      margin: 24px 0 16px 0;
+      font-weight: 700;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .section-title:first-child {
+      margin-top: 0;
+    }
+
+    form {
+      display: grid;
+      gap: 20px;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+    }
+
+    label {
+      color: #dbeafe;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="url"],
+    input[type="number"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: var(--field-border);
+      outline: none;
+      background: rgba(255,255,255,0.06);
+      color: #ffffff;
+      font-size: 15px;
+      font-family: var(--font-body);
+      transition: border-color .2s ease, box-shadow .2s ease, transform .12s ease;
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+      color: rgba(255,255,255,0.5);
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border: var(--field-border-focus);
+      box-shadow: 0 0 0 6px rgba(23, 78, 166, 0.25);
+      transform: translateY(-1px);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    .file-upload-area {
+      border: 2px dashed var(--field-border);
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+      background: rgba(255,255,255,0.03);
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .file-upload-area:hover {
+      border-color: rgba(23, 78, 166, 0.6);
+      background: rgba(255,255,255,0.05);
+    }
+
+    .file-upload-area.dragover {
+      border-color: rgba(23, 78, 166, 0.9);
+      background: rgba(23, 78, 166, 0.1);
+    }
+
+    .file-input {
+      display: none;
+    }
+
+    .file-upload-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+      opacity: 0.7;
+    }
+
+    .file-upload-text {
+      color: var(--muted-color);
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+
+    .file-upload-hint {
+      color: rgba(255,255,255,0.4);
+      font-size: 12px;
+    }
+
+    .file-preview {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 8px;
+      margin-top: 12px;
+    }
+
+    .file-preview-icon {
+      font-size: 24px;
+    }
+
+    .file-preview-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .file-preview-name {
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .file-preview-size {
+      color: var(--muted-color);
+      font-size: 12px;
+    }
+
+    .file-remove {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #fca5a5;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+
+    .file-remove:hover {
+      background: rgba(239, 68, 68, 0.3);
+      border-color: rgba(239, 68, 68, 0.6);
+    }
+
+    .social-platform {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: start;
+      padding: 16px;
+      background: rgba(255,255,255,0.04);
+      border: var(--field-border);
+      border-radius: 12px;
+      transition: all 0.2s ease;
+    }
+
+    .social-platform:focus-within {
+      border-color: rgba(23, 78, 166, 0.6);
+      background: rgba(255,255,255,0.06);
+    }
+
+    .social-platform-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #dbeafe;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .social-icon {
+      font-size: 20px;
+    }
+
+    .social-input-group {
+      display: grid;
+      gap: 8px;
+      grid-column: 1 / -1;
+    }
+
+    .social-input-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+    }
+
+    .follower-count {
+      width: 120px;
+    }
+
+    .submit {
+      margin-top: 8px;
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      background: var(--button-bg);
+      color: #fff;
+      font-weight: 800;
+      font-family: var(--font-title);
+      letter-spacing: 0.02em;
+      font-size: 16px;
+      box-shadow: var(--button-shadow);
+      transition: filter .18s ease, box-shadow .2s ease, transform .12s ease;
+    }
+
+    .submit:hover:not(:disabled) {
+      filter: brightness(1.06) saturate(1.05);
+      box-shadow: 0 12px 30px rgba(23, 78, 166, 0.55);
+      transform: translateY(-1px);
+    }
+
+    .submit:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .error-message {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.5);
+      color: #fca5a5;
+      padding: 12px 14px;
+      border-radius: 8px;
+      font-size: 14px;
+      margin-bottom: 12px;
+      display: none;
+    }
+
+    .error-message.show {
+      display: block;
+    }
+
+    .success-message {
+      background: rgba(34, 197, 94, 0.15);
+      border: 1px solid rgba(34, 197, 94, 0.5);
+      color: #86efac;
+      padding: 12px 14px;
+      border-radius: 8px;
+      font-size: 14px;
+      margin-bottom: 12px;
+      display: none;
+    }
+
+    .success-message.show {
+      display: block;
+    }
+
+    .info-box {
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      color: #93c5fd;
+      padding: 12px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-bottom: 16px;
+    }
+
+    .info-box-icon {
+      display: inline-block;
+      margin-right: 8px;
+    }
+
+    /* Language Switcher Styles */
+    .language-switcher {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+    }
+
+    .language-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      background: var(--glass-bg);
+      border: var(--glass-border);
+      border-radius: 12px;
+      color: #fff;
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .language-btn:hover {
+      background: rgba(255,255,255,0.12);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+    }
+
+    .language-btn .flag {
+      font-size: 18px;
+    }
+
+    .language-dropdown {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      min-width: 200px;
+      background: var(--glass-bg);
+      border: var(--glass-border);
+      border-radius: 12px;
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      padding: 8px;
+      display: none;
+      flex-direction: column;
+      gap: 4px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .language-dropdown.show {
+      display: flex;
+    }
+
+    .language-option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .language-option:hover {
+      background: rgba(255,255,255,0.1);
+    }
+
+    .language-option.active {
+      background: rgba(23, 78, 166, 0.3);
+      font-weight: 600;
+    }
+
+    .language-option .flag {
+      font-size: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .panel {
+        padding: 24px 20px;
+      }
+
+      .social-platform {
+        grid-template-columns: 1fr;
+      }
+
+      .social-input-row {
+        grid-template-columns: 1fr;
+      }
+
+      .follower-count {
+        width: 100%;
+      }
+
+      .language-switcher {
+        top: 12px;
+        right: 12px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Language Switcher -->
+  <div class="language-switcher">
+    <button class="language-btn" id="languageBtn" aria-label="Select Language">
+      <span class="flag" id="currentFlag">🇬🇧</span>
+      <span id="currentLang">English</span>
+      <span style="margin-left: 4px;">▼</span>
+    </button>
+    <div class="language-dropdown" id="languageDropdown"></div>
+  </div>
+
+  <main>
+    <section class="panel" aria-label="Influencer KYC Verification">
+      <h1 class="title" data-i18n="kyc.title">Influencer KYC Verification</h1>
+      <p class="tagline" data-i18n="kyc.tagline">Complete your verification to start connecting with your audience</p>
+
+      <div id="errorMessage" class="error-message"></div>
+      <div id="successMessage" class="success-message"></div>
+
+      <div class="info-box">
+        <span class="info-box-icon">ℹ️</span>
+        <span data-i18n="kyc.info">Please ensure all documents are clear and valid. Verification typically takes 24-48 hours.</span>
+      </div>
+
+      <form id="kycForm" onsubmit="event.preventDefault(); handleKYCSubmit();">
+        <!-- ID Proof Section -->
+        <h2 class="section-title" data-i18n="kyc.idProof.title">Identity Proof</h2>
+
+        <div class="field">
+          <label for="idType" data-i18n="kyc.idProof.type">ID Type</label>
+          <select id="idType" name="idType" required>
+            <option value="" data-i18n="kyc.idProof.selectType">Select ID Type</option>
+            <option value="aadhaar" data-i18n="kyc.idProof.aadhaar">Aadhaar Card</option>
+            <option value="passport" data-i18n="kyc.idProof.passport">Passport</option>
+            <option value="driving" data-i18n="kyc.idProof.driving">Driving License</option>
+            <option value="pan" data-i18n="kyc.idProof.pan">PAN Card</option>
+            <option value="voter" data-i18n="kyc.idProof.voter">Voter ID</option>
+            <option value="other" data-i18n="kyc.idProof.other">Other Government ID</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="idNumber" data-i18n="kyc.idProof.number">ID Number</label>
+          <input id="idNumber" name="idNumber" type="text" required placeholder="Enter your ID number" />
+        </div>
+
+        <div class="field">
+          <label data-i18n="kyc.idProof.upload">Upload ID Proof (Front)</label>
+          <div class="file-upload-area" id="idFrontUpload" onclick="document.getElementById('idFrontFile').click()">
+            <div class="file-upload-icon">📄</div>
+            <div class="file-upload-text" data-i18n="kyc.idProof.uploadText">Click to upload or drag and drop</div>
+            <div class="file-upload-hint" data-i18n="kyc.idProof.uploadHint">PNG, JPG, PDF up to 5MB</div>
+            <input type="file" id="idFrontFile" class="file-input" accept="image/*,.pdf" />
+          </div>
+          <div id="idFrontPreview" class="file-preview" style="display: none;"></div>
+        </div>
+
+        <div class="field">
+          <label data-i18n="kyc.idProof.uploadBack">Upload ID Proof (Back) - Optional</label>
+          <div class="file-upload-area" id="idBackUpload" onclick="document.getElementById('idBackFile').click()">
+            <div class="file-upload-icon">📄</div>
+            <div class="file-upload-text" data-i18n="kyc.idProof.uploadText">Click to upload or drag and drop</div>
+            <div class="file-upload-hint" data-i18n="kyc.idProof.uploadHint">PNG, JPG, PDF up to 5MB</div>
+            <input type="file" id="idBackFile" class="file-input" accept="image/*,.pdf" />
+          </div>
+          <div id="idBackPreview" class="file-preview" style="display: none;"></div>
+        </div>
+
+        <!-- Social Media Verification Section -->
+        <h2 class="section-title" data-i18n="kyc.social.title">Social Media Verification</h2>
+        <p style="color: var(--muted-color); font-size: 13px; margin-bottom: 16px;" data-i18n="kyc.social.subtitle">Provide at least one social media account to verify your influencer status</p>
+
+        <!-- Instagram -->
+        <div class="social-platform">
+          <div class="social-platform-label">
+            <span class="social-icon">📸</span>
+            <span data-i18n="kyc.social.instagram">Instagram</span>
+          </div>
+          <div class="social-input-group">
+            <input type="url" id="instagramUrl" name="instagramUrl" placeholder="https://instagram.com/yourusername" pattern="https?://(www\.)?instagram\.com/.+" />
+            <div class="social-input-row">
+              <input type="number" id="instagramFollowers" name="instagramFollowers" class="follower-count" placeholder="Followers" min="0" />
+              <label style="display: flex; align-items: center; gap: 6px; color: var(--muted-color); font-size: 13px;">
+                <input type="checkbox" id="instagramVerified" name="instagramVerified" />
+                <span data-i18n="kyc.social.verified">Verified Account</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- YouTube -->
+        <div class="social-platform">
+          <div class="social-platform-label">
+            <span class="social-icon">📺</span>
+            <span data-i18n="kyc.social.youtube">YouTube</span>
+          </div>
+          <div class="social-input-group">
+            <input type="url" id="youtubeUrl" name="youtubeUrl" placeholder="https://youtube.com/@yourchannel" pattern="https?://(www\.)?(youtube\.com|youtu\.be)/.+" />
+            <div class="social-input-row">
+              <input type="number" id="youtubeSubscribers" name="youtubeSubscribers" class="follower-count" placeholder="Subscribers" min="0" />
+              <label style="display: flex; align-items: center; gap: 6px; color: var(--muted-color); font-size: 13px;">
+                <input type="checkbox" id="youtubeVerified" name="youtubeVerified" />
+                <span data-i18n="kyc.social.verified">Verified Account</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Twitter/X -->
+        <div class="social-platform">
+          <div class="social-platform-label">
+            <span class="social-icon">🐦</span>
+            <span data-i18n="kyc.social.twitter">Twitter / X</span>
+          </div>
+          <div class="social-input-group">
+            <input type="url" id="twitterUrl" name="twitterUrl" placeholder="https://twitter.com/yourusername or https://x.com/yourusername" pattern="https?://(www\.)?(twitter\.com|x\.com)/.+" />
+            <div class="social-input-row">
+              <input type="number" id="twitterFollowers" name="twitterFollowers" class="follower-count" placeholder="Followers" min="0" />
+              <label style="display: flex; align-items: center; gap: 6px; color: var(--muted-color); font-size: 13px;">
+                <input type="checkbox" id="twitterVerified" name="twitterVerified" />
+                <span data-i18n="kyc.social.verified">Verified Account</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Facebook -->
+        <div class="social-platform">
+          <div class="social-platform-label">
+            <span class="social-icon">📘</span>
+            <span data-i18n="kyc.social.facebook">Facebook</span>
+          </div>
+          <div class="social-input-group">
+            <input type="url" id="facebookUrl" name="facebookUrl" placeholder="https://facebook.com/yourpage" pattern="https?://(www\.)?facebook\.com/.+" />
+            <div class="social-input-row">
+              <input type="number" id="facebookFollowers" name="facebookFollowers" class="follower-count" placeholder="Followers/Likes" min="0" />
+              <label style="display: flex; align-items: center; gap: 6px; color: var(--muted-color); font-size: 13px;">
+                <input type="checkbox" id="facebookVerified" name="facebookVerified" />
+                <span data-i18n="kyc.social.verified">Verified Account</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- TikTok -->
+        <div class="social-platform">
+          <div class="social-platform-label">
+            <span class="social-icon">🎵</span>
+            <span data-i18n="kyc.social.tiktok">TikTok</span>
+          </div>
+          <div class="social-input-group">
+            <input type="url" id="tiktokUrl" name="tiktokUrl" placeholder="https://tiktok.com/@yourusername" pattern="https?://(www\.)?tiktok\.com/@.+" />
+            <div class="social-input-row">
+              <input type="number" id="tiktokFollowers" name="tiktokFollowers" class="follower-count" placeholder="Followers" min="0" />
+              <label style="display: flex; align-items: center; gap: 6px; color: var(--muted-color); font-size: 13px;">
+                <input type="checkbox" id="tiktokVerified" name="tiktokVerified" />
+                <span data-i18n="kyc.social.verified">Verified Account</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Additional Information -->
+        <h2 class="section-title" data-i18n="kyc.additional.title">Additional Information</h2>
+
+         <div class="field">
+           <label for="bio" data-i18n="kyc.additional.bio">Bio / About You</label>
+           <textarea id="bio" name="bio" placeholder="Tell us about yourself and your content..." maxlength="500"></textarea>
+           <div style="text-align: right; color: var(--muted-color); font-size: 12px; margin-top: 4px;">
+             <span id="bioCount">0</span> / 500
+           </div>
+         </div>
+
+        <button class="submit" type="submit" id="submitBtn" data-i18n="kyc.submit">Submit for Verification</button>
+      </form>
+    </section>
+  </main>
+
+  <script src="i18n.js"></script>
+  <script src="loading-utils.js"></script>
+  <script>
+    // File upload handling
+    function setupFileUpload(inputId, previewId, uploadAreaId) {
+      const input = document.getElementById(inputId);
+      const preview = document.getElementById(previewId);
+      const uploadArea = document.getElementById(uploadAreaId);
+
+      input.addEventListener('change', (e) => handleFileSelect(e, preview, inputId));
+      
+      uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.classList.add('dragover');
+      });
+
+      uploadArea.addEventListener('dragleave', () => {
+        uploadArea.classList.remove('dragover');
+      });
+
+      uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove('dragover');
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+          input.files = files;
+          handleFileSelect({ target: input }, preview, inputId);
+        }
+      });
+    }
+
+    function handleFileSelect(event, preview, inputId) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      // Validate file size (5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        showError(window.i18n.t('kyc.error.fileSize'));
+        return;
+      }
+
+      // Validate file type
+      const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
+      if (!validTypes.includes(file.type)) {
+        showError(window.i18n.t('kyc.error.fileType'));
+        return;
+      }
+
+      const fileName = file.name;
+      const fileSize = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+      const fileIcon = file.type === 'application/pdf' ? '📄' : '🖼️';
+
+      preview.innerHTML = `
+        <span class="file-preview-icon">${fileIcon}</span>
+        <div class="file-preview-info">
+          <div class="file-preview-name">${fileName}</div>
+          <div class="file-preview-size">${fileSize}</div>
+        </div>
+        <button type="button" class="file-remove" onclick="removeFile('${inputId}', '${preview.id}')">${window.i18n.t('common.delete')}</button>
+      `;
+      preview.style.display = 'flex';
+    }
+
+    function removeFile(inputId, previewId) {
+      document.getElementById(inputId).value = '';
+      document.getElementById(previewId).style.display = 'none';
+    }
+
+    // Bio character counter
+    document.getElementById('bio').addEventListener('input', (e) => {
+      document.getElementById('bioCount').textContent = e.target.value.length;
+    });
+
+    // Form validation
+    function validateForm() {
+      const idType = document.getElementById('idType').value;
+      const idNumber = document.getElementById('idNumber').value;
+      const idFrontFile = document.getElementById('idFrontFile').files[0];
+
+      if (!idType || !idNumber || !idFrontFile) {
+        showError(window.i18n.t('kyc.error.missingFields'));
+        return false;
+      }
+
+      // Check at least one social media account
+      const socialUrls = [
+        document.getElementById('instagramUrl').value,
+        document.getElementById('youtubeUrl').value,
+        document.getElementById('twitterUrl').value,
+        document.getElementById('facebookUrl').value,
+        document.getElementById('tiktokUrl').value
+      ];
+
+      const hasSocialAccount = socialUrls.some(url => url.trim() !== '');
+      if (!hasSocialAccount) {
+        showError(window.i18n.t('kyc.error.noSocial'));
+        return false;
+      }
+
+      return true;
+    }
+
+    // Handle form submission
+    async function handleKYCSubmit() {
+      hideMessages();
+
+      if (!validateForm()) {
+        return;
+      }
+
+      const submitBtn = document.getElementById('submitBtn');
+      const formData = new FormData();
+
+      // ID Proof
+      formData.append('idType', document.getElementById('idType').value);
+      formData.append('idNumber', document.getElementById('idNumber').value);
+      if (document.getElementById('idFrontFile').files[0]) {
+        formData.append('idFront', document.getElementById('idFrontFile').files[0]);
+      }
+      if (document.getElementById('idBackFile').files[0]) {
+        formData.append('idBack', document.getElementById('idBackFile').files[0]);
+      }
+
+      // Social Media
+      const socialData = {
+        instagram: {
+          url: document.getElementById('instagramUrl').value,
+          followers: document.getElementById('instagramFollowers').value,
+          verified: document.getElementById('instagramVerified').checked
+        },
+        youtube: {
+          url: document.getElementById('youtubeUrl').value,
+          subscribers: document.getElementById('youtubeSubscribers').value,
+          verified: document.getElementById('youtubeVerified').checked
+        },
+        twitter: {
+          url: document.getElementById('twitterUrl').value,
+          followers: document.getElementById('twitterFollowers').value,
+          verified: document.getElementById('twitterVerified').checked
+        },
+        facebook: {
+          url: document.getElementById('facebookUrl').value,
+          followers: document.getElementById('facebookFollowers').value,
+          verified: document.getElementById('facebookVerified').checked
+        },
+        tiktok: {
+          url: document.getElementById('tiktokUrl').value,
+          followers: document.getElementById('tiktokFollowers').value,
+          verified: document.getElementById('tiktokVerified').checked
+        }
+      };
+
+      formData.append('socialMedia', JSON.stringify(socialData));
+      formData.append('bio', document.getElementById('bio').value);
+
+      setButtonLoading(submitBtn, true, window.i18n.t('kyc.submitting'));
+      showLoadingOverlay(window.i18n.t('kyc.processing'));
+
+      try {
+        // Simulate API call - Replace with actual API endpoint
+        const response = await fetch('/api/influencer/kyc', {
+          method: 'POST',
+          credentials: 'include',
+          body: formData
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          showSuccess(window.i18n.t('kyc.success'));
+          hideLoadingOverlay();
+          setTimeout(() => {
+            window.location.href = '/influencers-home.html';
+          }, 2000);
+        } else {
+          hideLoadingOverlay();
+          showError(data.message || window.i18n.t('kyc.error.submit'));
+          setButtonLoading(submitBtn, false);
+        }
+      } catch (error) {
+        console.error('KYC submission error:', error);
+        hideLoadingOverlay();
+        showError(window.i18n.t('kyc.error.network'));
+        setButtonLoading(submitBtn, false);
+      }
+    }
+
+    function showError(message) {
+      const errorDiv = document.getElementById('errorMessage');
+      const successDiv = document.getElementById('successMessage');
+      if (errorDiv) {
+        errorDiv.textContent = message;
+        errorDiv.classList.add('show');
+      }
+      if (successDiv) {
+        successDiv.classList.remove('show');
+      }
+    }
+
+    function showSuccess(message) {
+      const successDiv = document.getElementById('successMessage');
+      const errorDiv = document.getElementById('errorMessage');
+      if (successDiv) {
+        successDiv.textContent = message;
+        successDiv.classList.add('show');
+      }
+      if (errorDiv) {
+        errorDiv.classList.remove('show');
+      }
+    }
+
+    function hideMessages() {
+      document.getElementById('errorMessage').classList.remove('show');
+      document.getElementById('successMessage').classList.remove('show');
+    }
+
+    // Initialize file uploads
+    setupFileUpload('idFrontFile', 'idFrontPreview', 'idFrontUpload');
+    setupFileUpload('idBackFile', 'idBackPreview', 'idBackUpload');
+
+    // Language switcher
+    function initLanguageSwitcher() {
+      const languageBtn = document.getElementById('languageBtn');
+      const languageDropdown = document.getElementById('languageDropdown');
+
+      if (!languageBtn || !languageDropdown) return;
+
+      const languages = window.i18n.getSupportedLanguages();
+      const currentLangCode = window.i18n.getLanguage();
+      
+      languageDropdown.innerHTML = '';
+      languages.forEach(lang => {
+        const option = document.createElement('div');
+        option.className = 'language-option';
+        if (lang.code === currentLangCode) {
+          option.classList.add('active');
+        }
+        option.innerHTML = `
+          <span class="flag">${lang.flag}</span>
+          <span>${lang.name}</span>
+        `;
+        option.addEventListener('click', () => {
+          window.i18n.setLanguage(lang.code);
+          updateLanguageSwitcher();
+          languageDropdown.classList.remove('show');
+        });
+        languageDropdown.appendChild(option);
+      });
+
+      updateLanguageSwitcher();
+
+      languageBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        languageDropdown.classList.toggle('show');
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!languageBtn.contains(e.target) && !languageDropdown.contains(e.target)) {
+          languageDropdown.classList.remove('show');
+        }
+      });
+    }
+
+    function updateLanguageSwitcher() {
+      const currentLangCode = window.i18n.getLanguage();
+      const languages = window.i18n.getSupportedLanguagesObject();
+      const currentLang = languages[currentLangCode];
+      
+      if (currentLang) {
+        const currentFlag = document.getElementById('currentFlag');
+        const currentLangText = document.getElementById('currentLang');
+        if (currentFlag) currentFlag.textContent = currentLang.flag;
+        if (currentLangText) currentLangText.textContent = currentLang.name;
+      }
+
+      const options = document.querySelectorAll('.language-option');
+      options.forEach(option => {
+        option.classList.remove('active');
+        const langCode = Array.from(option.querySelectorAll('.flag'))[0]?.textContent;
+        const languages = window.i18n.getSupportedLanguages();
+        const matchingLang = languages.find(l => l.flag === langCode);
+        if (matchingLang && matchingLang.code === currentLangCode) {
+          option.classList.add('active');
+        }
+      });
+    }
+
+    document.addEventListener('languageChanged', () => {
+      updateLanguageSwitcher();
+    });
+
+    // Check if user is a client (this should be verified on backend)
+    function checkClientAccess() {
+      // Check if user has client account type
+      // This should ideally be checked via API, but for now we'll check localStorage
+      // In production, this should be verified via backend API
+      const userAccountType = localStorage.getItem('userAccountType');
+      if (userAccountType !== 'client') {
+        // Redirect to register page if not a client
+        showError('This page is only accessible for client accounts. Please register as a client first.');
+        setTimeout(() => {
+          window.location.href = '/register.html';
+        }, 2000);
+        return false;
+      }
+      return true;
+    }
+
+    // Initialize
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        initLanguageSwitcher();
+        checkClientAccess();
+      });
+    } else {
+      initLanguageSwitcher();
+      checkClientAccess();
+    }
+
+    // Clear messages on input
+    document.getElementById('kycForm').addEventListener('input', hideMessages);
+  </script>
+</body>
+</html>
+

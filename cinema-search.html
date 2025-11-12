@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vvel Universe | Cinema - Search</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="loading-styles.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: linear-gradient(to bottom, #1e1b4b, #581c87, #000000);
+      min-height: 100vh;
+      color: white;
+      padding-bottom: 80px; /* Space for bottom nav */
+    }
+
+    .search-container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+
+    .search-header {
+      margin-bottom: 1.5rem;
+    }
+
+    .search-input-wrapper {
+      position: relative;
+      margin-bottom: 1.5rem;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 12px 16px 12px 48px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 12px;
+      color: white;
+      font-size: 16px;
+      transition: all 0.3s ease;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: rgba(147, 197, 253, 0.6);
+      box-shadow: 0 0 0 4px rgba(147, 197, 253, 0.2);
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .search-input::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .search-tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .search-tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .tab-button {
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      color: rgba(255, 255, 255, 0.7);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 14px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .tab-button:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .tab-button.active {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-color: rgba(102, 126, 234, 0.6);
+      color: white;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .search-results {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .result-card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 16px;
+      padding: 1rem;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .result-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+      border-color: rgba(102, 126, 234, 0.6);
+    }
+
+    /* Account Result Styles */
+    .account-result {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .account-avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
+    .account-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .account-name {
+      font-weight: 700;
+      font-size: 16px;
+      color: white;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .verified-badge {
+      width: 18px;
+      height: 18px;
+      background: linear-gradient(135deg, #10b981, #059669);
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+    }
+
+    .account-stats {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    /* Media Grid Styles */
+    .media-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .media-item {
+      aspect-ratio: 1;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      overflow: hidden;
+      position: relative;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    .media-item:hover {
+      transform: scale(1.05);
+      z-index: 10;
+    }
+
+    .media-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(168, 85, 247, 0.3));
+    }
+
+    .media-type-badge {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(8px);
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    /* Hashtag Result Styles */
+    .hashtag-result {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .hashtag-info {
+      flex: 1;
+    }
+
+    .hashtag-name {
+      font-weight: 700;
+      font-size: 18px;
+      color: #60a5fa;
+      margin-bottom: 4px;
+    }
+
+    .hashtag-posts {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    /* Video Result Styles */
+    .video-result {
+      position: relative;
+    }
+
+    .video-thumbnail {
+      width: 100%;
+      aspect-ratio: 16/9;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(168, 85, 247, 0.3));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      margin-bottom: 0.75rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .play-button {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 60px;
+      height: 60px;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .play-button:hover {
+      transform: translate(-50%, -50%) scale(1.1);
+      background: white;
+    }
+
+    .video-info {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .video-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .video-details {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .video-title {
+      font-weight: 600;
+      font-size: 14px;
+      color: white;
+      margin-bottom: 2px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .video-meta {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .video-duration {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.8);
+      background: rgba(0, 0, 0, 0.5);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    /* Audio Result Styles */
+    .audio-result {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+    }
+
+    .audio-cover {
+      width: 80px;
+      height: 80px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(168, 85, 247, 0.3));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      flex-shrink: 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .audio-play-button {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 40px;
+      height: 40px;
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      opacity: 0;
+      font-size: 16px;
+    }
+
+    .audio-cover:hover .audio-play-button {
+      opacity: 1;
+    }
+
+    .audio-play-button:hover {
+      transform: translate(-50%, -50%) scale(1.1);
+      background: white;
+    }
+
+    .audio-play-button.playing {
+      opacity: 1;
+      background: rgba(239, 68, 68, 0.9);
+      color: white;
+    }
+
+    .audio-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .audio-title {
+      font-weight: 700;
+      font-size: 16px;
+      color: white;
+      margin-bottom: 4px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .audio-creator {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.6);
+      margin-bottom: 8px;
+    }
+
+    .audio-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .audio-player {
+      flex: 1;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 2px;
+      position: relative;
+      cursor: pointer;
+      overflow: hidden;
+    }
+
+    .audio-progress {
+      height: 100%;
+      background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+      border-radius: 2px;
+      width: 0%;
+      transition: width 0.1s linear;
+    }
+
+    .audio-time {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.7);
+      min-width: 70px;
+      text-align: right;
+    }
+
+    .audio-duration {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.6);
+      background: rgba(0, 0, 0, 0.3);
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .empty-state-icon {
+      font-size: 64px;
+      margin-bottom: 1rem;
+    }
+
+    .empty-state-text {
+      font-size: 16px;
+      margin-bottom: 0.5rem;
+    }
+
+    .empty-state-subtext {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    /* Bottom Navigation */
+    .bottom-nav {
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .nav-icon {
+      transition: all 0.3s ease;
+    }
+
+    .nav-icon:hover {
+      transform: scale(1.2);
+      filter: drop-shadow(0 0 8px rgba(147, 197, 253, 0.8));
+    }
+
+    .nav-icon.active {
+      color: #ef4444;
+    }
+
+    .nav-icon.active .icon-wrapper {
+      border: 2px solid #ef4444;
+      border-radius: 4px;
+      padding: 6px 8px;
+      background: rgba(239, 68, 68, 0.1);
+    }
+    
+    .nav-icon.active .text-xs {
+      color: #ef4444;
+      font-weight: 600;
+    }
+
+    .glow-text {
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="text-center py-6 px-4">
+    <h1 class="text-3xl md:text-4xl font-bold glow-text mb-2" style="font-family: 'Orbitron', sans-serif;">
+      🔍 Search
+    </h1>
+    <p class="text-sm md:text-base text-gray-300">Discover influencers, videos, hashtags & photos</p>
+  </header>
+
+  <!-- Search Container -->
+  <div class="search-container">
+    <!-- Search Input -->
+    <div class="search-input-wrapper">
+      <i data-lucide="search" class="search-icon w-5 h-5"></i>
+      <input 
+        type="text" 
+        class="search-input" 
+        id="searchInput"
+        placeholder="Search influencers, videos, hashtags, photos, audio..."
+        autocomplete="off"
+      />
+    </div>
+
+    <!-- Search Tabs -->
+    <div class="search-tabs">
+      <button class="tab-button active" onclick="switchTab('all', this)">All</button>
+      <button class="tab-button" onclick="switchTab('accounts', this)">Accounts</button>
+      <button class="tab-button" onclick="switchTab('videos', this)">Videos</button>
+      <button class="tab-button" onclick="switchTab('hashtags', this)">Hashtags</button>
+      <button class="tab-button" onclick="switchTab('photos', this)">Photos</button>
+      <button class="tab-button" onclick="switchTab('audio', this)">Audio</button>
+    </div>
+
+    <!-- Search Results -->
+    <div class="search-results" id="searchResults">
+      <!-- Results will be dynamically populated here -->
+      <div class="empty-state">
+        <div class="empty-state-icon">🔍</div>
+        <div class="empty-state-text">Start searching to discover content</div>
+        <div class="empty-state-subtext">Try searching for influencers, videos, hashtags, photos, or audio</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav fixed bottom-0 left-0 right-0 border-t border-white/20">
+    <div class="max-w-2xl mx-auto flex justify-around items-center py-4 px-4">  
+      <button onclick="window.location.href='categories.html'" class="nav-icon flex flex-col items-center gap-1">
+        <i data-lucide="home" class="w-6 h-6"></i>
+        <span class="text-xs">Home</span>
+      </button>
+      <button onclick="window.location.href='community.html'" class="nav-icon flex flex-col items-center gap-1">
+        <i data-lucide="users" class="w-6 h-6"></i>
+        <span class="text-xs">Community</span>
+      </button>
+      <button class="nav-icon active flex flex-col items-center gap-1">
+        <div class="icon-wrapper">
+          <i data-lucide="search" class="w-6 h-6"></i>
+        </div>
+        <span class="text-xs">Search</span>
+      </button>
+      <button onclick="window.location.href='wallet.html'" class="nav-icon flex flex-col items-center gap-1">
+        <i data-lucide="wallet" class="w-6 h-6"></i>
+        <span class="text-xs">Wallet</span>
+      </button>
+      <button onclick="window.location.href='alerts.html'" class="nav-icon flex flex-col items-center gap-1">
+        <i data-lucide="bell" class="w-6 h-6"></i>
+        <span class="text-xs">Alerts</span>
+      </button>
+      <button onclick="window.location.href='celebrations.html'" class="nav-icon flex flex-col items-center gap-1">
+        <i data-lucide="party-popper" class="w-6 h-6"></i>
+        <span class="text-xs">Celebrations</span>
+      </button>
+    </div>
+  </nav>
+
+  <script src="loading-utils.js"></script>
+  <script>
+    lucide.createIcons();
+
+    // Sample data for search results
+    const sampleData = {
+      accounts: [
+        { name: 'Pastor John', username: '@pastorjohn', followers: '12.5K', verified: true, avatar: '👤' },
+        { name: 'Rev. Sarah', username: '@revsarah', followers: '8.9K', verified: true, avatar: '👤' },
+        { name: 'Brother Michael', username: '@brothermichael', followers: '15.2K', verified: false, avatar: '👤' },
+        { name: 'Sister Grace', username: '@sistergrace', followers: '6.7K', verified: true, avatar: '👤' },
+        { name: 'Father David', username: '@fatherdavid', followers: '20.1K', verified: true, avatar: '👤' },
+      ],
+      videos: [
+        { title: 'Sunday Service Highlights', creator: 'Pastor John', views: '2.5K', duration: '15:30', thumbnail: '📹' },
+        { title: 'Daily Devotional: Gratitude', creator: 'Brother Michael', views: '1.8K', duration: '8:45', thumbnail: '📹' },
+        { title: 'Community Prayer Session', creator: 'Sister Grace', views: '3.2K', duration: '22:10', thumbnail: '📹' },
+        { title: 'Bible Study: Forgiveness', creator: 'Rev. Sarah', views: '4.1K', duration: '18:20', thumbnail: '📹' },
+      ],
+      hashtags: [
+        { name: '#faith', posts: '12.5K' },
+        { name: '#prayer', posts: '8.9K' },
+        { name: '#gratitude', posts: '15.2K' },
+        { name: '#forgiveness', posts: '6.7K' },
+        { name: '#community', posts: '20.1K' },
+        { name: '#spiritual', posts: '9.3K' },
+      ],
+      photos: [
+        { id: 1, type: 'photo' },
+        { id: 2, type: 'photo' },
+        { id: 3, type: 'photo' },
+        { id: 4, type: 'photo' },
+        { id: 5, type: 'photo' },
+        { id: 6, type: 'photo' },
+        { id: 7, type: 'photo' },
+        { id: 8, type: 'photo' },
+        { id: 9, type: 'photo' },
+      ],
+      audio: [
+        { title: 'Morning Prayer Meditation', creator: 'Pastor John', duration: '12:45', plays: '5.2K', cover: '🎵' },
+        { title: 'Gospel Worship Songs', creator: 'Rev. Sarah', duration: '25:30', plays: '8.9K', cover: '🎵' },
+        { id: 3, title: 'Bible Reading: Psalms', creator: 'Brother Michael', duration: '18:20', plays: '3.7K', cover: '🎵' },
+        { title: 'Spiritual Guidance Podcast', creator: 'Sister Grace', duration: '35:15', plays: '12.1K', cover: '🎵' },
+        { title: 'Hymn Collection', creator: 'Father David', duration: '42:10', plays: '6.8K', cover: '🎵' },
+        { title: 'Daily Devotional Audio', creator: 'Pastor John', duration: '10:30', plays: '4.5K', cover: '🎵' },
+      ]
+    };
+
+    let currentTab = 'all';
+    let searchTimeout;
+
+    // Search input handler
+    const searchInput = document.getElementById('searchInput');
+    searchInput.addEventListener('input', (e) => {
+      clearTimeout(searchTimeout);
+      const query = e.target.value.trim().toLowerCase();
+      
+      searchTimeout = setTimeout(() => {
+        if (query.length > 0) {
+          performSearch(query);
+        } else {
+          showEmptyState();
+        }
+      }, 300);
+    });
+
+    // Tab switching
+    function switchTab(tab, buttonElement) {
+      currentTab = tab;
+      
+      // Update active tab
+      document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+      buttonElement.classList.add('active');
+      
+      // Perform search with current query
+      const query = searchInput.value.trim().toLowerCase();
+      if (query.length > 0) {
+        performSearch(query);
+      } else {
+        showEmptyState();
+      }
+    }
+
+    // Perform search
+    function performSearch(query) {
+      const results = document.getElementById('searchResults');
+      showResultsLoading(results);
+
+      // Simulate API delay
+      setTimeout(() => {
+        results.innerHTML = '';
+        let filteredResults = [];
+
+        if (currentTab === 'all' || currentTab === 'accounts') {
+          const accounts = sampleData.accounts.filter(account => 
+            account.name.toLowerCase().includes(query) || 
+            account.username.toLowerCase().includes(query)
+          );
+          filteredResults.push(...accounts.map(acc => ({ type: 'account', data: acc })));
+        }
+
+        if (currentTab === 'all' || currentTab === 'videos') {
+          const videos = sampleData.videos.filter(video => 
+            video.title.toLowerCase().includes(query) || 
+            video.creator.toLowerCase().includes(query)
+          );
+          filteredResults.push(...videos.map(vid => ({ type: 'video', data: vid })));
+        }
+
+        if (currentTab === 'all' || currentTab === 'hashtags') {
+          const hashtags = sampleData.hashtags.filter(hashtag => 
+            hashtag.name.toLowerCase().includes(query)
+          );
+          filteredResults.push(...hashtags.map(ht => ({ type: 'hashtag', data: ht })));
+        }
+
+        if (currentTab === 'all' || currentTab === 'photos') {
+          // For photos, show all if query matches common photo-related terms
+          if (query.includes('photo') || query.includes('image') || query.includes('pic') || query.length === 0) {
+            filteredResults.push(...sampleData.photos.map(photo => ({ type: 'photo', data: photo })));
+          }
+        }
+
+        if (currentTab === 'all' || currentTab === 'audio') {
+          let audio = sampleData.audio;
+          if (query.length > 0) {
+            audio = audio.filter(audioItem => 
+              audioItem.title.toLowerCase().includes(query) || 
+              audioItem.creator.toLowerCase().includes(query) ||
+              query.includes('audio') || query.includes('music') || query.includes('podcast') || query.includes('song')
+            );
+          }
+          filteredResults.push(...audio.map(aud => ({ type: 'audio', data: aud })));
+        }
+
+        if (filteredResults.length === 0) {
+          showNoResults(query);
+        } else {
+          renderResults(filteredResults);
+        }
+      }, 500);
+    }
+
+    // Render results
+    function renderResults(results) {
+      const resultsContainer = document.getElementById('searchResults');
+      resultsContainer.innerHTML = '';
+
+      // Group results by type for better organization
+      const grouped = {
+        account: [],
+        video: [],
+        hashtag: [],
+        photo: [],
+        audio: []
+      };
+
+      results.forEach(result => {
+        grouped[result.type].push(result);
+      });
+
+      // Render accounts
+      if (grouped.account.length > 0 && (currentTab === 'all' || currentTab === 'accounts')) {
+        const section = document.createElement('div');
+        section.className = 'mb-4';
+        if (currentTab === 'all') {
+          const sectionTitle = document.createElement('h3');
+          sectionTitle.className = 'text-lg font-bold mb-3 text-white';
+          sectionTitle.textContent = 'Accounts';
+          section.appendChild(sectionTitle);
+        }
+        grouped.account.forEach(result => {
+          section.appendChild(createAccountCard(result.data));
+        });
+        resultsContainer.appendChild(section);
+      }
+
+      // Render videos
+      if (grouped.video.length > 0 && (currentTab === 'all' || currentTab === 'videos')) {
+        const section = document.createElement('div');
+        section.className = 'mb-4';
+        if (currentTab === 'all') {
+          const sectionTitle = document.createElement('h3');
+          sectionTitle.className = 'text-lg font-bold mb-3 text-white';
+          sectionTitle.textContent = 'Videos';
+          section.appendChild(sectionTitle);
+        }
+        grouped.video.forEach(result => {
+          section.appendChild(createVideoCard(result.data));
+        });
+        resultsContainer.appendChild(section);
+      }
+
+      // Render hashtags
+      if (grouped.hashtag.length > 0 && (currentTab === 'all' || currentTab === 'hashtags')) {
+        const section = document.createElement('div');
+        section.className = 'mb-4';
+        if (currentTab === 'all') {
+          const sectionTitle = document.createElement('h3');
+          sectionTitle.className = 'text-lg font-bold mb-3 text-white';
+          sectionTitle.textContent = 'Hashtags';
+          section.appendChild(sectionTitle);
+        }
+        grouped.hashtag.forEach(result => {
+          section.appendChild(createHashtagCard(result.data));
+        });
+        resultsContainer.appendChild(section);
+      }
+
+      // Render photos
+      if (grouped.photo.length > 0 && (currentTab === 'all' || currentTab === 'photos')) {
+        const section = document.createElement('div');
+        section.className = 'mb-4';
+        if (currentTab === 'all') {
+          const sectionTitle = document.createElement('h3');
+          sectionTitle.className = 'text-lg font-bold mb-3 text-white';
+          sectionTitle.textContent = 'Photos';
+          section.appendChild(sectionTitle);
+        }
+        const photoGrid = document.createElement('div');
+        photoGrid.className = 'media-grid';
+        grouped.photo.forEach(result => {
+          photoGrid.appendChild(createPhotoCard(result.data));
+        });
+        section.appendChild(photoGrid);
+        resultsContainer.appendChild(section);
+      }
+
+      // Render audio
+      if (grouped.audio.length > 0 && (currentTab === 'all' || currentTab === 'audio')) {
+        const section = document.createElement('div');
+        section.className = 'mb-4';
+        if (currentTab === 'all') {
+          const sectionTitle = document.createElement('h3');
+          sectionTitle.className = 'text-lg font-bold mb-3 text-white';
+          sectionTitle.textContent = 'Audio';
+          section.appendChild(sectionTitle);
+        }
+        grouped.audio.forEach(result => {
+          section.appendChild(createAudioCard(result.data));
+        });
+        resultsContainer.appendChild(section);
+      }
+    }
+
+    // Create account card
+    function createAccountCard(account) {
+      const card = document.createElement('div');
+      card.className = 'result-card account-result';
+      card.onclick = () => {
+        alert(`Viewing profile: ${account.name}`);
+        // You can navigate to profile page here
+      };
+      
+      card.innerHTML = `
+        <div class="account-avatar">${account.avatar}</div>
+        <div class="account-info">
+          <div class="account-name">
+            ${account.name}
+            ${account.verified ? '<span class="verified-badge">✓</span>' : ''}
+          </div>
+          <div class="account-stats">${account.username} • ${account.followers} followers</div>
+        </div>
+      `;
+      
+      return card;
+    }
+
+    // Create video card
+    function createVideoCard(video) {
+      const card = document.createElement('div');
+      card.className = 'result-card video-result';
+      card.onclick = () => {
+        alert(`Playing video: ${video.title}`);
+      };
+      
+      card.innerHTML = `
+        <div class="video-thumbnail">
+          <div class="play-button">▶</div>
+          <div class="media-type-badge">VIDEO</div>
+        </div>
+        <div class="video-info">
+          <div class="video-avatar">👤</div>
+          <div class="video-details">
+            <div class="video-title">${video.title}</div>
+            <div class="video-meta">${video.creator} • ${video.views} views</div>
+          </div>
+          <div class="video-duration">${video.duration}</div>
+        </div>
+      `;
+      
+      return card;
+    }
+
+    // Create hashtag card
+    function createHashtagCard(hashtag) {
+      const card = document.createElement('div');
+      card.className = 'result-card hashtag-result';
+      card.onclick = () => {
+        alert(`Viewing posts for ${hashtag.name}`);
+      };
+      
+      card.innerHTML = `
+        <div class="hashtag-info">
+          <div class="hashtag-name">${hashtag.name}</div>
+          <div class="hashtag-posts">${hashtag.posts} posts</div>
+        </div>
+        <i data-lucide="chevron-right" class="w-5 h-5 text-gray-400"></i>
+      `;
+      
+      lucide.createIcons();
+      return card;
+    }
+
+    // Create photo card
+    function createPhotoCard(photo) {
+      const card = document.createElement('div');
+      card.className = 'media-item';
+      card.onclick = () => {
+        alert(`Viewing photo ${photo.id}`);
+      };
+      
+      card.innerHTML = `
+        <div class="media-placeholder">📷</div>
+        <div class="media-type-badge">PHOTO</div>
+      `;
+      
+      return card;
+    }
+
+    // Create audio card
+    function createAudioCard(audio) {
+      const card = document.createElement('div');
+      card.className = 'result-card audio-result';
+      const audioId = `audio-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      
+      card.innerHTML = `
+        <div class="audio-cover">
+          <span>${audio.cover}</span>
+          <div class="audio-play-button" id="play-btn-${audioId}" onclick="event.stopPropagation(); toggleAudio('${audioId}')">
+            ▶
+          </div>
+        </div>
+        <div class="audio-info">
+          <div class="audio-title">${audio.title}</div>
+          <div class="audio-creator">${audio.creator} • ${audio.plays} plays</div>
+          <div class="audio-controls">
+            <div class="audio-player" id="player-${audioId}" onclick="event.stopPropagation(); seekAudio(event, '${audioId}')">
+              <div class="audio-progress" id="progress-${audioId}"></div>
+            </div>
+            <div class="audio-time" id="time-${audioId}">0:00</div>
+            <div class="audio-duration">${audio.duration}</div>
+          </div>
+          <audio id="audio-element-${audioId}" preload="metadata" onloadedmetadata="setAudioDuration('${audioId}')" ontimeupdate="updateAudioProgress('${audioId}')" onended="resetAudio('${audioId}')">
+            <!-- Audio source would go here in a real implementation -->
+          </audio>
+        </div>
+      `;
+      
+      // Store audio data
+      card.dataset.audioId = audioId;
+      card.dataset.duration = audio.duration;
+      
+      return card;
+    }
+
+    // Audio playback functions
+    let currentlyPlaying = null;
+
+    function toggleAudio(audioId) {
+      const playButton = document.getElementById(`play-btn-${audioId}`);
+      const audioElement = document.getElementById(`audio-element-${audioId}`);
+      
+      // Stop currently playing audio if different
+      if (currentlyPlaying && currentlyPlaying !== audioId) {
+        const prevButton = document.getElementById(`play-btn-${currentlyPlaying}`);
+        const prevAudio = document.getElementById(`audio-element-${currentlyPlaying}`);
+        if (prevAudio) {
+          prevAudio.pause();
+          prevAudio.currentTime = 0;
+        }
+        if (prevButton) {
+          prevButton.textContent = '▶';
+          prevButton.classList.remove('playing');
+        }
+      }
+      
+      if (!audioElement) return;
+      
+      if (audioElement.paused) {
+        // Create a demo audio source (in real app, this would be actual audio URL)
+        if (!audioElement.src) {
+          // Using a silent audio data URL as placeholder
+          // In production, replace with actual audio file URL
+          audioElement.src = 'data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBzGH0fPTgjMGHm7A7+OZURAJR6Df8sJsJAUwgM/y1H0uBSB5yfDZkD8KFF+z6OuoVBQKRp/g8r5sIQcxh9Hz04IzBh5uwO/jmVEQCUeg3/LCbCQF';
+        }
+        
+        audioElement.play().then(() => {
+          playButton.textContent = '⏸';
+          playButton.classList.add('playing');
+          currentlyPlaying = audioId;
+        }).catch(() => {
+          // If audio fails to play, simulate playback
+          simulateAudioPlayback(audioId);
+        });
+      } else {
+        audioElement.pause();
+        playButton.textContent = '▶';
+        playButton.classList.remove('playing');
+        currentlyPlaying = null;
+      }
+    }
+
+    function simulateAudioPlayback(audioId) {
+      const playButton = document.getElementById(`play-btn-${audioId}`);
+      const progressBar = document.getElementById(`progress-${audioId}`);
+      const timeDisplay = document.getElementById(`time-${audioId}`);
+      const card = document.querySelector(`[data-audio-id="${audioId}"]`);
+      const duration = card ? card.dataset.duration : '0:00';
+      
+      playButton.textContent = '⏸';
+      playButton.classList.add('playing');
+      currentlyPlaying = audioId;
+      
+      // Parse duration (format: MM:SS)
+      const [minutes, seconds] = duration.split(':').map(Number);
+      const totalSeconds = minutes * 60 + seconds;
+      let currentSeconds = 0;
+      
+      const interval = setInterval(() => {
+        if (currentlyPlaying !== audioId) {
+          clearInterval(interval);
+          return;
+        }
+        
+        currentSeconds++;
+        const progress = (currentSeconds / totalSeconds) * 100;
+        progressBar.style.width = progress + '%';
+        
+        const mins = Math.floor(currentSeconds / 60);
+        const secs = currentSeconds % 60;
+        timeDisplay.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+        
+        if (currentSeconds >= totalSeconds) {
+          clearInterval(interval);
+          resetAudio(audioId);
+        }
+      }, 1000);
+    }
+
+    function setAudioDuration(audioId) {
+      const audioElement = document.getElementById(`audio-element-${audioId}`);
+      if (audioElement && audioElement.duration) {
+        const duration = Math.floor(audioElement.duration);
+        const mins = Math.floor(duration / 60);
+        const secs = duration % 60;
+        // Duration is already set in the card, so we can use it
+      }
+    }
+
+    function updateAudioProgress(audioId) {
+      const audioElement = document.getElementById(`audio-element-${audioId}`);
+      const progressBar = document.getElementById(`progress-${audioId}`);
+      const timeDisplay = document.getElementById(`time-${audioId}`);
+      
+      if (audioElement && progressBar && timeDisplay) {
+        const progress = (audioElement.currentTime / audioElement.duration) * 100;
+        progressBar.style.width = progress + '%';
+        
+        const currentSeconds = Math.floor(audioElement.currentTime);
+        const mins = Math.floor(currentSeconds / 60);
+        const secs = currentSeconds % 60;
+        timeDisplay.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
+      }
+    }
+
+    function seekAudio(event, audioId) {
+      const player = document.getElementById(`player-${audioId}`);
+      const audioElement = document.getElementById(`audio-element-${audioId}`);
+      
+      if (player && audioElement && audioElement.duration) {
+        const rect = player.getBoundingClientRect();
+        const clickX = event.clientX - rect.left;
+        const percentage = clickX / rect.width;
+        audioElement.currentTime = percentage * audioElement.duration;
+      }
+    }
+
+    function resetAudio(audioId) {
+      const playButton = document.getElementById(`play-btn-${audioId}`);
+      const progressBar = document.getElementById(`progress-${audioId}`);
+      const timeDisplay = document.getElementById(`time-${audioId}`);
+      const audioElement = document.getElementById(`audio-element-${audioId}`);
+      
+      if (playButton) {
+        playButton.textContent = '▶';
+        playButton.classList.remove('playing');
+      }
+      if (progressBar) {
+        progressBar.style.width = '0%';
+      }
+      if (timeDisplay) {
+        timeDisplay.textContent = '0:00';
+      }
+      if (audioElement) {
+        audioElement.currentTime = 0;
+        audioElement.pause();
+      }
+      if (currentlyPlaying === audioId) {
+        currentlyPlaying = null;
+      }
+    }
+
+    // Show empty state
+    function showEmptyState() {
+      const results = document.getElementById('searchResults');
+      results.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">🔍</div>
+          <div class="empty-state-text">Start searching to discover content</div>
+          <div class="empty-state-subtext">Try searching for influencers, videos, hashtags, photos, or audio</div>
+        </div>
+      `;
+    }
+
+    // Show no results
+    function showNoResults(query) {
+      const results = document.getElementById('searchResults');
+      results.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon">😔</div>
+          <div class="empty-state-text">No results found for "${query}"</div>
+          <div class="empty-state-subtext">Try a different search term or browse by category</div>
+        </div>
+      `;
+    }
+
+    // Initialize with empty state
+    showEmptyState();
+
+    // Swipe gesture detection for left-to-right swipe to go to categories
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchEndX = 0;
+    let touchEndY = 0;
+
+    document.addEventListener('touchstart', function(e) {
+      touchStartX = e.changedTouches[0].screenX;
+      touchStartY = e.changedTouches[0].screenY;
+    }, { passive: true });
+
+    document.addEventListener('touchend', function(e) {
+      touchEndX = e.changedTouches[0].screenX;
+      touchEndY = e.changedTouches[0].screenY;
+      handleSwipe();
+    }, { passive: true });
+
+    function handleSwipe() {
+      const deltaX = touchEndX - touchStartX;
+      const deltaY = touchEndY - touchStartY;
+      const minSwipeDistance = 100; // Minimum swipe distance in pixels
+      
+      // Check if it's a horizontal swipe (more horizontal than vertical)
+      if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        // Left to right swipe (positive deltaX) - swipe from anywhere on screen
+        if (deltaX > minSwipeDistance) {
+          window.location.href = 'categories.html';
+        }
+      }
+    }
+  </script>
+</body>
+</html>
+
+

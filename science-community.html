@@ -967,7 +967,7 @@
     }
 
     // Send join request
-    function sendJoinRequest(sessionId) {
+    async function sendJoinRequest(sessionId) {
       const session = liveSessions.find(s => s.id === sessionId);
       if (!session) return;
 
@@ -978,11 +978,107 @@
       
       showLoadingOverlay('Sending join request...');
       
-      // Simulate API call
-      setTimeout(() => {
-        const messageInput = document.getElementById('joinMessageInput');
-        const message = messageInput ? messageInput.value : '';
+      const messageInput = document.getElementById('joinMessageInput');
+      const message = messageInput ? messageInput.value : '';
 
+      try {
+        // First, get current user info
+        const authResponse = await fetch('/api/auth/status', {
+          credentials: 'include'
+        });
+        const authData = await authResponse.json();
+
+        if (!authResponse.ok || !authData.authenticated) {
+          alert('Please log in to send a join request.');
+          hideLoadingOverlay();
+          if (button) setButtonLoading(button, false);
+          return;
+        }
+
+        // Get influencer ID - try to find user by hostName or use a default
+        // In a real app, sessions should have influencerId stored
+        let influencerId = session.influencerId || session.hostId;
+        
+        // If no influencerId, try to find by email or name
+        if (!influencerId) {
+          try {
+            const userSearchResponse = await fetch(`/api/users/search?email=${encodeURIComponent(session.hostEmail || '')}`, {
+              credentials: 'include'
+            });
+            if (userSearchResponse.ok) {
+              const userData = await userSearchResponse.json();
+              if (userData.user) {
+                influencerId = userData.user.id;
+              }
+            }
+          } catch (e) {
+            console.warn('Could not find influencer ID, using session hostId');
+          }
+        }
+
+        // Create request via backend API
+        const requestData = {
+          influencerId: influencerId || session.hostId || null,
+          hostName: session.hostName,
+          hostEmail: session.hostEmail,
+          sessionTitle: session.sessionTitle || 'Community Session',
+          sessionType: 'video',
+          durationMinutes: session.durationMinutes || 45,
+          amount: session.price || 0,
+          message: message || ''
+        };
+
+        const response = await fetch('/api/connect-requests', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(requestData)
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          // Also create in frontend state for compatibility
+          const createdRequest = vvelAppState.createJoinRequest({
+            sessionId: session.id,
+            hostName: session.hostName,
+            hostAvatar: session.hostAvatar,
+            sessionTitle: session.sessionTitle,
+            amount: session.price,
+            message,
+            userId: currentUser.id,
+            userName: currentUser.name,
+            userEmail: currentUser.email,
+            durationMinutes: 45,
+            backendId: data.request._id // Store backend ID
+          });
+
+          if (createdRequest) {
+            session.status = 'requested';
+            session.requestStatus = 'pending';
+            session.requestId = createdRequest.id;
+            session.backendRequestId = data.request._id;
+          }
+
+          closeRequestModal();
+          hideLoadingOverlay();
+          hydrateSessionState();
+          renderLiveSessions();
+
+          if (button) {
+            setButtonLoading(button, false);
+          }
+
+          alert('Join request sent! You will be notified when the influencer approves your request.');
+        } else {
+          throw new Error(data.message || 'Failed to create request');
+        }
+      } catch (error) {
+        console.error('Error sending join request:', error);
+        hideLoadingOverlay();
+        if (button) setButtonLoading(button, false);
+        
+        // Fallback to frontend-only storage
         const createdRequest = vvelAppState.createJoinRequest({
           sessionId: session.id,
           hostName: session.hostName,
@@ -1003,16 +1099,10 @@
         }
 
         closeRequestModal();
-        hideLoadingOverlay();
         hydrateSessionState();
         renderLiveSessions();
-
-        if (button) {
-          setButtonLoading(button, false);
-        }
-
-        alert('Join request sent! You will be notified when the influencer approves your request.');
-      }, 1000);
+        alert('Join request sent (offline mode). It will be synced when connection is restored.');
+      }
     }
 
     // Show payment modal

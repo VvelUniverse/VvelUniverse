@@ -10,26 +10,84 @@ const User = require('../models/User');
 
 // Serialize user for session
 passport.serializeUser((user, done) => {
-  done(null, user._id);
+  try {
+    // Ensure we store the user ID as a string
+    const userId = user._id ? user._id.toString() : (user.id ? user.id.toString() : null);
+    
+    if (!userId) {
+      console.error('❌ Serialization error: No user ID found', user);
+      return done(new Error('User ID not found'), null);
+    }
+    
+    // Only log in development mode or when DEBUG is enabled
+    if (process.env.NODE_ENV === 'development' && process.env.DEBUG_PASSPORT === 'true') {
+      console.log('✓ Serializing user:', user.email || user.name || 'Unknown', 'ID:', userId);
+    }
+    
+    // Store the user ID in the session
+    done(null, userId);
+  } catch (error) {
+    console.error('❌ Serialization error:', error);
+    done(error, null);
+  }
 });
 
 // Deserialize user from session
 passport.deserializeUser(async (id, done) => {
   try {
+    if (!id) {
+      // Only log in debug mode
+      if (process.env.NODE_ENV === 'development' && process.env.DEBUG_PASSPORT === 'true') {
+        console.log('⚠️ No user ID provided for deserialization');
+      }
+      return done(null, false);
+    }
+    
+    // Handle both string and ObjectId
     const user = await User.findById(id);
+    if (!user) {
+      // Only log errors, not normal "not found" cases (session might be expired)
+      if (process.env.NODE_ENV === 'development' && process.env.DEBUG_PASSPORT === 'true') {
+        console.log('⚠️ User not found for ID:', id);
+      }
+      return done(null, false);
+    }
+    
+    // Only log in debug mode - deserialization happens on every request
+    if (process.env.NODE_ENV === 'development' && process.env.DEBUG_PASSPORT === 'true') {
+      console.log('✓ Deserialized user:', user.email);
+    }
+    
+    // Return the user object - this will be attached to req.user
     done(null, user);
   } catch (error) {
-    done(error, null);
+    console.error('❌ Deserialize error:', error);
+    // On error, return false to indicate authentication failed
+    done(null, false);
   }
 });
 
 // Google OAuth Strategy
+// Construct callback URL dynamically based on environment
+const getGoogleCallbackURL = () => {
+  // In production, use the full domain from environment variable
+  if (process.env.NODE_ENV === 'production') {
+    const baseURL = process.env.RAILWAY_PUBLIC_DOMAIN 
+      ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}` 
+      : (process.env.FRONTEND_URL || 'https://yourdomain.com');
+    return `${baseURL}/api/auth/google/callback`;
+  }
+  // In development, use localhost with the port from environment
+  const port = process.env.PORT || 3000;
+  return `http://localhost:${port}/api/auth/google/callback`;
+};
+
 passport.use(
   new GoogleStrategy(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: '/api/auth/google/callback',
+      callbackURL: getGoogleCallbackURL(),
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
@@ -69,12 +127,26 @@ passport.use(
 );
 
 // Instagram OAuth Strategy
+// Construct callback URL dynamically based on environment
+const getInstagramCallbackURL = () => {
+  // In production, use the full domain from environment variable
+  if (process.env.NODE_ENV === 'production') {
+    const baseURL = process.env.RAILWAY_PUBLIC_DOMAIN 
+      ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}` 
+      : (process.env.FRONTEND_URL || 'https://yourdomain.com');
+    return `${baseURL}/api/auth/instagram/callback`;
+  }
+  // In development, use localhost with the port from environment
+  const port = process.env.PORT || 3000;
+  return `http://localhost:${port}/api/auth/instagram/callback`;
+};
+
 passport.use(
   new InstagramStrategy(
     {
       clientID: process.env.INSTAGRAM_CLIENT_ID,
       clientSecret: process.env.INSTAGRAM_CLIENT_SECRET,
-      callbackURL: '/api/auth/instagram/callback',
+      callbackURL: getInstagramCallbackURL(),
     },
     async (accessToken, refreshToken, profile, done) => {
       try {

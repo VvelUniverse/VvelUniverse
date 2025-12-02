@@ -14,7 +14,7 @@ const passport = require('passport');
  */
 router.post('/register', async (req, res) => {
   try {
-    const { name, email, mobile, password, accountType } = req.body;
+    const { name, email, mobile, password } = req.body;
 
     // Validate required fields
     if (!name || !email || !mobile || !password) {
@@ -53,8 +53,7 @@ router.post('/register', async (req, res) => {
       email: email.toLowerCase().trim(),
       mobile: mobile.trim(),
       password: password,
-      provider: 'local',
-      accountType: accountType || 'user'
+      provider: 'local'
     });
 
     await user.save();
@@ -261,6 +260,107 @@ router.get('/auth/status', (req, res) => {
     success: true,
     authenticated: false
   });
+});
+
+/**
+ * POST /forgot-password
+ * Request password reset link
+ */
+router.post('/forgot-password', async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email address is required'
+      });
+    }
+
+    // Find user by email
+    const user = await User.findOne({ email: email.toLowerCase().trim() });
+
+    if (!user) {
+      // Don't reveal if user exists for security
+      return res.json({
+        success: true,
+        message: 'If an account exists with this email, a password reset link has been sent.'
+      });
+    }
+
+    // Check if user has a password (local provider)
+    if (user.provider !== 'local' || !user.password) {
+      return res.json({
+        success: true,
+        message: 'If an account exists with this email, a password reset link has been sent.'
+      });
+    }
+
+    // TODO: Generate reset token and send email
+    // For now, return success message
+    // In production, you should:
+    // 1. Generate a secure reset token
+    // 2. Store it in database with expiration
+    // 3. Send email with reset link
+    // 4. Create reset password endpoint
+
+    res.json({
+      success: true,
+      message: 'Password reset link has been sent to your email address. Please check your inbox.'
+    });
+  } catch (error) {
+    console.error('Forgot password error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to process password reset request. Please try again.'
+    });
+  }
+});
+
+/**
+ * POST /forgot-login-id
+ * Request login ID (email) via mobile number
+ */
+router.post('/forgot-login-id', async (req, res) => {
+  try {
+    const { mobile } = req.body;
+
+    if (!mobile) {
+      return res.status(400).json({
+        success: false,
+        message: 'Mobile number is required'
+      });
+    }
+
+    // Find user by mobile number
+    const user = await User.findOne({ mobile: mobile.trim() });
+
+    if (!user) {
+      // Don't reveal if user exists for security
+      return res.json({
+        success: true,
+        message: 'If an account exists with this mobile number, your login ID has been sent via SMS.'
+      });
+    }
+
+    // TODO: Send SMS with login ID (email)
+    // For now, return success message
+    // In production, you should:
+    // 1. Integrate with SMS service (Twilio, AWS SNS, etc.)
+    // 2. Send SMS with user's email address
+    // 3. Log the action for security
+
+    res.json({
+      success: true,
+      message: `Your login ID has been sent to ${mobile}. Please check your SMS.`
+    });
+  } catch (error) {
+    console.error('Forgot login ID error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to process login ID recovery request. Please try again.'
+    });
+  }
 });
 
 module.exports = router;

@@ -720,22 +720,7 @@
           <i data-lucide="plus" class="w-4 h-4"></i>
           Add Money
         </button>
-        <button class="action-button" onclick="openModal('withdraw')">
-          <i data-lucide="arrow-up" class="w-4 h-4"></i>
-          Withdraw
-        </button>
-      </div>
-    </div>
-
-    <!-- Stats Grid -->
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-label">This Month</div>
-        <div class="stat-value negative">-₹850.00</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Total Spent</div>
-        <div class="stat-value negative">-₹3,200.00</div>
+        
       </div>
     </div>
 
@@ -743,7 +728,7 @@
     <div class="tabs">
       <button class="tab-button active" onclick="switchTab('transactions', this)">Transactions</button>
       <button class="tab-button" onclick="switchTab('autopay', this)">Autopay</button>
-      <button class="tab-button" onclick="switchTab('usage', this)">Usage</button>
+      
     </div>
 
     <!-- Transactions Tab -->
@@ -781,17 +766,7 @@
       </div>
     </div>
 
-    <!-- Usage Tab -->
-    <div id="usageTab" class="tab-content" style="display: none;">
-      <div class="section-title">
-        <i data-lucide="trending-up" class="w-5 h-5"></i>
-        Spending Breakdown
-      </div>
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-label">Connections</div>
-          <div class="stat-value negative">-₹1,200.00</div>
-        </div>
+    
         <div class="stat-card">
           <div class="stat-label">Live Events</div>
           <div class="stat-value negative">-₹800.00</div>
@@ -832,35 +807,35 @@
         <div class="form-group">
           <label class="form-label">Payment Method</label>
           <div class="payment-methods">
-            <div class="payment-method-card" onclick="selectPaymentMethod('credit_card', 'addMoney')">
+            <div class="payment-method-card" onclick="selectPaymentMethod('credit_card')">
               <div class="payment-method-icon">💳</div>
               <div class="payment-method-label">Credit Card</div>
             </div>
-            <div class="payment-method-card" onclick="selectPaymentMethod('debit_card', 'addMoney')">
+            <div class="payment-method-card" onclick="selectPaymentMethod('debit_card')">
               <div class="payment-method-icon">💳</div>
               <div class="payment-method-label">Debit Card</div>
             </div>
-            <div class="payment-method-card" onclick="selectPaymentMethod('upi', 'addMoney')">
+            <div class="payment-method-card" onclick="selectPaymentMethod('upi')">
               <div class="payment-method-icon">📱</div>
               <div class="payment-method-label">UPI</div>
             </div>
-            <div class="payment-method-card" onclick="selectPaymentMethod('netbanking', 'addMoney')">
+            <div class="payment-method-card" onclick="selectPaymentMethod('netbanking')">
               <div class="payment-method-icon">🏦</div>
               <div class="payment-method-label">Net Banking</div>
             </div>
-            <div class="payment-method-card" onclick="selectPaymentMethod('paytm', 'addMoney')">
+            <div class="payment-method-card" onclick="selectPaymentMethod('paytm')">
               <div class="payment-method-icon">💼</div>
               <div class="payment-method-label">Paytm</div>
             </div>
-            <div class="payment-method-card" onclick="selectPaymentMethod('phonepe', 'addMoney')">
+            <div class="payment-method-card" onclick="selectPaymentMethod('phonepe')">
               <div class="payment-method-icon">📲</div>
               <div class="payment-method-label">PhonePe</div>
             </div>
-            <div class="payment-method-card" onclick="selectPaymentMethod('googlepay', 'addMoney')">
+            <div class="payment-method-card" onclick="selectPaymentMethod('googlepay')">
               <div class="payment-method-icon">G</div>
               <div class="payment-method-label">Google Pay</div>
             </div>
-            <div class="payment-method-card" onclick="selectPaymentMethod('amazonpay', 'addMoney')">
+            <div class="payment-method-card" onclick="selectPaymentMethod('amazonpay')">
               <div class="payment-method-icon">A</div>
               <div class="payment-method-label">Amazon Pay</div>
             </div>
@@ -954,119 +929,6 @@
         </div>
 
         <button type="submit" class="submit-button">Add Money</button>
-      </form>
-    </div>
-  </div>
-
-  <!-- Withdraw Modal -->
-  <div class="modal-overlay" id="withdrawModal">
-    <div class="modal" style="max-width: 500px; max-height: 90vh; overflow-y: auto;">
-      <div class="modal-header">
-        <div class="modal-title">Withdraw Money</div>
-        <button class="close-button" onclick="closeModal('withdraw')">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-      </div>
-      <form onsubmit="handleWithdraw(event)" id="withdrawForm">
-        <div class="form-group">
-          <label class="form-label">Amount</label>
-          <input type="number" id="withdrawAmount" class="form-input" placeholder="Enter amount" min="100" step="100" required>
-          <div class="quick-amounts">
-            <button type="button" class="quick-amount-button" onclick="setQuickAmount(500, 'withdraw')">₹500</button>
-            <button type="button" class="quick-amount-button" onclick="setQuickAmount(1000, 'withdraw')">₹1K</button>
-            <button type="button" class="quick-amount-button" onclick="setQuickAmount(2000, 'withdraw')">₹2K</button>
-            <button type="button" class="quick-amount-button" onclick="setQuickAmount(5000, 'withdraw')">₹5K</button>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">Withdrawal Method</label>
-          <div class="payment-methods">
-            <div class="payment-method-card" onclick="selectPaymentMethod('bank_transfer', 'withdraw')">
-              <div class="payment-method-icon">🏦</div>
-              <div class="payment-method-label">Bank Transfer</div>
-            </div>
-            <div class="payment-method-card" onclick="selectPaymentMethod('upi', 'withdraw')">
-              <div class="payment-method-icon">📱</div>
-              <div class="payment-method-label">UPI</div>
-            </div>
-            <div class="payment-method-card" onclick="selectPaymentMethod('paytm', 'withdraw')">
-              <div class="payment-method-icon">💼</div>
-              <div class="payment-method-label">Paytm</div>
-            </div>
-            <div class="payment-method-card" onclick="selectPaymentMethod('phonepe', 'withdraw')">
-              <div class="payment-method-icon">📲</div>
-              <div class="payment-method-label">PhonePe</div>
-            </div>
-          </div>
-          <input type="hidden" id="withdrawPaymentMethod" required>
-        </div>
-
-        <!-- Bank Transfer Form -->
-        <div id="bankTransferForm" class="payment-form-section">
-          <div class="form-group">
-            <label class="form-label">Select Bank Account</label>
-            <div class="saved-cards">
-              <div class="saved-card-item selected" onclick="selectSavedAccount(this, 'account1')">
-                <div class="card-info">
-                  <div class="card-brand">🏦</div>
-                  <div class="card-details">****1234 - HDFC Bank</div>
-                </div>
-                <div style="font-size: 12px; color: rgba(255,255,255,0.6);">Savings</div>
-              </div>
-              <div class="saved-card-item" onclick="selectSavedAccount(this, 'account2')">
-                <div class="card-info">
-                  <div class="card-brand">🏦</div>
-                  <div class="card-details">****5678 - SBI</div>
-                </div>
-                <div style="font-size: 12px; color: rgba(255,255,255,0.6);">Current</div>
-              </div>
-              <div class="add-new-card" onclick="showNewAccountForm()">
-                + Add New Bank Account
-              </div>
-            </div>
-          </div>
-          <div id="newAccountForm" style="display: none;">
-            <div class="form-group">
-              <label class="form-label">Account Holder Name</label>
-              <input type="text" class="form-input" placeholder="Enter account holder name">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Account Number</label>
-              <input type="text" class="form-input" placeholder="Enter account number">
-            </div>
-            <div class="form-group">
-              <label class="form-label">IFSC Code</label>
-              <input type="text" class="form-input" placeholder="Enter IFSC code" style="text-transform: uppercase;">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Bank Name</label>
-              <input type="text" class="form-input" placeholder="Enter bank name">
-            </div>
-          </div>
-        </div>
-
-        <!-- UPI Withdraw Form -->
-        <div id="upiWithdrawForm" class="payment-form-section">
-          <div class="form-group">
-            <label class="form-label">UPI ID</label>
-            <input type="text" class="form-input" placeholder="yourname@upi" id="withdrawUpiId">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Confirm UPI ID</label>
-            <input type="text" class="form-input" placeholder="Re-enter UPI ID">
-          </div>
-        </div>
-
-        <!-- Wallet Withdraw Forms -->
-        <div id="walletWithdrawForm" class="payment-form-section">
-          <div class="form-group">
-            <label class="form-label">Mobile Number</label>
-            <input type="tel" class="form-input" placeholder="Enter registered mobile number" maxlength="10">
-          </div>
-        </div>
-
-        <button type="submit" class="submit-button">Withdraw</button>
       </form>
     </div>
   </div>
@@ -1209,7 +1071,7 @@
       // Show/hide tab content
       document.getElementById('transactionsTab').style.display = tab === 'transactions' ? 'block' : 'none';
       document.getElementById('autopayTab').style.display = tab === 'autopay' ? 'block' : 'none';
-      document.getElementById('usageTab').style.display = tab === 'usage' ? 'block' : 'none';
+      
     }
 
     // Toggle autopay
@@ -1238,15 +1100,11 @@
 
     // Open modal
     function openModal(type) {
-      const modal = document.getElementById(type === 'addMoney' ? 'addMoneyModal' : 'withdrawModal');
+      const modal = document.getElementById('addMoneyModal');
       modal.classList.add('show');
       lucide.createIcons();
       // Reset form when opening
-      if (type === 'addMoney') {
-        resetAddMoneyForm();
-      } else {
-        resetWithdrawForm();
-      }
+      resetAddMoneyForm();
     }
 
     // Reset add money form
@@ -1265,13 +1123,7 @@
       document.getElementById('newCardForm').style.display = 'none';
     }
 
-    // Reset withdraw form
-    function resetWithdrawForm() {
-      document.getElementById('withdrawAmount').value = '';
-      document.getElementById('withdrawPaymentMethod').value = '';
-      document.querySelectorAll('#withdrawModal .payment-method-card').forEach(card => {
-        card.classList.remove('selected');
-      });
+    );
       document.querySelectorAll('#withdrawModal .payment-form-section').forEach(section => {
         section.classList.remove('show');
       });
@@ -1282,7 +1134,7 @@
     }
 
     // Set quick amount
-    function setQuickAmount(amount, formType = 'addMoney') {
+    function setQuickAmount(amount) {
       const amountInput = formType === 'addMoney' 
         ? document.getElementById('addAmount')
         : document.getElementById('withdrawAmount');
@@ -1302,8 +1154,8 @@
     }
 
     // Select payment method
-    function selectPaymentMethod(method, formType) {
-      const modal = formType === 'addMoney' ? 'addMoneyModal' : 'withdrawModal';
+    function selectPaymentMethod(method) {
+      const modal = 'addMoneyModal';
       const methodInput = formType === 'addMoney' 
         ? document.getElementById('addPaymentMethod')
         : document.getElementById('withdrawPaymentMethod');
@@ -1323,20 +1175,15 @@
       });
       
       // Show relevant form section
-      if (formType === 'addMoney') {
-        if (method === 'credit_card' || method === 'debit_card') {
-          document.getElementById('cardForm').classList.add('show');
-        } else if (method === 'upi') {
-          document.getElementById('upiForm').classList.add('show');
-        } else if (method === 'netbanking') {
-          document.getElementById('netbankingForm').classList.add('show');
-        } else if (['paytm', 'phonepe', 'googlepay', 'amazonpay'].includes(method)) {
-          document.getElementById('walletForm').classList.add('show');
-        }
-      } else {
-        if (method === 'bank_transfer') {
-          document.getElementById('bankTransferForm').classList.add('show');
-        } else if (method === 'upi') {
+      if (method === 'credit_card' || method === 'debit_card') {
+        document.getElementById('cardForm').classList.add('show');
+      } else if (method === 'upi') {
+        document.getElementById('upiForm').classList.add('show');
+      } else if (method === 'netbanking') {
+        document.getElementById('netbankingForm').classList.add('show');
+      } else if (['paytm', 'phonepe', 'googlepay', 'amazonpay'].includes(method)) {
+        document.getElementById('walletForm').classList.add('show');
+      } else if (method === 'upi') {
           document.getElementById('upiWithdrawForm').classList.add('show');
         } else if (['paytm', 'phonepe'].includes(method)) {
           document.getElementById('walletWithdrawForm').classList.add('show');
@@ -1352,11 +1199,7 @@
       element.classList.add('selected');
     }
 
-    // Select saved account
-    function selectSavedAccount(element, accountId) {
-      document.querySelectorAll('#bankTransferForm .saved-card-item').forEach(item => {
-        item.classList.remove('selected');
-      });
+    );
       element.classList.add('selected');
     }
 
@@ -1365,10 +1208,7 @@
       document.getElementById('newCardForm').style.display = 'block';
     }
 
-    // Show new account form
-    function showNewAccountForm() {
-      document.getElementById('newAccountForm').style.display = 'block';
-    }
+    
 
     // Format card number
     function formatCardNumber(input) {
@@ -1388,7 +1228,7 @@
 
     // Close modal
     function closeModal(type) {
-      const modal = document.getElementById(type === 'addMoney' ? 'addMoneyModal' : 'withdrawModal');
+      const modal = document.getElementById('addMoneyModal');
       modal.classList.remove('show');
     }
 
@@ -1442,16 +1282,7 @@
       }, 1500);
     }
 
-    // Handle withdraw
-    function handleWithdraw(event) {
-      event.preventDefault();
-      const amount = parseFloat(document.getElementById('withdrawAmount').value);
-      const paymentMethod = document.getElementById('withdrawPaymentMethod').value;
-      
-      if (!paymentMethod) {
-        alert('Please select a withdrawal method');
-        return;
-      }
+    
       
       if (amount > walletData.balance) {
         alert('Insufficient balance!');

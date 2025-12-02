@@ -1,4 +1,4 @@
-// Shared JavaScript functions for all sports category pages
+// Shared JavaScript functions for all medical category pages
 
 const postRatings = {};
 

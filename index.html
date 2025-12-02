@@ -167,6 +167,112 @@
     .links a { color: #bfdbfe; text-decoration: none; font-weight: 700; font-size: 14px; }
     .links a:hover { color: #93c5fd; text-decoration: underline; }
 
+    .forgot-links {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 12px;
+      flex-wrap: wrap;
+    }
+
+    .forgot-btn {
+      background: transparent;
+      border: none;
+      color: #bfdbfe;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 6px 0;
+      text-decoration: none;
+      transition: color 0.2s ease;
+      flex: 1;
+      min-width: 120px;
+    }
+
+    .forgot-btn:hover {
+      color: #93c5fd;
+      text-decoration: underline;
+    }
+
+    /* Modal styles for forgot password/login ID */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--glass-bg);
+      border: var(--glass-border);
+      border-radius: 18px;
+      padding: 24px;
+      max-width: 450px;
+      width: 100%;
+      backdrop-filter: var(--glass-blur);
+      box-shadow: var(--panel-shadow);
+      position: relative;
+      animation: modalSlideIn 0.3s ease;
+    }
+
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .modal-title {
+      font-family: var(--font-title);
+      font-size: 20px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .modal-close {
+      background: transparent;
+      border: none;
+      color: var(--muted-color);
+      font-size: 24px;
+      cursor: pointer;
+      padding: 0;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    .modal-close:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+
     /* Subtle staged entrance for fields */
     .field input, .submit { opacity: 0; transform: translateY(18px); animation: lift .9s ease both; }
     .field:nth-child(1) input { animation-delay: .35s; }
@@ -441,6 +547,10 @@
           <label class="remember"><input type="checkbox" id="remember" /> <span data-i18n="login.remember">Remember me</span></label>
         </div>
         <button class="submit" type="submit" id="submitBtn" data-i18n="login.submit">Sign In</button>
+        <div class="forgot-links">
+          <button type="button" class="forgot-btn" id="forgotPasswordBtn" data-i18n="login.forgotPassword">Forgot Password?</button>
+          <button type="button" class="forgot-btn" id="forgotLoginIdBtn" data-i18n="login.forgotLoginId">Forgot Login ID?</button>
+        </div>
       </form>
       <div class="links"><span data-i18n="login.noAccount">Don't have an account?</span> <a href="./register.html" data-i18n="login.signup">Signup</a></div>
 
@@ -465,6 +575,53 @@
       </div>
     </section>
   </main>
+
+  <!-- Forgot Password Modal -->
+  <div id="forgotPasswordModal" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" data-i18n="forgotPassword.title">Forgot Password</h2>
+        <button class="modal-close" onclick="closeForgotPasswordModal()">&times;</button>
+      </div>
+      <div id="forgotPasswordError" class="error-message" style="display: none;"></div>
+      <div id="forgotPasswordSuccess" class="success-message" style="display: none;"></div>
+      <form id="forgotPasswordForm" onsubmit="event.preventDefault(); handleForgotPassword();">
+        <div class="field">
+          <label for="forgotPasswordEmail" data-i18n="forgotPassword.email">Email Address</label>
+          <input id="forgotPasswordEmail" type="email" required autocomplete="email" placeholder="Enter your registered email" />
+        </div>
+        <p style="color: var(--muted-color); font-size: 13px; margin-top: 8px; margin-bottom: 16px;" data-i18n="forgotPassword.description">
+          Enter your email address and we'll send you a link to reset your password.
+        </p>
+        <button class="submit" type="submit" data-i18n="forgotPassword.submit">Send Reset Link</button>
+        <button type="button" class="forgot-btn" style="width: 100%; margin-top: 12px;" onclick="closeForgotPasswordModal()" data-i18n="common.cancel">Cancel</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Forgot Login ID Modal -->
+  <div id="forgotLoginIdModal" class="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" data-i18n="forgotLoginId.title">Forgot Login ID</h2>
+        <button class="modal-close" onclick="closeForgotLoginIdModal()">&times;</button>
+      </div>
+      <div id="forgotLoginIdError" class="error-message" style="display: none;"></div>
+      <div id="forgotLoginIdSuccess" class="success-message" style="display: none;"></div>
+      <form id="forgotLoginIdForm" onsubmit="event.preventDefault(); handleForgotLoginId();">
+        <div class="field">
+          <label for="forgotLoginIdMobile" data-i18n="forgotLoginId.mobile">Mobile Number</label>
+          <input id="forgotLoginIdMobile" type="tel" required autocomplete="tel" placeholder="Enter your registered mobile number" />
+        </div>
+        <p style="color: var(--muted-color); font-size: 13px; margin-top: 8px; margin-bottom: 16px;" data-i18n="forgotLoginId.description">
+          Enter your registered mobile number and we'll send you your login ID (email) via SMS.
+        </p>
+        <button class="submit" type="submit" data-i18n="forgotLoginId.submit">Send Login ID</button>
+        <button type="button" class="forgot-btn" style="width: 100%; margin-top: 12px;" onclick="closeForgotLoginIdModal()" data-i18n="common.cancel">Cancel</button>
+      </form>
+    </div>
+  </div>
+
   <script src="i18n.js"></script>
   <script src="admin-config.js"></script>
   <script src="app-state.js"></script>
@@ -677,12 +834,167 @@
       }
     }
 
+    // Forgot Password Modal Functions
+    function openForgotPasswordModal() {
+      const modal = document.getElementById('forgotPasswordModal');
+      if (modal) {
+        modal.classList.add('show');
+        document.getElementById('forgotPasswordEmail').focus();
+      }
+    }
+
+    function closeForgotPasswordModal() {
+      const modal = document.getElementById('forgotPasswordModal');
+      if (modal) {
+        modal.classList.remove('show');
+        document.getElementById('forgotPasswordForm').reset();
+        document.getElementById('forgotPasswordError').style.display = 'none';
+        document.getElementById('forgotPasswordSuccess').style.display = 'none';
+      }
+    }
+
+    async function handleForgotPassword() {
+      const email = document.getElementById('forgotPasswordEmail').value.trim();
+      const errorDiv = document.getElementById('forgotPasswordError');
+      const successDiv = document.getElementById('forgotPasswordSuccess');
+      const submitBtn = document.querySelector('#forgotPasswordForm .submit');
+
+      // Hide previous messages
+      errorDiv.style.display = 'none';
+      successDiv.style.display = 'none';
+
+      if (!email) {
+        errorDiv.textContent = window.i18n?.t('forgotPassword.emailRequired') || 'Please enter your email address';
+        errorDiv.style.display = 'block';
+        return;
+      }
+
+      try {
+        submitBtn.disabled = true;
+        submitBtn.textContent = window.i18n?.t('forgotPassword.sending') || 'Sending...';
+
+        const response = await fetch(`${API_BASE}/forgot-password`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          successDiv.textContent = data.message || window.i18n?.t('forgotPassword.success') || 'Password reset link has been sent to your email';
+          successDiv.style.display = 'block';
+          document.getElementById('forgotPasswordForm').reset();
+          setTimeout(() => {
+            closeForgotPasswordModal();
+          }, 3000);
+        } else {
+          errorDiv.textContent = data.message || window.i18n?.t('forgotPassword.error') || 'Failed to send reset link. Please try again.';
+          errorDiv.style.display = 'block';
+        }
+      } catch (error) {
+        console.error('Forgot password error:', error);
+        errorDiv.textContent = window.i18n?.t('forgotPassword.networkError') || 'Network error. Please try again.';
+        errorDiv.style.display = 'block';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = window.i18n?.t('forgotPassword.submit') || 'Send Reset Link';
+      }
+    }
+
+    // Forgot Login ID Modal Functions
+    function openForgotLoginIdModal() {
+      const modal = document.getElementById('forgotLoginIdModal');
+      if (modal) {
+        modal.classList.add('show');
+        document.getElementById('forgotLoginIdMobile').focus();
+      }
+    }
+
+    function closeForgotLoginIdModal() {
+      const modal = document.getElementById('forgotLoginIdModal');
+      if (modal) {
+        modal.classList.remove('show');
+        document.getElementById('forgotLoginIdForm').reset();
+        document.getElementById('forgotLoginIdError').style.display = 'none';
+        document.getElementById('forgotLoginIdSuccess').style.display = 'none';
+      }
+    }
+
+    async function handleForgotLoginId() {
+      const mobile = document.getElementById('forgotLoginIdMobile').value.trim();
+      const errorDiv = document.getElementById('forgotLoginIdError');
+      const successDiv = document.getElementById('forgotLoginIdSuccess');
+      const submitBtn = document.querySelector('#forgotLoginIdForm .submit');
+
+      // Hide previous messages
+      errorDiv.style.display = 'none';
+      successDiv.style.display = 'none';
+
+      if (!mobile) {
+        errorDiv.textContent = window.i18n?.t('forgotLoginId.mobileRequired') || 'Please enter your mobile number';
+        errorDiv.style.display = 'block';
+        return;
+      }
+
+      try {
+        submitBtn.disabled = true;
+        submitBtn.textContent = window.i18n?.t('forgotLoginId.sending') || 'Sending...';
+
+        const response = await fetch(`${API_BASE}/forgot-login-id`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ mobile })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          successDiv.textContent = data.message || window.i18n?.t('forgotLoginId.success') || 'Your login ID has been sent to your mobile number';
+          successDiv.style.display = 'block';
+          document.getElementById('forgotLoginIdForm').reset();
+          setTimeout(() => {
+            closeForgotLoginIdModal();
+          }, 3000);
+        } else {
+          errorDiv.textContent = data.message || window.i18n?.t('forgotLoginId.error') || 'Failed to send login ID. Please try again.';
+          errorDiv.style.display = 'block';
+        }
+      } catch (error) {
+        console.error('Forgot login ID error:', error);
+        errorDiv.textContent = window.i18n?.t('forgotLoginId.networkError') || 'Network error. Please try again.';
+        errorDiv.style.display = 'block';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = window.i18n?.t('forgotLoginId.submit') || 'Send Login ID';
+      }
+    }
+
+    // Close modals when clicking outside
+    document.getElementById('forgotPasswordModal')?.addEventListener('click', (e) => {
+      if (e.target.id === 'forgotPasswordModal') {
+        closeForgotPasswordModal();
+      }
+    });
+
+    document.getElementById('forgotLoginIdModal')?.addEventListener('click', (e) => {
+      if (e.target.id === 'forgotLoginIdModal') {
+        closeForgotLoginIdModal();
+      }
+    });
+
     // Initialize page
     (function(){
       const loginPanel = document.getElementById('loginPanel');
       const authGate = document.getElementById('authGate');
       const showLogin = document.getElementById('showLogin');
       const form = document.getElementById('signinForm');
+      const forgotPasswordBtn = document.getElementById('forgotPasswordBtn');
+      const forgotLoginIdBtn = document.getElementById('forgotLoginIdBtn');
 
       // Check auth status first
       checkAuthStatus();
@@ -690,6 +1002,14 @@
       // Show login form by default (backend will handle auth check)
       if (authGate) authGate.style.display = 'none';
       if (loginPanel) loginPanel.style.display = 'block';
+
+      // Add event listeners for forgot buttons
+      if (forgotPasswordBtn) {
+        forgotPasswordBtn.addEventListener('click', openForgotPasswordModal);
+      }
+      if (forgotLoginIdBtn) {
+        forgotLoginIdBtn.addEventListener('click', openForgotLoginIdModal);
+      }
 
       // Show login form when "Sign in" is clicked from auth gate
       if (showLogin) {
@@ -796,3 +1116,7 @@
   </script>
 </body>
 </html>
+
+
+
+

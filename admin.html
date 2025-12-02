@@ -348,9 +348,9 @@
         </div>
         <div class="stats-grid">
           <div class="stat-card">
-            <div class="stat-label">Wallet Balance</div>
-            <div class="stat-value" id="walletBalanceStat">₹0.00</div>
-            <div class="stat-hint">Auto-pay uses wallet balance when enabled</div>
+            <div class="stat-label">Total Connection Requests</div>
+            <div class="stat-value" id="totalRequestsStat">0</div>
+            <div class="stat-hint">All profile connection requests</div>
           </div>
           <div class="stat-card">
             <div class="stat-label">Pending Requests</div>
@@ -366,6 +366,11 @@
             <div class="stat-label">Confirmed Sessions</div>
             <div class="stat-value" id="confirmedSessionsStat">0</div>
             <div class="stat-hint">Users with meeting links issued</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Wallet Balance</div>
+            <div class="stat-value" id="walletBalanceStat">₹0.00</div>
+            <div class="stat-hint">Auto-pay uses wallet balance when enabled</div>
           </div>
         </div>
         <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
@@ -451,14 +456,47 @@
 
     loginForm.addEventListener('submit', handleAdminLogin);
 
-    function handleAdminLogin(event) {
+    async function handleAdminLogin(event) {
       event.preventDefault();
       const email = document.getElementById('adminEmail').value.trim();
       const password = document.getElementById('adminPassword').value;
       loginError.style.display = 'none';
       showLoadingOverlay('Authenticating...');
 
-      setTimeout(() => {
+      try {
+        // First try backend authentication
+        const loginResponse = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ email, password })
+        });
+
+        const loginData = await loginResponse.json();
+
+        if (loginResponse.ok && loginData.success) {
+          // Check if user is admin via backend
+          const authStatusResponse = await fetch('/api/auth/status', {
+            credentials: 'include'
+          });
+          const authData = await authStatusResponse.json();
+
+          if (authData.success && authData.authenticated) {
+            state.admin = authData.user;
+            sessionStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify({
+              email,
+              timestamp: Date.now()
+            }));
+            document.getElementById('adminNameLabel').textContent = state.admin.name || state.admin.email;
+            loginView.style.display = 'none';
+            dashboardView.style.display = 'flex';
+            hideLoadingOverlay();
+            await refreshDashboard(false);
+            return;
+          }
+        }
+
+        // Fallback to frontend admin config
         const result = vvelAppState.authenticateAdmin(email, password);
         hideLoadingOverlay();
 
@@ -467,7 +505,7 @@
             ? 'Incorrect password. Please try again.'
             : result.reason === 'not_found'
               ? 'Admin account not found. Verify the email or have a super admin grant access.'
-              : 'Unable to sign in. Please try again.';
+              : loginData.message || 'Unable to sign in. Please try again.';
           loginError.style.display = 'block';
           return;
         }
@@ -481,14 +519,45 @@
         document.getElementById('adminNameLabel').textContent = state.admin.name || state.admin.email;
         loginView.style.display = 'none';
         dashboardView.style.display = 'flex';
-        refreshDashboard(false);
-      }, 600);
+        await refreshDashboard(false);
+      } catch (error) {
+        console.error('Admin login error:', error);
+        hideLoadingOverlay();
+        loginError.textContent = 'Network error. Please try again.';
+        loginError.style.display = 'block';
+      }
     }
 
-    function refreshDashboard(showLoader = true) {
+    async function refreshDashboard(showLoader = true) {
       if (showLoader) {
         showLoadingOverlay('Syncing latest data...');
       }
+      
+      try {
+        // Try to fetch from backend API first
+        const [statsResponse, requestsResponse] = await Promise.all([
+          fetch('/api/admin/stats', { credentials: 'include' }),
+          fetch('/api/admin/connect-requests', { credentials: 'include' })
+        ]);
+
+        if (statsResponse.ok && requestsResponse.ok) {
+          const statsData = await statsResponse.json();
+          const requestsData = await requestsResponse.json();
+
+          if (statsData.success && requestsData.success) {
+            // Use backend data
+            state.requests = requestsData.requests || [];
+            renderStatsFromBackend(statsData.stats);
+            renderRequests();
+            if (showLoader) hideLoadingOverlay();
+            return;
+          }
+        }
+      } catch (error) {
+        console.warn('Backend API not available, using frontend state:', error);
+      }
+
+      // Fallback to frontend state
       setTimeout(() => {
         syncRequestsAndRender();
         if (showLoader) {
@@ -498,17 +567,30 @@
     }
 
     function refreshRequests() {
+      // This will be handled by refreshDashboard now
       state.requests = vvelAppState.getJoinRequests();
+    }
+
+    function renderStatsFromBackend(stats) {
+      document.getElementById('totalRequestsStat').textContent = stats.totalRequests || 0;
+      document.getElementById('pendingRequestsStat').textContent = stats.pendingRequests || 0;
+      document.getElementById('needsPaymentStat').textContent = stats.needsPayment || 0;
+      document.getElementById('confirmedSessionsStat').textContent = stats.approvedRequests || 0;
+      // Wallet balance might need separate endpoint
+      const wallet = vvelAppState.getWallet();
+      document.getElementById('walletBalanceStat').textContent = formatCurrency(wallet.balance);
     }
 
     function renderStats() {
       const wallet = vvelAppState.getWallet();
       document.getElementById('walletBalanceStat').textContent = formatCurrency(wallet.balance);
 
+      const total = state.requests.length;
       const pending = state.requests.filter(req => req.status === 'pending').length;
       const needsPayment = state.requests.filter(req => req.status === 'needs_payment').length;
       const confirmed = state.requests.filter(req => req.status === 'approved').length;
 
+      document.getElementById('totalRequestsStat').textContent = total;
       document.getElementById('pendingRequestsStat').textContent = pending;
       document.getElementById('needsPaymentStat').textContent = needsPayment;
       document.getElementById('confirmedSessionsStat').textContent = confirmed;
@@ -527,11 +609,16 @@
       empty.style.display = 'none';
 
       state.requests
-        .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
+        .sort((a, b) => {
+          const aTime = a.createdAt ? (typeof a.createdAt === 'string' ? new Date(a.createdAt).getTime() : a.createdAt) : 0;
+          const bTime = b.createdAt ? (typeof b.createdAt === 'string' ? new Date(b.createdAt).getTime() : b.createdAt) : 0;
+          return bTime - aTime;
+        })
         .forEach(request => {
           const card = document.createElement('div');
           card.className = 'request-card';
 
+          const requestId = request._id || request.id;
           const statusClass = getStatusClass(request.status);
           const statusLabel = getStatusLabel(request.status);
           const updated = request.updatedAt
@@ -539,86 +626,224 @@
             : 'Just now';
 
           const amountText = formatCurrency(request.amount || 0);
+          const influencerName = request.influencerName || request.hostName || 'Unknown';
+          const requesterName = request.requesterName || request.userName || 'Member';
+          const sessionTitle = request.sessionTitle || 'Community Session';
+          const sessionId = request.sessionId || requestId;
 
-          card.innerHTML = `
-            <div class="request-header">
-              <div class="request-meta">
-                <div style="font-size: 1.1rem; font-weight: 700;">
-                  ${request.sessionTitle || 'Community Session'}
-                </div>
-                <div style="color: rgba(226,232,240,0.7); font-size: 0.9rem;">
-                  Host: ${request.hostName || 'Unknown'} &nbsp;•&nbsp; Requested by: ${request.userName || 'Member'}
-                </div>
-                <div style="color: rgba(226,232,240,0.55); font-size: 0.85rem;">
-                  Session ID: ${request.sessionId}
-                </div>
-                <div class="tag">
-                  <i data-lucide="wallet" class="w-4 h-4"></i>
-                  ${amountText}
-                </div>
-              </div>
-              <div class="status-badge ${statusClass}">
-                <i data-lucide="dot" class="w-4 h-4"></i>
-                ${statusLabel}
-              </div>
-            </div>
-            ${request.message ? `<div style="font-size: 0.9rem; color: rgba(226,232,240,0.75);">
-              <strong>Message:</strong> ${request.message}
-            </div>` : ''}
-            ${request.notes ? `<div style="font-size: 0.85rem; color: rgba(94,234,212,0.7);">
-              <strong>Notes:</strong> ${request.notes}
-            </div>` : ''}
-            <div style="font-size: 0.8rem; color: rgba(226,232,240,0.55);">
-              Last updated ${updated}
-            </div>
-            <div class="request-actions">
-              <button class="button primary" onclick="approveRequest('${request.id}', this)" ${request.status === 'approved' ? 'disabled' : ''}>
-                <i data-lucide="check-circle" class="w-4 h-4"></i>
-                Auto-Approve & Charge
-              </button>
-              <button class="button neutral" onclick="markManualPayment('${request.id}', this)" ${request.status === 'approved' ? 'disabled' : ''}>
-                <i data-lucide="credit-card" class="w-4 h-4"></i>
-                Confirm Manual Payment
-              </button>
-              <button class="button danger" onclick="rejectRequest('${request.id}', this)">
-                <i data-lucide="x-circle" class="w-4 h-4"></i>
-                Reject Request
-              </button>
-            </div>
-          `;
+          // Create request header
+          const requestHeader = document.createElement('div');
+          requestHeader.className = 'request-header';
 
+          // Create request meta section
+          const requestMeta = document.createElement('div');
+          requestMeta.className = 'request-meta';
+
+          // Session title
+          const titleDiv = document.createElement('div');
+          titleDiv.style.fontSize = '1.1rem';
+          titleDiv.style.fontWeight = '700';
+          titleDiv.textContent = sessionTitle;
+          requestMeta.appendChild(titleDiv);
+
+          // Influencer and requester info
+          const metaDiv = document.createElement('div');
+          metaDiv.style.color = 'rgba(226,232,240,0.7)';
+          metaDiv.style.fontSize = '0.9rem';
+          metaDiv.textContent = `Influencer: ${influencerName} • Requested by: ${requesterName}`;
+          requestMeta.appendChild(metaDiv);
+
+          // Request ID
+          const requestIdDiv = document.createElement('div');
+          requestIdDiv.style.color = 'rgba(226,232,240,0.55)';
+          requestIdDiv.style.fontSize = '0.85rem';
+          requestIdDiv.textContent = `Request ID: ${requestId}`;
+          requestMeta.appendChild(requestIdDiv);
+
+          // Amount tag
+          const amountTag = document.createElement('div');
+          amountTag.className = 'tag';
+          const walletIcon = document.createElement('i');
+          walletIcon.setAttribute('data-lucide', 'wallet');
+          walletIcon.className = 'w-4 h-4';
+          amountTag.appendChild(walletIcon);
+          amountTag.appendChild(document.createTextNode(amountText));
+          requestMeta.appendChild(amountTag);
+
+          // Meeting code tag (if exists)
+          if (request.meetingCode) {
+            const meetingTag = document.createElement('div');
+            meetingTag.className = 'tag';
+            meetingTag.style.background = 'rgba(34,197,94,0.2)';
+            meetingTag.style.color = '#4ade80';
+            const videoIcon = document.createElement('i');
+            videoIcon.setAttribute('data-lucide', 'video');
+            videoIcon.className = 'w-4 h-4';
+            meetingTag.appendChild(videoIcon);
+            meetingTag.appendChild(document.createTextNode(`Meeting: ${request.meetingCode}`));
+            requestMeta.appendChild(meetingTag);
+          }
+
+          requestHeader.appendChild(requestMeta);
+
+          // Status badge
+          const statusBadge = document.createElement('div');
+          statusBadge.className = `status-badge ${statusClass}`;
+          const dotIcon = document.createElement('i');
+          dotIcon.setAttribute('data-lucide', 'dot');
+          dotIcon.className = 'w-4 h-4';
+          statusBadge.appendChild(dotIcon);
+          statusBadge.appendChild(document.createTextNode(statusLabel));
+          requestHeader.appendChild(statusBadge);
+
+          card.appendChild(requestHeader);
+
+          // Message (if exists)
+          if (request.message) {
+            const messageDiv = document.createElement('div');
+            messageDiv.style.fontSize = '0.9rem';
+            messageDiv.style.color = 'rgba(226,232,240,0.75)';
+            const strong = document.createElement('strong');
+            strong.textContent = 'Message: ';
+            messageDiv.appendChild(strong);
+            messageDiv.appendChild(document.createTextNode(request.message));
+            card.appendChild(messageDiv);
+          }
+
+          // Notes (if exists)
+          if (request.notes) {
+            const notesDiv = document.createElement('div');
+            notesDiv.style.fontSize = '0.85rem';
+            notesDiv.style.color = 'rgba(94,234,212,0.7)';
+            const strong = document.createElement('strong');
+            strong.textContent = 'Notes: ';
+            notesDiv.appendChild(strong);
+            notesDiv.appendChild(document.createTextNode(request.notes));
+            card.appendChild(notesDiv);
+          }
+
+          // Rejection reason (if exists)
+          if (request.rejectionReason) {
+            const rejectionDiv = document.createElement('div');
+            rejectionDiv.style.fontSize = '0.85rem';
+            rejectionDiv.style.color = 'rgba(248,113,113,0.7)';
+            const strong = document.createElement('strong');
+            strong.textContent = 'Rejection Reason: ';
+            rejectionDiv.appendChild(strong);
+            rejectionDiv.appendChild(document.createTextNode(request.rejectionReason));
+            card.appendChild(rejectionDiv);
+          }
+
+          // Last updated
+          const updatedDiv = document.createElement('div');
+          updatedDiv.style.fontSize = '0.8rem';
+          updatedDiv.style.color = 'rgba(226,232,240,0.55)';
+          updatedDiv.textContent = `Last updated ${updated}`;
+          card.appendChild(updatedDiv);
+
+          // Request actions
+          const actionsDiv = document.createElement('div');
+          actionsDiv.className = 'request-actions';
+
+          // Approve button
+          const approveBtn = document.createElement('button');
+          approveBtn.className = 'button primary';
+          if (request.status === 'approved' || request.status === 'rejected') {
+            approveBtn.disabled = true;
+          }
+          approveBtn.addEventListener('click', function() {
+            approveRequest(requestId, this);
+          });
+          const checkIcon = document.createElement('i');
+          checkIcon.setAttribute('data-lucide', 'check-circle');
+          checkIcon.className = 'w-4 h-4';
+          approveBtn.appendChild(checkIcon);
+          approveBtn.appendChild(document.createTextNode(' Approve Request'));
+          actionsDiv.appendChild(approveBtn);
+
+          // Mark payment button
+          const paymentBtn = document.createElement('button');
+          paymentBtn.className = 'button neutral';
+          if (request.status === 'approved' || request.paymentStatus === 'paid') {
+            paymentBtn.disabled = true;
+          }
+          paymentBtn.addEventListener('click', function() {
+            markManualPayment(requestId, this);
+          });
+          const creditIcon = document.createElement('i');
+          creditIcon.setAttribute('data-lucide', 'credit-card');
+          creditIcon.className = 'w-4 h-4';
+          paymentBtn.appendChild(creditIcon);
+          paymentBtn.appendChild(document.createTextNode(' Mark Payment Received'));
+          actionsDiv.appendChild(paymentBtn);
+
+          // Reject button
+          const rejectBtn = document.createElement('button');
+          rejectBtn.className = 'button danger';
+          if (request.status === 'rejected') {
+            rejectBtn.disabled = true;
+          }
+          rejectBtn.addEventListener('click', function() {
+            rejectRequest(requestId, this);
+          });
+          const xIcon = document.createElement('i');
+          xIcon.setAttribute('data-lucide', 'x-circle');
+          xIcon.className = 'w-4 h-4';
+          rejectBtn.appendChild(xIcon);
+          rejectBtn.appendChild(document.createTextNode(' Reject Request'));
+          actionsDiv.appendChild(rejectBtn);
+
+          card.appendChild(actionsDiv);
           list.appendChild(card);
         });
 
       lucide.createIcons();
     }
 
-    function approveRequest(requestId, button) {
+    async function approveRequest(requestId, button) {
       setButtonState(button, true, 'Approving...');
       showLoadingOverlay('Confirming request...');
 
-      setTimeout(() => {
-        const outcome = vvelAppState.approveJoinRequest(requestId, {
-          approvedBy: state.admin?.email || 'admin@panel'
+      try {
+        const response = await fetch(`/api/admin/connect-requests/${requestId}/approve`, {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json'
+          },
+          credentials: 'include' // Important: include cookies
         });
 
+        const data = await response.json();
         hideLoadingOverlay();
         setButtonState(button, false);
 
-        if (!outcome.success) {
-          alert(outcome.reason ? `Approval failed: ${outcome.reason}` : 'Unable to approve request.');
-        } else if (outcome.outcome.status === 'auto_paid') {
-          alert('Request approved and wallet auto-payment succeeded. Meeting details issued.');
+        if (response.ok && data.success) {
+          alert('Request approved successfully. Meeting details have been generated.');
+          await refreshDashboard(false);
+        } else if (response.status === 401 || response.status === 403) {
+          // Authentication/Authorization error
+          alert('Your session has expired or you do not have permission. Please log in again.');
+          // Don't auto-logout, let user try to refresh
+          await refreshDashboard(false);
         } else {
-          alert('Request approved. The member must complete payment manually.');
+          alert(data.message || 'Unable to approve request.');
         }
-
-        refreshDashboard(false);
-      }, 600);
+      } catch (error) {
+        console.error('Approve request error:', error);
+        hideLoadingOverlay();
+        setButtonState(button, false);
+        
+        // Check if it's a network error or auth error
+        if (error.message && error.message.includes('fetch')) {
+          alert('Network error. Please check your connection and try again.');
+        } else {
+          alert('An error occurred while approving the request. Please try again.');
+        }
+      }
     }
 
-    function markManualPayment(requestId, button) {
-      const request = state.requests.find(item => item.id === requestId);
+    async function markManualPayment(requestId, button) {
+      const request = state.requests.find(item => item.id === requestId || item._id === requestId);
       if (!request) {
         alert('Request not found.');
         return;
@@ -627,58 +852,69 @@
       setButtonState(button, true, 'Recording...');
       showLoadingOverlay('Recording manual payment...');
 
-      setTimeout(() => {
-        const meeting = vvelAppState.recordManualConnectionPayment({
-          sessionId: request.sessionId,
-          hostName: request.hostName,
-          sessionTitle: request.sessionTitle,
-          amount: request.amount,
-          processedBy: state.admin?.email || 'admin@panel',
-          paymentMethod: 'Manual confirmation'
+      try {
+        const response = await fetch(`/api/admin/connect-requests/${requestId}/payment`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ paymentMethod: 'Manual confirmation' })
         });
 
+        const data = await response.json();
         hideLoadingOverlay();
         setButtonState(button, false);
 
-        const walletUpdate = vvelAppState.updateWalletBalance(-request.amount, {
-          type: 'debit',
-          title: 'Manual Connection Payment',
-          subtitle: `${request.hostName} • ${request.sessionTitle}`,
-          amount: request.amount,
-          date: 'Just now',
-          status: 'completed'
-        });
-
-        alert(meeting && meeting.meetingDetails
-          ? 'Manual payment recorded. Meeting code shared with the member.'
-          : 'Manual payment recorded.');
-
-        refreshDashboard(false);
-      }, 600);
+        if (response.ok && data.success) {
+          alert('Manual payment recorded. Meeting details have been shared with the member.');
+          await refreshDashboard(false);
+        } else if (response.status === 401 || response.status === 403) {
+          alert('Your session has expired or you do not have permission. Please log in again.');
+          await refreshDashboard(false);
+        } else {
+          alert(data.message || 'Unable to record payment.');
+        }
+      } catch (error) {
+        console.error('Record payment error:', error);
+        hideLoadingOverlay();
+        setButtonState(button, false);
+        alert('An error occurred while recording payment. Please try again.');
+      }
     }
 
-    function rejectRequest(requestId, button) {
+    async function rejectRequest(requestId, button) {
       const reason = prompt('Add an optional note for the member (leave blank to skip):', '');
+      if (reason === null) return; // User cancelled
+      
       setButtonState(button, true, 'Rejecting...');
       showLoadingOverlay('Updating request status...');
 
-      setTimeout(() => {
-        const result = vvelAppState.rejectJoinRequest(requestId, {
-          reason: reason || 'Request declined by admin',
-          adminEmail: state.admin?.email || 'admin@panel'
+      try {
+        const response = await fetch(`/api/admin/connect-requests/${requestId}/reject`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ reason: reason || 'Request declined by admin' })
         });
 
+        const data = await response.json();
         hideLoadingOverlay();
         setButtonState(button, false);
 
-        if (!result || !result.success) {
-          alert('Unable to reject the request.');
+        if (response.ok && data.success) {
+          alert('Request rejected. The member has been notified.');
+          await refreshDashboard(false);
+        } else if (response.status === 401 || response.status === 403) {
+          alert('Your session has expired or you do not have permission. Please log in again.');
+          await refreshDashboard(false);
         } else {
-          alert('Request updated. The member has been notified.');
+          alert(data.message || 'Unable to reject the request.');
         }
-
-        refreshDashboard();
-      }, 500);
+      } catch (error) {
+        console.error('Reject request error:', error);
+        hideLoadingOverlay();
+        setButtonState(button, false);
+        alert('An error occurred while rejecting the request. Please try again.');
+      }
     }
 
     function renderAdminAccounts() {
@@ -725,11 +961,11 @@
       refreshRequests();
       renderStats();
       renderRequests();
-      renderAdminAccounts();
+      loadAdminAccounts();
     }
 
     const grantForm = document.getElementById('grantAdminForm');
-    grantForm.addEventListener('submit', event => {
+    grantForm.addEventListener('submit', async event => {
       event.preventDefault();
       const email = document.getElementById('newAdminEmail').value.trim();
       const name = document.getElementById('newAdminName').value.trim();
@@ -740,22 +976,115 @@
         return;
       }
 
-      const result = vvelAppState.grantAdminAccess({
-        email,
-        name,
-        password,
-        addedBy: state.admin?.email || 'admin@panel',
-        permissions: ['requests:read', 'requests:write']
-      });
+      try {
+        const response = await fetch('/api/admin/grant-admin', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ email, name, password })
+        });
 
-      if (result.success) {
-        alert('Admin access granted. Share the credentials securely with the delegate.');
-        grantForm.reset();
-        renderAdminAccounts();
-      } else {
-        alert(result.reason || 'Unable to grant admin access.');
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          alert('Admin access granted. Share the credentials securely with the delegate.');
+          grantForm.reset();
+          await loadAdminAccounts();
+        } else {
+          alert(data.message || 'Unable to grant admin access.');
+        }
+      } catch (error) {
+        console.error('Grant admin error:', error);
+        
+        // Fallback to frontend
+        const result = vvelAppState.grantAdminAccess({
+          email,
+          name,
+          password,
+          addedBy: state.admin?.email || 'admin@panel',
+          permissions: ['requests:read', 'requests:write']
+        });
+
+        if (result.success) {
+          alert('Admin access granted. Share the credentials securely with the delegate.');
+          grantForm.reset();
+          renderAdminAccounts();
+        } else {
+          alert(result.reason || 'Unable to grant admin access.');
+        }
       }
     });
+
+    async function loadAdminAccounts() {
+      try {
+        const response = await fetch('/api/admin/admins', {
+          credentials: 'include'
+        });
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          renderAdminAccountsFromBackend(data.admins);
+          return;
+        }
+      } catch (error) {
+        console.warn('Failed to load admins from backend:', error);
+      }
+
+      // Fallback to frontend
+      renderAdminAccounts();
+    }
+
+    function renderAdminAccountsFromBackend(admins) {
+      const container = document.getElementById('adminAccountsList');
+      container.innerHTML = '';
+
+      if (!admins || admins.length === 0) {
+        container.innerHTML = `<div style="color: rgba(226,232,240,0.6); padding: 0.75rem;">
+          No admin accounts found.
+        </div>`;
+        return;
+      }
+
+      admins.forEach(account => {
+        const card = document.createElement('div');
+        card.className = 'admin-card';
+
+        // Name or email
+        const nameDiv = document.createElement('div');
+        nameDiv.style.fontWeight = '600';
+        nameDiv.style.fontSize = '1rem';
+        nameDiv.textContent = account.name || account.email;
+        card.appendChild(nameDiv);
+
+        // Email
+        const emailDiv = document.createElement('div');
+        emailDiv.style.fontSize = '0.85rem';
+        emailDiv.style.color = 'rgba(226,232,240,0.7)';
+        emailDiv.style.margin = '0.35rem 0';
+        emailDiv.textContent = account.email;
+        card.appendChild(emailDiv);
+
+        // Created date
+        const dateDiv = document.createElement('div');
+        dateDiv.style.fontSize = '0.75rem';
+        dateDiv.style.color = 'rgba(226,232,240,0.5)';
+        dateDiv.style.marginBottom = '0.75rem';
+        dateDiv.textContent = `Admin since ${new Date(account.createdAt).toLocaleDateString()}`;
+        card.appendChild(dateDiv);
+
+        // Permissions
+        const permissionsDiv = document.createElement('div');
+        (account.adminPermissions || []).forEach(perm => {
+          const chip = document.createElement('span');
+          chip.className = 'chip';
+          chip.textContent = perm;
+          permissionsDiv.appendChild(chip);
+        });
+        card.appendChild(permissionsDiv);
+
+        container.appendChild(card);
+      });
+    }
 
     function revokeAdmin(email) {
       if (!confirm(`Revoke delegated access for ${email}?`)) {
@@ -863,29 +1192,54 @@
       }
     }
 
-    function attemptAutoSignIn() {
+    async function attemptAutoSignIn() {
       const stored = sessionStorage.getItem(ADMIN_SESSION_KEY);
       if (!stored) return;
+      
       try {
         const creds = JSON.parse(stored);
-        if (!creds || !creds.email || !creds.password) {
+        if (!creds || !creds.email) {
           sessionStorage.removeItem(ADMIN_SESSION_KEY);
           return;
         }
-        const result = vvelAppState.authenticateAdmin(creds.email, creds.password);
-        if (!result.success) {
-          sessionStorage.removeItem(ADMIN_SESSION_KEY);
+
+        // Check if user is still authenticated
+        const authStatusResponse = await fetch('/api/auth/status', {
+          credentials: 'include'
+        });
+        const authData = await authStatusResponse.json();
+
+        if (authData.success && authData.authenticated) {
+          state.admin = authData.user;
+          document.getElementById('adminNameLabel').textContent = state.admin.name || state.admin.email;
+          if (loginView) {
+            loginView.style.display = 'none';
+          }
+          if (dashboardView) {
+            dashboardView.style.display = 'flex';
+          }
+          await refreshDashboard(false);
           return;
         }
-        state.admin = result.account;
-        document.getElementById('adminNameLabel').textContent = state.admin.name || state.admin.email;
-        if (loginView) {
-          loginView.style.display = 'none';
+
+        // Fallback to frontend if password is stored
+        if (creds.password) {
+          const result = vvelAppState.authenticateAdmin(creds.email, creds.password);
+          if (result.success) {
+            state.admin = result.account;
+            document.getElementById('adminNameLabel').textContent = state.admin.name || state.admin.email;
+            if (loginView) {
+              loginView.style.display = 'none';
+            }
+            if (dashboardView) {
+              dashboardView.style.display = 'flex';
+            }
+            await refreshDashboard(false);
+            return;
+          }
         }
-        if (dashboardView) {
-          dashboardView.style.display = 'flex';
-        }
-        refreshDashboard(false);
+
+        sessionStorage.removeItem(ADMIN_SESSION_KEY);
       } catch (error) {
         console.warn('Failed to restore admin session:', error);
         sessionStorage.removeItem(ADMIN_SESSION_KEY);

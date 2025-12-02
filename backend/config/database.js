@@ -59,11 +59,8 @@ const connectDB = async () => {
     // Encode password if connection string contains special characters
     const mongoURI = encodeMongoURI(process.env.MONGO_URI);
 
-    const conn = await mongoose.connect(mongoURI, {
-      // Use new URL parser and unified topology (default in newer versions)
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    // Remove deprecated options - they are default in Mongoose 6+
+    const conn = await mongoose.connect(mongoURI);
 
     console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
   } catch (error) {

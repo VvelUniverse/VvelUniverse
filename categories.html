@@ -178,7 +178,31 @@
     </section>
   </main>
 
+  <script src="swipe-navigation.js"></script>
+  <script src="profile-icon.js"></script>
   <script>
+    // Check authentication status on page load
+    (async function checkAuthOnLoad() {
+      try {
+        const response = await fetch('/api/auth/status', {
+          credentials: 'include'
+        });
+        const data = await response.json();
+        
+        if (!data.success || !data.authenticated) {
+          // User is not authenticated, redirect to login
+          window.location.href = '/index.html';
+          return;
+        }
+        // User is authenticated, continue loading the page
+      } catch (error) {
+        console.error('Auth check error:', error);
+        // On error, redirect to login to be safe
+        window.location.href = '/index.html';
+        return;
+      }
+    })();
+
     (function () {
       const grid = document.getElementById('categories');
       const selected = new Set();

@@ -525,10 +525,10 @@
 <body>
   <!-- Header -->
   <header class="text-center py-6 px-4">
-    <h1 class="text-3xl md:text-4xl font-bold glow-text mb-2" style="font-family: 'Orbitron', sans-serif;">
+    <h1 id="communityTitle" class="text-3xl md:text-4xl font-bold glow-text mb-2" style="font-family: 'Orbitron', sans-serif;">
       👥 Community
     </h1>
-    <p class="text-sm md:text-base text-gray-300">Join group live sessions and connect with influencers</p>
+    <p id="communitySubtitle" class="text-sm md:text-base text-gray-300">Join group live sessions and connect with influencers</p>
   </header>
 
   <!-- Community Container -->
@@ -620,80 +620,146 @@
   <script>
     lucide.createIcons();
 
+    // Get category from URL parameter
+    const urlParams = new URLSearchParams(window.location.search);
+    const category = urlParams.get('category') || 'general';
+    
+    // Category configuration
+    const categoryConfig = {
+      medical: {
+        name: 'Medical',
+        icon: '🏥',
+        sessions: [
+          { id: 1, hostName: 'Dr. Sarah Chen', hostAvatar: '👤', verified: true, sessionTitle: 'General Health Consultation', participants: ['👤', '👤', '👤', '👤'], maxParticipants: 10, currentCount: 4, price: 300.00, status: 'available' },
+          { id: 2, hostName: 'Dr. Michael Kumar', hostAvatar: '👤', verified: true, sessionTitle: 'Mental Health Support Group', participants: ['👤', '👤', '👤', '👤', '👤', '👤'], maxParticipants: 10, currentCount: 6, price: 250.00, status: 'available' },
+          { id: 3, hostName: 'Dr. Priya Sharma', hostAvatar: '👤', verified: true, sessionTitle: 'Nutrition & Wellness Discussion', participants: ['👤', '👤', '👤'], maxParticipants: 10, currentCount: 3, price: 200.00, status: 'available' }
+        ]
+      },
+      cinema: {
+        name: 'Cinema',
+        icon: '🎬',
+        sessions: [
+          { id: 1, hostName: 'Film Critic Alex', hostAvatar: '👤', verified: true, sessionTitle: 'Bollywood Classics Discussion', participants: ['👤', '👤', '👤', '👤', '👤', '👤', '👤'], maxParticipants: 10, currentCount: 7, price: 150.00, status: 'available' },
+          { id: 2, hostName: 'Director Maya', hostAvatar: '👤', verified: true, sessionTitle: 'Independent Film Making Tips', participants: ['👤', '👤', '👤', '👤'], maxParticipants: 10, currentCount: 4, price: 200.00, status: 'available' },
+          { id: 3, hostName: 'Actor Raj', hostAvatar: '👤', verified: true, sessionTitle: 'Acting Workshop & Q&A', participants: ['👤', '👤', '👤', '👤', '👤', '👤', '👤', '👤'], maxParticipants: 10, currentCount: 8, price: 250.00, status: 'available' }
+        ]
+      },
+      politics: {
+        name: 'Politics',
+        icon: '🗳️',
+        sessions: [
+          { id: 1, hostName: 'Political Analyst John', hostAvatar: '👤', verified: true, sessionTitle: 'Current Affairs Discussion', participants: ['👤', '👤', '👤', '👤', '👤'], maxParticipants: 10, currentCount: 5, price: 100.00, status: 'available' },
+          { id: 2, hostName: 'Policy Expert Maria', hostAvatar: '👤', verified: true, sessionTitle: 'Election Analysis & Debate', participants: ['👤', '👤', '👤', '👤', '👤', '👤'], maxParticipants: 10, currentCount: 6, price: 120.00, status: 'available' }
+        ]
+      },
+      sports: {
+        name: 'Sports',
+        icon: '⚽',
+        sessions: [
+          { id: 1, hostName: 'Coach Rahul', hostAvatar: '👤', verified: true, sessionTitle: 'Cricket Strategy Session', participants: ['👤', '👤', '👤', '👤', '👤', '👤', '👤', '👤'], maxParticipants: 10, currentCount: 8, price: 180.00, status: 'available' },
+          { id: 2, hostName: 'Fitness Trainer Priya', hostAvatar: '👤', verified: true, sessionTitle: 'Fitness & Training Tips', participants: ['👤', '👤', '👤', '👤'], maxParticipants: 10, currentCount: 4, price: 200.00, status: 'available' }
+        ]
+      },
+      spiritual: {
+        name: 'Spiritual',
+        icon: '🕉️',
+        sessions: [
+          { id: 1, hostName: 'Pastor John', hostAvatar: '👤', verified: true, sessionTitle: 'Spiritual Guidance & Prayer Circle', participants: ['👤', '👤', '👤', '👤', '👤', '👤', '👤'], maxParticipants: 10, currentCount: 7, price: 150.00, status: 'available' },
+          { id: 2, hostName: 'Rev. Sarah', hostAvatar: '👤', verified: true, sessionTitle: 'Bible Study & Discussion Group', participants: ['👤', '👤', '👤', '👤', '👤'], maxParticipants: 10, currentCount: 5, price: 200.00, status: 'available' },
+          { id: 3, hostName: 'Brother Michael', hostAvatar: '👤', verified: false, sessionTitle: 'Meditation & Reflection Session', participants: ['👤', '👤', '👤', '👤', '👤', '👤', '👤', '👤', '👤', '👤'], maxParticipants: 10, currentCount: 10, price: 100.00, status: 'full' },
+          { id: 4, hostName: 'Sister Grace', hostAvatar: '👤', verified: true, sessionTitle: 'Community Prayer & Fellowship', participants: ['👤', '👤', '👤'], maxParticipants: 10, currentCount: 3, price: 120.00, status: 'requested', requestStatus: 'pending' },
+          { id: 5, hostName: 'Father David', hostAvatar: '👤', verified: true, sessionTitle: 'Theology Discussion Group', participants: ['👤', '👤', '👤', '👤', '👤', '👤'], maxParticipants: 10, currentCount: 6, price: 180.00, status: 'approved', requestStatus: 'approved' }
+        ]
+      },
+      science: {
+        name: 'Science',
+        icon: '🔬',
+        sessions: [
+          { id: 1, hostName: 'Dr. Anjali Patel', hostAvatar: '👤', verified: true, sessionTitle: 'Quantum Physics Discussion', participants: ['👤', '👤', '👤', '👤', '👤'], maxParticipants: 10, currentCount: 5, price: 250.00, status: 'available' },
+          { id: 2, hostName: 'Prof. Rajesh Kumar', hostAvatar: '👤', verified: true, sessionTitle: 'Climate Science & Environment', participants: ['👤', '👤', '👤', '👤', '👤', '👤', '👤'], maxParticipants: 10, currentCount: 7, price: 200.00, status: 'available' }
+        ]
+      },
+      business: {
+        name: 'Business',
+        icon: '💼',
+        sessions: [
+          { id: 1, hostName: 'Entrepreneur Vikram', hostAvatar: '👤', verified: true, sessionTitle: 'Startup Funding Strategies', participants: ['👤', '👤', '👤', '👤', '👤', '👤'], maxParticipants: 10, currentCount: 6, price: 300.00, status: 'available' },
+          { id: 2, hostName: 'Business Coach Meera', hostAvatar: '👤', verified: true, sessionTitle: 'Marketing & Branding Masterclass', participants: ['👤', '👤', '👤', '👤'], maxParticipants: 10, currentCount: 4, price: 280.00, status: 'available' }
+        ]
+      },
+      law: {
+        name: 'Law',
+        icon: '⚖️',
+        sessions: [
+          { id: 1, hostName: 'Advocate Ramesh', hostAvatar: '👤', verified: true, sessionTitle: 'Legal Rights & Awareness', participants: ['👤', '👤', '👤', '👤', '👤', '👤', '👤', '👤'], maxParticipants: 10, currentCount: 8, price: 350.00, status: 'available' },
+          { id: 2, hostName: 'Lawyer Sneha', hostAvatar: '👤', verified: true, sessionTitle: 'Corporate Law Q&A', participants: ['👤', '👤', '👤', '👤'], maxParticipants: 10, currentCount: 4, price: 400.00, status: 'available' }
+        ]
+      },
+      influencers: {
+        name: 'Influencers',
+        icon: '🎨',
+        sessions: [
+          { id: 1, hostName: 'Content Creator Aisha', hostAvatar: '👤', verified: true, sessionTitle: 'Content Creation Tips', participants: ['👤', '👤', '👤', '👤', '👤', '👤'], maxParticipants: 10, currentCount: 6, price: 200.00, status: 'available' },
+          { id: 2, hostName: 'Social Media Expert Rohan', hostAvatar: '👤', verified: true, sessionTitle: 'Growing Your Following', participants: ['👤', '👤', '👤', '👤', '👤'], maxParticipants: 10, currentCount: 5, price: 250.00, status: 'available' }
+        ]
+      },
+      education: {
+        name: 'Education',
+        icon: '📚',
+        sessions: [
+          { id: 1, hostName: 'Teacher Priya', hostAvatar: '👤', verified: true, sessionTitle: 'Learning Strategies Workshop', participants: ['👤', '👤', '👤', '👤', '👤', '👤', '👤'], maxParticipants: 10, currentCount: 7, price: 150.00, status: 'available' },
+          { id: 2, hostName: 'Professor Kumar', hostAvatar: '👤', verified: true, sessionTitle: 'Academic Writing & Research', participants: ['👤', '👤', '👤', '👤'], maxParticipants: 10, currentCount: 4, price: 180.00, status: 'available' }
+        ]
+      },
+      general: {
+        name: 'Community',
+        icon: '👥',
+        sessions: [
+          { id: 1, hostName: 'Community Host', hostAvatar: '👤', verified: true, sessionTitle: 'General Discussion Group', participants: ['👤', '👤', '👤'], maxParticipants: 10, currentCount: 3, price: 100.00, status: 'available' }
+        ]
+      }
+    };
+
+    const currentCategory = categoryConfig[category] || categoryConfig.general;
+    
+    // Update page title
+    document.title = `Vvel Universe | ${currentCategory.name} Community`;
+    
+    // Update header when DOM is ready
+    function updateHeader() {
+      const headerTitle = document.getElementById('communityTitle');
+      const headerSubtitle = document.getElementById('communitySubtitle');
+      if (headerTitle) {
+        // Only add "Community" if the category name doesn't already contain it
+        const displayName = currentCategory.name.includes('Community') 
+          ? currentCategory.name 
+          : `${currentCategory.name} Community`;
+        headerTitle.innerHTML = `${currentCategory.icon} ${displayName}`;
+      }
+      if (headerSubtitle) {
+        headerSubtitle.textContent = `Join ${currentCategory.name.toLowerCase()} group live sessions and connect with experts`;
+      }
+    }
+    
+    // Update header immediately if DOM is ready, otherwise wait
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', updateHeader);
+    } else {
+      updateHeader();
+    }
+
     const currentUser = {
       id: 'local-user',
       name: 'You',
       email: 'you@vvel.app'
     };
 
-    // Sample live sessions data
-    let liveSessions = [
-      {
-        id: 1,
-        hostName: 'Pastor John',
-        hostAvatar: '👤',
-        verified: true,
-        sessionTitle: 'Spiritual Guidance & Prayer Circle',
-        participants: ['👤', '👤', '👤', '👤', '👤', '👤', '👤'],
-        maxParticipants: 10,
-        currentCount: 7,
-        price: 150.00,
-        status: 'available', // available, requested, approved, joined
-        requestStatus: null
-      },
-      {
-        id: 2,
-        hostName: 'Rev. Sarah',
-        hostAvatar: '👤',
-        verified: true,
-        sessionTitle: 'Bible Study & Discussion Group',
-        participants: ['👤', '👤', '👤', '👤', '👤'],
-        maxParticipants: 10,
-        currentCount: 5,
-        price: 200.00,
-        status: 'available',
-        requestStatus: null
-      },
-      {
-        id: 3,
-        hostName: 'Brother Michael',
-        hostAvatar: '👤',
-        verified: false,
-        sessionTitle: 'Meditation & Reflection Session',
-        participants: ['👤', '👤', '👤', '👤', '👤', '👤', '👤', '👤', '👤', '👤'],
-        maxParticipants: 10,
-        currentCount: 10,
-        price: 100.00,
-        status: 'full',
-        requestStatus: null
-      },
-      {
-        id: 4,
-        hostName: 'Sister Grace',
-        hostAvatar: '👤',
-        verified: true,
-        sessionTitle: 'Community Prayer & Fellowship',
-        participants: ['👤', '👤', '👤'],
-        maxParticipants: 10,
-        currentCount: 3,
-        price: 120.00,
-        status: 'requested',
-        requestStatus: 'pending'
-      },
-      {
-        id: 5,
-        hostName: 'Father David',
-        hostAvatar: '👤',
-        verified: true,
-        sessionTitle: 'Theology Discussion Group',
-        participants: ['👤', '👤', '👤', '👤', '👤', '👤'],
-        maxParticipants: 10,
-        currentCount: 6,
-        price: 180.00,
-        status: 'approved',
-        requestStatus: 'approved'
-      }
-    ];
+    // Get category-specific sessions
+    let liveSessions = currentCategory.sessions.map(session => ({
+      ...session,
+      category: category,
+      requestStatus: session.requestStatus || null
+    }));
 
     // Initialize community
     function initCommunity() {
@@ -967,7 +1033,7 @@
     }
 
     // Send join request
-    function sendJoinRequest(sessionId) {
+    async function sendJoinRequest(sessionId) {
       const session = liveSessions.find(s => s.id === sessionId);
       if (!session) return;
 
@@ -978,41 +1044,91 @@
       
       showLoadingOverlay('Sending join request...');
       
-      // Simulate API call
-      setTimeout(() => {
+      try {
         const messageInput = document.getElementById('joinMessageInput');
         const message = messageInput ? messageInput.value : '';
 
-        const createdRequest = vvelAppState.createJoinRequest({
-          sessionId: session.id,
-          hostName: session.hostName,
-          hostAvatar: session.hostAvatar,
-          sessionTitle: session.sessionTitle,
-          amount: session.price,
-          message,
-          userId: currentUser.id,
-          userName: currentUser.name,
-          userEmail: currentUser.email,
-          durationMinutes: 45
+        // Check if user is authenticated
+        const authResponse = await fetch('/api/auth/status', {
+          credentials: 'include'
         });
+        const authData = await authResponse.json();
 
-        if (createdRequest) {
-          session.status = 'requested';
-          session.requestStatus = 'pending';
-          session.requestId = createdRequest.id;
+        if (!authData.authenticated || !authData.user) {
+          hideLoadingOverlay();
+          if (button) setButtonLoading(button, false);
+          alert('Please log in to send a join request.');
+          window.location.href = '/index.html';
+          return;
         }
 
-        closeRequestModal();
-        hideLoadingOverlay();
-        hydrateSessionState();
-        renderLiveSessions();
+        // Prepare request data
+        const requestData = {
+          sessionTitle: session.sessionTitle || 'Community Session',
+          sessionType: 'video',
+          durationMinutes: 45,
+          amount: session.price || 0,
+          message: message,
+          hostName: session.hostName || 'Community Host',
+          hostEmail: session.hostEmail || null,
+          influencerId: session.hostId || null
+        };
 
+        // Send request to backend API
+        const response = await fetch('/api/connect-requests', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          credentials: 'include',
+          body: JSON.stringify(requestData)
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          // Also save to local state for frontend display
+          const createdRequest = vvelAppState.createJoinRequest({
+            sessionId: session.id,
+            hostId: session.hostId || null,
+            hostName: session.hostName || 'Community Host',
+            hostAvatar: session.hostAvatar || '👤',
+            sessionTitle: session.sessionTitle,
+            amount: session.price,
+            message,
+            userId: authData.user.id || currentUser.id,
+            userName: authData.user.name || currentUser.name,
+            userEmail: authData.user.email || currentUser.email,
+            durationMinutes: 45
+          });
+
+          if (createdRequest) {
+            session.status = 'requested';
+            session.requestStatus = 'pending';
+            session.requestId = data.request._id || data.request.id || createdRequest.id;
+          }
+
+          closeRequestModal();
+          hideLoadingOverlay();
+          hydrateSessionState();
+          renderLiveSessions();
+
+          if (button) {
+            setButtonLoading(button, false);
+          }
+
+          alert('Join request sent! You will be notified when the influencer approves your request.');
+        } else {
+          throw new Error(data.message || 'Failed to send request');
+        }
+      } catch (error) {
+        console.error('Error sending join request:', error);
+        hideLoadingOverlay();
         if (button) {
           setButtonLoading(button, false);
         }
-
-        alert('Join request sent! You will be notified when the influencer approves your request.');
-      }, 1000);
+        alert('Failed to send request. Please try again. ' + (error.message || ''));
+      }
     }
 
     // Show payment modal
@@ -1181,6 +1297,7 @@
       }
     }
   </script>
+  <script src="profile-icon.js"></script>
 </body>
 </html>
 

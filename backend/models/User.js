@@ -51,17 +51,43 @@ const userSchema = new mongoose.Schema({
     default: 'local'
   },
   
-  // Account type: 'user' or 'client'
+  // OAuth provider-specific IDs (for Google/Instagram)
+  providerId: {
+    type: String,
+    sparse: true
+  },
+  
+  // Account type: 'user' or 'client' (influencer)
   accountType: {
     type: String,
     enum: ['user', 'client'],
     default: 'user'
   },
   
-  // OAuth provider-specific IDs (for Google/Instagram)
-  providerId: {
+  // Admin access
+  isAdmin: {
+    type: Boolean,
+    default: false,
+    index: true
+  },
+  
+  // Admin permissions
+  adminPermissions: {
+    type: [String],
+    default: []
+  },
+  
+  // Profile photo URL
+  profilePhoto: {
     type: String,
-    sparse: true
+    default: null
+  },
+  
+  // User bio
+  bio: {
+    type: String,
+    maxlength: 500,
+    default: ''
   },
   
   // Timestamps

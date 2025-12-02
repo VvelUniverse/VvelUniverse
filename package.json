@@ -1,0 +1,21 @@
+{
+  "name": "vvel-universe",
+  "version": "1.0.0",
+  "description": "Vvel Universe Application",
+  "scripts": {
+    "start": "cd backend && npm start",
+    "dev": "cd backend && npm run dev",
+    "dev:clean": "powershell -ExecutionPolicy Bypass -File ./start-server.ps1",
+    "kill-port": "cd backend && node scripts/kill-port.js",
+    "install-backend": "cd backend && npm install",
+    "install-all": "npm run install-backend"
+  },
+  "keywords": [
+    "vvel",
+    "universe",
+    "social"
+  ],
+  "author": "",
+  "license": "ISC"
+}
+

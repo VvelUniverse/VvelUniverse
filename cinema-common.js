@@ -1,4 +1,4 @@
-// Shared JavaScript functions for all sports category pages
+// Shared JavaScript functions for all cinema category pages
 
 const postRatings = {};
 
@@ -124,8 +124,70 @@ function sharePost(postId) {
   alert(`Sharing post ${postId}...`);
 }
 
+// Connection storage and count management
+let connectionCount = 0;
+const connectionsKey = 'user_connections';
+
+// Load connection count from API
+async function loadConnectionCount() {
+  try {
+    const response = await fetch('/api/connect-requests/my-connections-count', {
+      credentials: 'include'
+    });
+    if (response.ok) {
+      const data = await response.json();
+      if (data.success) {
+        connectionCount = data.count || 0;
+        updateAllConnectionButtons();
+        return connectionCount;
+      }
+    }
+  } catch (error) {
+    console.error('Failed to load connection count:', error);
+  }
+  
+  // Fallback to localStorage
+  const stored = localStorage.getItem(connectionsKey);
+  if (stored) {
+    const connections = JSON.parse(stored);
+    connectionCount = Object.keys(connections).filter(key => connections[key]).length;
+  }
+  updateAllConnectionButtons();
+  return connectionCount;
+}
+
+// Update all connection buttons with current count
+function updateAllConnectionButtons() {
+  document.querySelectorAll('.connect-button.connected').forEach(button => {
+    const buttonText = button.querySelector('.text-sm') || button.querySelector('span');
+    if (buttonText) {
+      if (connectionCount > 0) {
+        buttonText.textContent = `Connected (${connectionCount})`;
+      } else {
+        buttonText.textContent = 'Connected';
+      }
+    }
+  });
+}
+
+// Store connection in localStorage
+function storeConnection(influencerName, connected) {
+  const stored = localStorage.getItem(connectionsKey);
+  const connections = stored ? JSON.parse(stored) : {};
+  connections[influencerName] = connected;
+  localStorage.setItem(connectionsKey, JSON.stringify(connections));
+}
+
+// Check if influencer is connected
+function isConnected(influencerName) {
+  const stored = localStorage.getItem(connectionsKey);
+  if (!stored) return false;
+  const connections = JSON.parse(stored);
+  return connections[influencerName] === true;
+}
+
 // Connect with influencer function with dramatic animation
-function connectInfluencer(influencerName, buttonElement) {
+async function connectInfluencer(influencerName, buttonElement) {
   const button = buttonElement || event.target.closest('button');
   if (!button) return;
 
@@ -195,16 +257,50 @@ function connectInfluencer(influencerName, buttonElement) {
   }, 300);
 
   // Fade out and remove overlay
-  setTimeout(() => {
+  setTimeout(async () => {
     overlay.classList.remove('show');
-    setTimeout(() => {
+    setTimeout(async () => {
       overlay.remove();
+      
+      // Store connection
+      storeConnection(influencerName, true);
+      
+      // Create connection request via API
+      try {
+        await fetch('/api/connect-requests', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            influencerName: influencerName,
+            sessionTitle: `Connection with ${influencerName}`,
+            sessionType: 'video',
+            durationMinutes: 30,
+            amount: 0,
+            message: `Connection request for ${influencerName}`
+          })
+        });
+      } catch (error) {
+        console.error('Failed to create connection request:', error);
+      }
+      
+      // Update connection count
+      connectionCount++;
+      await loadConnectionCount(); // Refresh from API
+      
       // Update button
       button.classList.add('connected');
       const buttonText = button.querySelector('.text-sm') || button.querySelector('span');
       if (buttonText) {
-        buttonText.textContent = 'Connected';
+        if (connectionCount > 0) {
+          buttonText.textContent = `Connected (${connectionCount})`;
+        } else {
+          buttonText.textContent = 'Connected';
+        }
       }
+      
       // Show profile page after animation
       showProfilePage(influencerName);
     }, 500);
@@ -212,7 +308,7 @@ function connectInfluencer(influencerName, buttonElement) {
 }
 
 // Disconnect function with breach animation
-function disconnectInfluencer(influencerName, buttonElement) {
+async function disconnectInfluencer(influencerName, buttonElement) {
   const button = buttonElement || event.target.closest('button');
   if (!button) return;
 
@@ -269,16 +365,29 @@ function disconnectInfluencer(influencerName, buttonElement) {
   }, 300);
 
   // Fade out and remove overlay
-  setTimeout(() => {
+  setTimeout(async () => {
     overlay.classList.remove('show');
-    setTimeout(() => {
+    setTimeout(async () => {
       overlay.remove();
+      
+      // Remove connection from storage
+      storeConnection(influencerName, false);
+      
+      // Update connection count
+      if (connectionCount > 0) {
+        connectionCount--;
+      }
+      await loadConnectionCount(); // Refresh from API
+      
       // Reset button to original state
       button.classList.remove('connected', 'disconnected');
       const buttonText = button.querySelector('.text-sm') || button.querySelector('span');
       if (buttonText) {
         buttonText.textContent = 'Connect';
       }
+      
+      // Update all other connected buttons
+      updateAllConnectionButtons();
     }, 500);
   }, 2000);
 }
@@ -432,4 +541,31 @@ document.addEventListener('keydown', (e) => {
       closeProfilePage();
     }
   }
-});
+})
+// Initialize connection buttons on page load
+document.addEventListener('DOMContentLoaded', async () => {
+  // Load connection count
+  await loadConnectionCount();
+  
+  // Mark already connected buttons
+  document.querySelectorAll('.connect-button').forEach(button => {
+    const onclick = button.getAttribute('onclick');
+    if (onclick) {
+      const match = onclick.match(/connectInfluencer\(['"]([^'"]+)['"]/);
+      if (match) {
+        const influencerName = match[1];
+        if (isConnected(influencerName)) {
+          button.classList.add('connected');
+          const buttonText = button.querySelector('.text-sm') || button.querySelector('span');
+          if (buttonText) {
+            if (connectionCount > 0) {
+              buttonText.textContent = `Connected (${connectionCount})`;
+            } else {
+              buttonText.textContent = 'Connected';
+            }
+          }
+        }
+      }
+    }
+  });
+});;

@@ -61,7 +61,92 @@ function hideAndRestrict(name) {
   });
 }
 
-function lovePost(postId) {
+// Get category from current page
+function getCurrentCategory() {
+  const path = window.location.pathname;
+  if (path.includes('medical')) return 'medical';
+  if (path.includes('business')) return 'business';
+  if (path.includes('cinema')) return 'cinema';
+  if (path.includes('education')) return 'education';
+  if (path.includes('influencers')) return 'influencers';
+  if (path.includes('law')) return 'law';
+  if (path.includes('politics')) return 'politics';
+  if (path.includes('science')) return 'science';
+  if (path.includes('sports')) return 'sports';
+  if (path.includes('spiritual')) return 'spiritual';
+  return 'general';
+}
+
+// Load love count for a post
+async function loadLoveCount(postId) {
+  try {
+    const response = await fetch(`/api/post-love/${postId}/count`, {
+      credentials: 'include'
+    });
+    const data = await response.json();
+    if (data.success) {
+      updateLoveCountDisplay(postId, data.count);
+      return data.count;
+    }
+  } catch (error) {
+    console.error('Error loading love count:', error);
+  }
+  return 0;
+}
+
+// Update love count display
+function updateLoveCountDisplay(postId, count) {
+  const button = document.querySelector(`button[onclick*="lovePost(${postId})"]`);
+  if (button) {
+    const countSpan = button.querySelector('.love-count');
+    if (countSpan) {
+      countSpan.textContent = count > 0 ? ` (${count})` : '';
+    } else if (count > 0) {
+      // Create count span if it doesn't exist
+      const textSpan = button.querySelector('.text-sm');
+      if (textSpan) {
+        const countSpan = document.createElement('span');
+        countSpan.className = 'love-count';
+        countSpan.textContent = ` (${count})`;
+        textSpan.appendChild(countSpan);
+      }
+    }
+  }
+}
+
+// Load love counts for all posts on page
+async function loadAllLoveCounts() {
+  const buttons = document.querySelectorAll('button[onclick*="lovePost("]');
+  const postIds = [];
+  
+  buttons.forEach(button => {
+    const onclick = button.getAttribute('onclick');
+    const match = onclick.match(/lovePost\((\d+)\)/);
+    if (match) {
+      postIds.push(match[1]);
+    }
+  });
+  
+  if (postIds.length === 0) return;
+  
+  try {
+    const response = await fetch(`/api/post-love/batch/counts?postIds=${postIds.join(',')}`, {
+      credentials: 'include'
+    });
+    const data = await response.json();
+    if (data.success) {
+      Object.keys(data.counts).forEach(postId => {
+        updateLoveCountDisplay(postId, data.counts[postId]);
+      });
+    }
+  } catch (error) {
+    console.error('Error loading love counts:', error);
+    // Fallback: load individually
+    postIds.forEach(postId => loadLoveCount(postId));
+  }
+}
+
+async function lovePost(postId) {
   const button = event.target.closest('button');
   const rect = button.getBoundingClientRect();
   const centerX = rect.left + rect.width / 2;
@@ -95,7 +180,42 @@ function lovePost(postId) {
     }, index * 30);
   });
 
-  alert(`You loved post ${postId} 🌹`);
+  // Toggle love via API
+  try {
+    const category = getCurrentCategory();
+    const response = await fetch(`/api/post-love/${postId}/toggle`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      credentials: 'include',
+      body: JSON.stringify({ category })
+    });
+    
+    const data = await response.json();
+    if (data.success) {
+      updateLoveCountDisplay(postId, data.count);
+      
+      // Update button state
+      if (data.loved) {
+        button.classList.add('loved');
+      } else {
+        button.classList.remove('loved');
+      }
+    } else {
+      console.error('Failed to toggle love:', data.message);
+    }
+  } catch (error) {
+    console.error('Error toggling love:', error);
+    // Still show animation even if API fails
+  }
+}
+
+// Load love counts when page loads
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', loadAllLoveCounts);
+} else {
+  loadAllLoveCounts();
 }
 
 function showFeedback(postId) {
@@ -124,8 +244,66 @@ function sharePost(postId) {
   alert(`Sharing post ${postId}...`);
 }
 
+// Connection storage and count management
+let connectionCount = 0;
+const connectionsKey = 'user_connections';
+
+// Load connection count from API
+async function loadConnectionCount() {
+  try {
+    const response = await fetch('/api/connect-requests/my-connections-count', {
+      credentials: 'include'
+    });
+    if (response.ok) {
+      const data = await response.json();
+      if (data.success) {
+        connectionCount = data.count || 0;
+        updateAllConnectionButtons();
+        return connectionCount;
+      }
+    }
+  } catch (error) {
+    console.error('Failed to load connection count:', error);
+  }
+  
+  // Fallback to localStorage
+  const stored = localStorage.getItem(connectionsKey);
+  if (stored) {
+    const connections = JSON.parse(stored);
+    connectionCount = Object.keys(connections).filter(key => connections[key]).length;
+  }
+  updateAllConnectionButtons();
+  return connectionCount;
+}
+
+// Update all connection buttons with current count
+function updateAllConnectionButtons() {
+  document.querySelectorAll('.connect-button.connected').forEach(button => {
+    const buttonText = button.querySelector('.text-sm') || button.querySelector('span');
+    if (buttonText) {
+      buttonText.textContent = 'Connected';
+    }
+  });
+}
+
+// Store connection in localStorage
+function storeConnection(influencerName, connected) {
+  const stored = localStorage.getItem(connectionsKey);
+  const connections = stored ? JSON.parse(stored) : {};
+  connections[influencerName] = connected;
+  localStorage.setItem(connectionsKey, JSON.stringify(connections));
+}
+
+// Check if influencer is connected
+function isConnected(influencerName) {
+  const stored = localStorage.getItem(connectionsKey);
+  if (!stored) return false;
+  const connections = JSON.parse(stored);
+  return connections[influencerName] === true;
+}
+
 // Connect with influencer function with dramatic animation
-function connectInfluencer(influencerName, buttonElement) {
+async function connectInfluencer(influencerName, buttonElement) {
   const button = buttonElement || event.target.closest('button');
   if (!button) return;
 
@@ -195,16 +373,46 @@ function connectInfluencer(influencerName, buttonElement) {
   }, 300);
 
   // Fade out and remove overlay
-  setTimeout(() => {
+  setTimeout(async () => {
     overlay.classList.remove('show');
-    setTimeout(() => {
+    setTimeout(async () => {
       overlay.remove();
+      
+      // Store connection
+      storeConnection(influencerName, true);
+      
+      // Create connection request via API
+      try {
+        await fetch('/api/connect-requests', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            influencerName: influencerName,
+            sessionTitle: `Connection with ${influencerName}`,
+            sessionType: 'video',
+            durationMinutes: 30,
+            amount: 0,
+            message: `Connection request for ${influencerName}`
+          })
+        });
+      } catch (error) {
+        console.error('Failed to create connection request:', error);
+      }
+      
+      // Update connection count
+      connectionCount++;
+      await loadConnectionCount(); // Refresh from API
+      
       // Update button
       button.classList.add('connected');
       const buttonText = button.querySelector('.text-sm') || button.querySelector('span');
       if (buttonText) {
         buttonText.textContent = 'Connected';
       }
+      
       // Show profile page after animation
       showProfilePage(influencerName);
     }, 500);
@@ -212,7 +420,7 @@ function connectInfluencer(influencerName, buttonElement) {
 }
 
 // Disconnect function with breach animation
-function disconnectInfluencer(influencerName, buttonElement) {
+async function disconnectInfluencer(influencerName, buttonElement) {
   const button = buttonElement || event.target.closest('button');
   if (!button) return;
 
@@ -269,16 +477,29 @@ function disconnectInfluencer(influencerName, buttonElement) {
   }, 300);
 
   // Fade out and remove overlay
-  setTimeout(() => {
+  setTimeout(async () => {
     overlay.classList.remove('show');
-    setTimeout(() => {
+    setTimeout(async () => {
       overlay.remove();
+      
+      // Remove connection from storage
+      storeConnection(influencerName, false);
+      
+      // Update connection count
+      if (connectionCount > 0) {
+        connectionCount--;
+      }
+      await loadConnectionCount(); // Refresh from API
+      
       // Reset button to original state
       button.classList.remove('connected', 'disconnected');
       const buttonText = button.querySelector('.text-sm') || button.querySelector('span');
       if (buttonText) {
         buttonText.textContent = 'Connect';
       }
+      
+      // Update all other connected buttons
+      updateAllConnectionButtons();
     }, 500);
   }, 2000);
 }
@@ -432,4 +653,27 @@ document.addEventListener('keydown', (e) => {
       closeProfilePage();
     }
   }
-});
+})
+// Initialize connection buttons on page load
+document.addEventListener('DOMContentLoaded', async () => {
+  // Load connection count
+  await loadConnectionCount();
+  
+  // Mark already connected buttons
+  document.querySelectorAll('.connect-button').forEach(button => {
+    const onclick = button.getAttribute('onclick');
+    if (onclick) {
+      const match = onclick.match(/connectInfluencer\(['"]([^'"]+)['"]/);
+      if (match) {
+        const influencerName = match[1];
+        if (isConnected(influencerName)) {
+          button.classList.add('connected');
+          const buttonText = button.querySelector('.text-sm') || button.querySelector('span');
+          if (buttonText) {
+            buttonText.textContent = 'Connected';
+          }
+        }
+      }
+    }
+  });
+});;

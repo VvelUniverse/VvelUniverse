@@ -76,3 +76,4 @@ for (const file of htmlFiles) {
 
 console.log(`\n✅ Added profile-icon.js to ${fixedCount} files out of ${htmlFiles.length} total files.`);
 
+

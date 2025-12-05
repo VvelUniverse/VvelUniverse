@@ -185,11 +185,11 @@ router.get('/auth/google',
  */
 router.get('/auth/google/callback',
   passport.authenticate('google', {
-    failureRedirect: '/register.html?error=google_auth_failed'
+    failureRedirect: '/pages/auth/register.html?error=google_auth_failed'
   }),
   (req, res) => {
     // Successful authentication, redirect to categories
-    res.redirect('/categories.html');
+    res.redirect('/pages/categories/categories.html');
   }
 );
 
@@ -209,11 +209,11 @@ router.get('/auth/instagram',
  */
 router.get('/auth/instagram/callback',
   passport.authenticate('instagram', {
-    failureRedirect: '/register.html?error=instagram_auth_failed'
+    failureRedirect: '/pages/auth/register.html?error=instagram_auth_failed'
   }),
   (req, res) => {
     // Successful authentication, redirect to categories
-    res.redirect('/categories.html');
+    res.redirect('/pages/categories/categories.html');
   }
 );
 

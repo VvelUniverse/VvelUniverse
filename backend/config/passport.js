@@ -82,49 +82,55 @@ const getGoogleCallbackURL = () => {
   return `http://localhost:${port}/api/auth/google/callback`;
 };
 
-passport.use(
-  new GoogleStrategy(
-    {
-      clientID: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: getGoogleCallbackURL(),
-    },
-    async (accessToken, refreshToken, profile, done) => {
-      try {
-        // Check if user exists with this Google ID or email
-        let user = await User.findOne({
-          $or: [
-            { providerId: profile.id, provider: 'google' },
-            { email: profile.emails[0].value }
-          ]
-        });
+// Only configure Google OAuth if credentials are provided
+if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+  passport.use(
+    new GoogleStrategy(
+      {
+        clientID: process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        callbackURL: getGoogleCallbackURL(),
+      },
+      async (accessToken, refreshToken, profile, done) => {
+        try {
+          // Check if user exists with this Google ID or email
+          let user = await User.findOne({
+            $or: [
+              { providerId: profile.id, provider: 'google' },
+              { email: profile.emails[0].value }
+            ]
+          });
 
-        if (user) {
-          // Update provider ID if not set
-          if (!user.providerId) {
-            user.providerId = profile.id;
-            user.provider = 'google';
-            await user.save();
+          if (user) {
+            // Update provider ID if not set
+            if (!user.providerId) {
+              user.providerId = profile.id;
+              user.provider = 'google';
+              await user.save();
+            }
+            return done(null, user);
           }
+
+          // Create new user for Google OAuth
+          user = new User({
+            name: profile.displayName || profile.name?.givenName + ' ' + profile.name?.familyName,
+            email: profile.emails[0].value,
+            provider: 'google',
+            providerId: profile.id,
+          });
+
+          await user.save();
           return done(null, user);
+        } catch (error) {
+          return done(error, null);
         }
-
-        // Create new user for Google OAuth
-        user = new User({
-          name: profile.displayName || profile.name?.givenName + ' ' + profile.name?.familyName,
-          email: profile.emails[0].value,
-          provider: 'google',
-          providerId: profile.id,
-        });
-
-        await user.save();
-        return done(null, user);
-      } catch (error) {
-        return done(error, null);
       }
-    }
-  )
-);
+    )
+  );
+  console.log('✓ Google OAuth configured');
+} else {
+  console.log('⚠️  Google OAuth not configured (credentials missing)');
+}
 
 // Instagram OAuth Strategy
 // Construct callback URL dynamically based on environment
@@ -141,54 +147,60 @@ const getInstagramCallbackURL = () => {
   return `http://localhost:${port}/api/auth/instagram/callback`;
 };
 
-passport.use(
-  new InstagramStrategy(
-    {
-      clientID: process.env.INSTAGRAM_CLIENT_ID,
-      clientSecret: process.env.INSTAGRAM_CLIENT_SECRET,
-      callbackURL: getInstagramCallbackURL(),
-    },
-    async (accessToken, refreshToken, profile, done) => {
-      try {
-        // Check if user exists with this Instagram ID or username
-        let user = await User.findOne({
-          $or: [
-            { providerId: profile.id, provider: 'instagram' },
-            // Instagram may not always provide email, so we check by username
-            { name: profile.username }
-          ]
-        });
+// Only configure Instagram OAuth if credentials are provided
+if (process.env.INSTAGRAM_CLIENT_ID && process.env.INSTAGRAM_CLIENT_SECRET) {
+  passport.use(
+    new InstagramStrategy(
+      {
+        clientID: process.env.INSTAGRAM_CLIENT_ID,
+        clientSecret: process.env.INSTAGRAM_CLIENT_SECRET,
+        callbackURL: getInstagramCallbackURL(),
+      },
+      async (accessToken, refreshToken, profile, done) => {
+        try {
+          // Check if user exists with this Instagram ID or username
+          let user = await User.findOne({
+            $or: [
+              { providerId: profile.id, provider: 'instagram' },
+              // Instagram may not always provide email, so we check by username
+              { name: profile.username }
+            ]
+          });
 
-        if (user) {
-          // Update provider ID if not set
-          if (!user.providerId) {
-            user.providerId = profile.id;
-            user.provider = 'instagram';
-            await user.save();
+          if (user) {
+            // Update provider ID if not set
+            if (!user.providerId) {
+              user.providerId = profile.id;
+              user.provider = 'instagram';
+              await user.save();
+            }
+            return done(null, user);
           }
+
+          // Create new user for Instagram OAuth
+          // Note: Instagram Basic Display API may not provide email
+          // Generate a unique email if not provided
+          const instagramEmail = profile.emails?.[0]?.value || `${profile.username}_${profile.id}@instagram.local`;
+          
+          user = new User({
+            name: profile.displayName || profile.username,
+            email: instagramEmail.toLowerCase(),
+            provider: 'instagram',
+            providerId: profile.id,
+          });
+
+          await user.save();
           return done(null, user);
+        } catch (error) {
+          return done(error, null);
         }
-
-        // Create new user for Instagram OAuth
-        // Note: Instagram Basic Display API may not provide email
-        // Generate a unique email if not provided
-        const instagramEmail = profile.emails?.[0]?.value || `${profile.username}_${profile.id}@instagram.local`;
-        
-        user = new User({
-          name: profile.displayName || profile.username,
-          email: instagramEmail.toLowerCase(),
-          provider: 'instagram',
-          providerId: profile.id,
-        });
-
-        await user.save();
-        return done(null, user);
-      } catch (error) {
-        return done(error, null);
       }
-    }
-  )
-);
+    )
+  );
+  console.log('✓ Instagram OAuth configured');
+} else {
+  console.log('⚠️  Instagram OAuth not configured (credentials missing)');
+}
 
 module.exports = passport;
 

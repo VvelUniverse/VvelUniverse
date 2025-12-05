@@ -46,11 +46,21 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Serve static files (HTML, CSS, images)
-app.use(express.static(path.join(__dirname, '..')));
+// Serve static files (HTML, CSS, images, JS)
+app.use(express.static(path.join(__dirname, '../frontend/public')));
+app.use('/pages', express.static(path.join(__dirname, '../frontend/pages')));
+app.use('/scripts', express.static(path.join(__dirname, '../frontend/scripts')));
+app.use('/styles', express.static(path.join(__dirname, '../frontend/styles')));
+app.use('/data', express.static(path.join(__dirname, '../frontend/data')));
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // API Routes
 app.use('/api', authRoutes);
+
+// Root route - redirect to login page
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/pages/auth/index.html'));
+});
 
 // Health check route
 app.get('/api/health', (req, res) => {

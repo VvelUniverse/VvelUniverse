@@ -1,0 +1,1171 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vvel Universe | Education - Celebrations</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: linear-gradient(to bottom, #1e1b4b, #581c87, #000000);
+      min-height: 100vh;
+      color: white;
+      padding-bottom: 80px; /* Space for bottom nav */
+    }
+
+    .celebrations-container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 1rem;
+    }
+
+    .celebrations-header {
+      margin-bottom: 1.5rem;
+    }
+
+    .filter-tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .filter-tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .filter-tab {
+      padding: 8px 16px;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      color: rgba(255, 255, 255, 0.7);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 14px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .filter-tab:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    .filter-tab.active {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-color: rgba(102, 126, 234, 0.6);
+      color: white;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .event-card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 16px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .event-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+      border-color: rgba(102, 126, 234, 0.6);
+    }
+
+    .event-card.live {
+      border-color: rgba(239, 68, 68, 0.6);
+      box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+    }
+
+    .event-card.live::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #ef4444, #f87171, #ef4444);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .live-badge {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background: #ef4444;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      z-index: 10;
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      background: white;
+      border-radius: 50%;
+      animation: blink 1s ease-in-out infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .event-header {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .event-thumbnail {
+      width: 120px;
+      height: 120px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(168, 85, 247, 0.3));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      flex-shrink: 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .event-thumbnail img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .event-thumbnail::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(168, 85, 247, 0.2));
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .event-card:hover .event-thumbnail::after {
+      opacity: 1;
+    }
+
+    .event-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .event-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 4px;
+      line-height: 1.3;
+    }
+
+    .event-host {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.7);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .event-type-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      background: rgba(102, 126, 234, 0.3);
+      border: 1px solid rgba(102, 126, 234, 0.5);
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #93c5fd;
+      margin-bottom: 8px;
+    }
+
+    .event-stats {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 8px;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .viewer-count {
+      color: #f87171;
+      font-weight: 600;
+    }
+
+    .event-description {
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.7);
+      line-height: 1.5;
+      margin-top: 0.75rem;
+      margin-bottom: 1rem;
+    }
+
+    .event-actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .join-button {
+      flex: 1;
+      padding: 10px 16px;
+      background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+      border: none;
+      border-radius: 10px;
+      color: white;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .join-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+    }
+
+    .join-button.joined {
+      background: linear-gradient(135deg, #6366f1 0%, #818cf8 100%);
+    }
+
+    .join-button.joined:hover {
+      background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+    }
+
+    .share-button {
+      padding: 10px 16px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .share-button:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 4rem 1rem;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    .empty-state-icon {
+      font-size: 64px;
+      margin-bottom: 1rem;
+    }
+
+    .empty-state-text {
+      font-size: 18px;
+      font-weight: 600;
+      color: white;
+      margin-bottom: 0.5rem;
+    }
+
+    .empty-state-subtext {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .status-message {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 12px;
+      padding: 12px 16px;
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.85);
+      margin-bottom: 1rem;
+      line-height: 1.4;
+    }
+
+    .status-message.error {
+      border-color: rgba(239, 68, 68, 0.35);
+      color: #fecaca;
+    }
+
+    /* Bottom Navigation */
+    .bottom-nav {
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .nav-icon {
+      transition: all 0.3s ease;
+    }
+
+    .nav-icon:hover {
+      transform: scale(1.2);
+      filter: drop-shadow(0 0 8px rgba(147, 197, 253, 0.8));
+    }
+
+    .nav-icon.active {
+      color: #ef4444;
+    }
+
+    .nav-icon.active .icon-wrapper {
+      border: 2px solid #ef4444;
+      border-radius: 4px;
+      padding: 6px 8px;
+      background: rgba(239, 68, 68, 0.1);
+    }
+    
+    .nav-icon.active .text-xs {
+      color: #ef4444;
+      font-weight: 600;
+    }
+
+    .glow-text {
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    }
+
+    .upcoming-badge {
+      background: rgba(59, 130, 246, 0.3);
+      border: 1px solid rgba(59, 130, 246, 0.5);
+      color: #93c5fd;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="text-center py-6 px-4">
+    <h1 class="text-3xl md:text-4xl font-bold glow-text mb-2" style="font-family: 'Orbitron', sans-serif;">
+      🎉 Celebrations
+    </h1>
+    <p class="text-sm md:text-base text-gray-300">Join live events and connect with the community</p>
+  </header>
+
+  <!-- Celebrations Container -->
+  <div class="celebrations-container">
+    <!-- Filter Tabs -->
+    <div class="filter-tabs">
+      <button class="filter-tab active" onclick="filterEvents('all', this)">All</button>
+      <button class="filter-tab" onclick="filterEvents('live', this)">Live Now</button>
+      <button class="filter-tab" onclick="filterEvents('upcoming', this)">Upcoming</button>
+      <button class="filter-tab" onclick="filterEvents('recent', this)">Recent</button>
+    </div>
+
+    <!-- Events List -->
+    <div id="eventsList" class="events-list">
+      <!-- Events will be dynamically populated here -->
+    </div>
+  </div>
+
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav fixed bottom-0 left-0 right-0 border-t border-white/20">
+    <div class="max-w-2xl mx-auto flex justify-around items-center py-4 px-4">  
+      <button onclick="window.location.href = '/pages/categories/categories.html'" class="nav-icon flex flex-col items-center gap-1">
+        <i data-lucide="home" class="w-6 h-6"></i>
+        <span class="text-xs">Home</span>
+      </button>
+      <button onclick="window.location.href='community.html'" class="nav-icon flex flex-col items-center gap-1">
+        <i data-lucide="users" class="w-6 h-6"></i>
+        <span class="text-xs">Community</span>
+      </button>
+      <button onclick="window.location.href='search.html'" class="nav-icon flex flex-col items-center gap-1">
+        <i data-lucide="search" class="w-6 h-6"></i>
+        <span class="text-xs">Search</span>
+      </button>
+      <button onclick="window.location.href='wallet.html'" class="nav-icon flex flex-col items-center gap-1">
+        <i data-lucide="wallet" class="w-6 h-6"></i>
+        <span class="text-xs">Wallet</span>
+      </button>
+      <button onclick="window.location.href='alerts.html'" class="nav-icon flex flex-col items-center gap-1">
+        <i data-lucide="bell" class="w-6 h-6"></i>
+        <span class="text-xs">Alerts</span>
+      </button>
+      <button class="nav-icon active flex flex-col items-center gap-1">
+        <div class="icon-wrapper">
+          <i data-lucide="party-popper" class="w-6 h-6"></i>
+        </div>
+        <span class="text-xs">Celebrations</span>
+      </button>
+    </div>
+  </nav>
+
+  <script src="/scripts/config/celebrations-config.js"></script>
+  <script>
+    lucide.createIcons();
+
+    const defaultConfig = {
+      apiKey: '',
+      channelIds: [],
+      searchQuery: 'spiritual live meditation',
+      maxResults: 6,
+      regionCode: 'IN',
+      refreshIntervalMs: 120000
+    };
+
+    const youtubeConfig = {
+      ...defaultConfig,
+      ...(window.celebrationsConfig || {})
+    };
+
+    const stagePriority = {
+      live: 0,
+      upcoming: 1,
+      completed: 2
+    };
+
+    let events = [];
+    let displayedEvents = [];
+    let currentFilter = 'all';
+    let isLoading = true;
+    let fetchError = null;
+    let refreshTimer = null;
+
+    initEvents();
+    setupSwipeNavigation();
+
+    async function initEvents() {
+      isLoading = true;
+      renderEvents();
+
+      if (!youtubeConfig.apiKey || youtubeConfig.apiKey === 'REPLACE_WITH_API_KEY') {
+        fetchError = 'Add your YouTube API key in celebrations-config.js to enable live events.';
+        events = buildFallbackEvents();
+        isLoading = false;
+        displayedEvents = [...events];
+        renderEvents();
+        return;
+      }
+
+      try {
+        const youtubeEvents = await loadYouTubeEvents();
+        if (youtubeEvents.length) {
+          events = youtubeEvents;
+        } else {
+          fetchError = 'No live or upcoming YouTube events are available right now. Showing curated highlights.';
+          events = buildFallbackEvents();
+        }
+      } catch (error) {
+        console.error('Unable to load YouTube events', error);
+        fetchError = error.message || 'Unable to reach YouTube right now.';
+        events = buildFallbackEvents();
+      } finally {
+        isLoading = false;
+        displayedEvents = [...events];
+        renderEvents();
+        if (events.some(event => event.isLive)) {
+          startLiveRefresh();
+        }
+      }
+    }
+
+    async function loadYouTubeEvents() {
+      const stages = ['live', 'upcoming', 'completed'];
+      const collected = [];
+
+      for (const stage of stages) {
+        const stageEvents = await fetchEventsForStage(stage);
+        collected.push(...stageEvents);
+      }
+
+      return dedupeEvents(collected).sort(sortEvents);
+    }
+
+    async function fetchEventsForStage(stage) {
+      const searchResults = await gatherSearchResults(stage);
+      const videoIds = Array.from(new Set(searchResults.map(item => item.id && item.id.videoId).filter(Boolean)));
+
+      if (!videoIds.length) {
+        return [];
+      }
+
+      const videos = await fetchVideoDetails(videoIds);
+      return videos
+        .map(video => mapYouTubeVideoToEvent(video, stage))
+        .filter(Boolean);
+    }
+
+    async function gatherSearchResults(stage) {
+      const baseParams = new URLSearchParams({
+        key: youtubeConfig.apiKey,
+        part: 'snippet',
+        type: 'video',
+        order: 'date',
+        maxResults: String(youtubeConfig.maxResults || 6)
+      });
+
+      if (stage) {
+        baseParams.set('eventType', stage);
+      }
+
+      if (youtubeConfig.regionCode) {
+        baseParams.set('regionCode', youtubeConfig.regionCode);
+      }
+
+      const requests = [];
+
+      if (Array.isArray(youtubeConfig.channelIds) && youtubeConfig.channelIds.length) {
+        youtubeConfig.channelIds.forEach(channelId => {
+          const trimmed = (channelId || '').trim();
+          if (!trimmed) {
+            return;
+          }
+          const params = new URLSearchParams(baseParams);
+          params.set('channelId', trimmed);
+          requests.push(fetchJson('search', params));
+        });
+      }
+
+      if (!requests.length) {
+        const params = new URLSearchParams(baseParams);
+        if (youtubeConfig.searchQuery) {
+          params.set('q', youtubeConfig.searchQuery);
+        }
+        requests.push(fetchJson('search', params));
+      }
+
+      const responses = await Promise.allSettled(requests);
+      const items = [];
+
+      responses.forEach(response => {
+        if (response.status === 'fulfilled') {
+          items.push(...(response.value.items || []));
+        } else {
+          console.warn('YouTube search request failed', response.reason);
+        }
+      });
+
+      if (!items.length && youtubeConfig.searchQuery) {
+        const scopedParams = new URLSearchParams(baseParams);
+        scopedParams.delete('channelId');
+        scopedParams.set('q', youtubeConfig.searchQuery);
+        const scopedResponse = await fetchJson('search', scopedParams);
+        items.push(...(scopedResponse.items || []));
+      }
+
+      if (!items.length) {
+        const broadParams = new URLSearchParams({
+          key: youtubeConfig.apiKey,
+          part: 'snippet',
+          type: 'video',
+          order: 'relevance',
+          maxResults: String(youtubeConfig.maxResults || 6)
+        });
+        if (youtubeConfig.searchQuery) {
+          broadParams.set('q', youtubeConfig.searchQuery);
+        }
+        if (youtubeConfig.regionCode) {
+          broadParams.set('regionCode', youtubeConfig.regionCode);
+        }
+        broadParams.set('safeSearch', 'moderate');
+        const broadResponse = await fetchJson('search', broadParams);
+        items.push(...(broadResponse.items || []));
+      }
+
+      return items;
+    }
+
+    async function fetchVideoDetails(videoIds) {
+      const videos = [];
+
+      for (let index = 0; index < videoIds.length; index += 50) {
+        const chunk = videoIds.slice(index, index + 50);
+        const params = new URLSearchParams({
+          key: youtubeConfig.apiKey,
+          part: 'snippet,liveStreamingDetails',
+          id: chunk.join(',')
+        });
+        const response = await fetchJson('videos', params);
+        videos.push(...(response.items || []));
+      }
+
+      return videos;
+    }
+
+    async function fetchJson(endpoint, params) {
+      const url = `https://www.googleapis.com/youtube/v3/${endpoint}?${params.toString()}`;
+      const response = await fetch(url);
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        const message = payload.error && payload.error.message ? payload.error.message : `YouTube API error (${response.status})`;
+        throw new Error(message);
+      }
+      return payload;
+    }
+
+    function mapYouTubeVideoToEvent(video, stage) {
+      const snippet = video.snippet;
+      if (!snippet) {
+        return null;
+      }
+
+      const liveStreamingDetails = video.liveStreamingDetails || {};
+      const rawVideoId = typeof video.id === 'string' ? video.id : video.id && video.id.videoId;
+      const videoId = rawVideoId || (snippet.resourceId && snippet.resourceId.videoId);
+
+      if (!videoId) {
+        return null;
+      }
+
+      const scheduledStart = liveStreamingDetails.scheduledStartTime || snippet.publishedAt;
+      const actualStart = liveStreamingDetails.actualStartTime || scheduledStart;
+      const actualEnd = liveStreamingDetails.actualEndTime;
+      const isLive = stage === 'live';
+      const viewers = isLive ? Number(liveStreamingDetails.concurrentViewers || 0) : 0;
+
+      const scheduleText = !isLive ? formatSchedule(scheduledStart) : '';
+
+      let secondaryStatText = '';
+      if (isLive) {
+        secondaryStatText = actualStart ? `Started ${formatRelativeTime(actualStart)}` : 'Live now';
+      } else if (stage === 'upcoming') {
+        secondaryStatText = scheduledStart ? `Starts ${formatRelativeTime(scheduledStart)}` : 'Schedule to be announced';
+      } else {
+        const reference = actualEnd || actualStart || scheduledStart;
+        secondaryStatText = reference ? `Ended ${formatRelativeTime(reference)}` : 'Streamed recently';
+      }
+
+      const thumbnails = snippet.thumbnails || {};
+      const thumbnailUrl =
+        (thumbnails.maxres && thumbnails.maxres.url) ||
+        (thumbnails.standard && thumbnails.standard.url) ||
+        (thumbnails.high && thumbnails.high.url) ||
+        (thumbnails.medium && thumbnails.medium.url) ||
+        (thumbnails.default && thumbnails.default.url) ||
+        null;
+
+      const startTimestamp = scheduledStart ? new Date(scheduledStart).getTime() : Date.now();
+
+      return {
+        id: `youtube-${videoId}`,
+        videoId,
+        source: 'youtube',
+        eventStage: stage,
+        isLive,
+        title: snippet.title,
+        host: snippet.channelTitle,
+        hostAvatar: selectAvatar(snippet.channelTitle),
+        description: formatDescription(snippet.description),
+        thumbnailUrl,
+        thumbnailEmoji: '🎥',
+        viewers,
+        url: `https://www.youtube.com/watch?v=${videoId}`,
+        platform: stage === 'live' ? 'Live on YouTube' : stage === 'upcoming' ? 'Upcoming on YouTube' : 'Replay on YouTube',
+        primaryStatIcon: isLive ? 'users' : 'calendar',
+        primaryStatText: isLive ? null : scheduleText,
+        secondaryStatIcon: isLive ? 'radio' : stage === 'upcoming' ? 'clock' : 'history',
+        secondaryStatText,
+        ctaIcon: isLive ? '▶' : stage === 'upcoming' ? '🔔' : '↺',
+        ctaLabel: isLive ? 'Watch Live' : stage === 'upcoming' ? 'Set Reminder' : 'Watch Replay',
+        shareText: `Join ${snippet.channelTitle} for "${snippet.title}"`,
+        startTimestamp
+      };
+    }
+
+    function selectAvatar(channelTitle) {
+      if (!channelTitle) {
+        return '📺';
+      }
+      const firstChar = channelTitle.trim().charAt(0);
+      return firstChar ? firstChar.toUpperCase() : '📺';
+    }
+
+    function formatDescription(text) {
+      if (!text) {
+        return 'Tap to open the live stream on YouTube for full details.';
+      }
+      const cleaned = text.replace(/\s+/g, ' ').trim();
+      const truncated = cleaned.slice(0, 220);
+      return cleaned.length > 220 ? `${truncated}...` : truncated;
+    }
+
+    function formatSchedule(value) {
+      if (!value) {
+        return 'Schedule TBA';
+      }
+      const date = value instanceof Date ? value : new Date(value);
+      if (isNaN(date.getTime())) {
+        return 'Schedule TBA';
+      }
+      return date.toLocaleString(undefined, {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit'
+      });
+    }
+
+    function formatRelativeTime(value) {
+      if (!value) {
+        return '';
+      }
+      const date = value instanceof Date ? value : new Date(value);
+      if (isNaN(date.getTime())) {
+        return '';
+      }
+      const now = Date.now();
+      const diff = date.getTime() - now;
+      const absDiff = Math.abs(diff);
+
+      const units = [
+        { limit: 60 * 1000, divisor: 1000, unit: 'second' },
+        { limit: 60 * 60 * 1000, divisor: 60 * 1000, unit: 'minute' },
+        { limit: 24 * 60 * 60 * 1000, divisor: 60 * 60 * 1000, unit: 'hour' },
+        { limit: 7 * 24 * 60 * 60 * 1000, divisor: 24 * 60 * 60 * 1000, unit: 'day' },
+        { limit: 30 * 24 * 60 * 60 * 1000, divisor: 7 * 24 * 60 * 60 * 1000, unit: 'week' },
+        { limit: 365 * 24 * 60 * 60 * 1000, divisor: 30 * 24 * 60 * 60 * 1000, unit: 'month' }
+      ];
+
+      let unit = 'year';
+      let divisor = 365 * 24 * 60 * 60 * 1000;
+
+      for (const item of units) {
+        if (absDiff < item.limit) {
+          unit = item.unit;
+          divisor = item.divisor;
+          break;
+        }
+      }
+
+      const relativeTimeFormat = new Intl.RelativeTimeFormat(undefined, { numeric: 'auto' });
+      const valueToFormat = Math.round(diff / divisor);
+      return relativeTimeFormat.format(valueToFormat, unit);
+    }
+
+    function formatNumber(value) {
+      const numberValue = Number(value);
+      if (!Number.isFinite(numberValue) || numberValue < 0) {
+        return '0';
+      }
+      if (numberValue >= 1000000) {
+        return `${(numberValue / 1000000).toFixed(1).replace(/\.0$/, '')}M`;
+      }
+      if (numberValue >= 1000) {
+        return `${(numberValue / 1000).toFixed(1).replace(/\.0$/, '')}K`;
+      }
+      return String(numberValue);
+    }
+
+    function dedupeEvents(eventList) {
+      const map = new Map();
+      eventList.forEach(event => {
+        const existing = map.get(event.id);
+        if (!existing || stagePriority[event.eventStage] < stagePriority[existing.eventStage]) {
+          map.set(event.id, event);
+        }
+      });
+      return Array.from(map.values());
+    }
+
+    function sortEvents(a, b) {
+      const priorityDiff = stagePriority[a.eventStage] - stagePriority[b.eventStage];
+      if (priorityDiff !== 0) {
+        return priorityDiff;
+      }
+
+      if (a.eventStage === 'live') {
+        return (b.viewers || 0) - (a.viewers || 0);
+      }
+
+      if (a.eventStage === 'upcoming') {
+        return (a.startTimestamp || 0) - (b.startTimestamp || 0);
+      }
+
+      return (b.startTimestamp || 0) - (a.startTimestamp || 0);
+    }
+
+    function renderEvents() {
+      const container = document.getElementById('eventsList');
+      if (!container) {
+        return;
+      }
+
+      container.innerHTML = '';
+
+      if (isLoading) {
+        container.innerHTML = '<div class="status-message">Loading celebrations...</div>';
+        return;
+      }
+
+      if (fetchError) {
+        const messageElement = document.createElement('div');
+        messageElement.className = 'status-message error';
+        messageElement.textContent = fetchError;
+        container.appendChild(messageElement);
+      }
+
+      if (!displayedEvents.length) {
+        const emptyState = document.createElement('div');
+        emptyState.className = 'empty-state';
+        emptyState.innerHTML = `
+          <div class="empty-state-icon">🎉</div>
+          <div class="empty-state-text">No events found</div>
+          <div class="empty-state-subtext">Check back soon for the latest live celebrations.</div>
+        `;
+        container.appendChild(emptyState);
+        return;
+      }
+
+      displayedEvents.forEach(event => {
+        container.appendChild(createEventCard(event));
+      });
+
+      lucide.createIcons();
+    }
+
+    function createEventCard(eventData) {
+      const card = document.createElement('div');
+      card.className = `event-card ${eventData.isLive ? 'live' : ''}`;
+      card.dataset.eventId = eventData.id;
+
+      const viewerCountDisplay = formatNumber(eventData.viewers);
+
+      const primaryStatMarkup = eventData.isLive
+        ? `
+          <div class="stat-item">
+            <i data-lucide="users" class="w-4 h-4"></i>
+            <span class="viewer-count" id="viewers-${eventData.id}">${viewerCountDisplay}</span>
+            <span>watching</span>
+          </div>
+        `
+        : eventData.primaryStatText
+          ? `
+          <div class="stat-item">
+            <i data-lucide="${eventData.primaryStatIcon || 'calendar'}" class="w-4 h-4"></i>
+            <span>${eventData.primaryStatText}</span>
+          </div>
+        `
+          : '';
+
+      const secondaryStatMarkup = eventData.secondaryStatText
+        ? `
+        <div class="stat-item">
+          <i data-lucide="${eventData.secondaryStatIcon || 'clock'}" class="w-4 h-4"></i>
+          <span>${eventData.secondaryStatText}</span>
+        </div>
+      `
+        : '';
+
+      const liveBadgeMarkup = eventData.isLive
+        ? `
+        <div class="live-badge">
+          <div class="live-dot"></div>
+          LIVE
+        </div>
+      `
+        : '';
+
+      const thumbnailContent = eventData.thumbnailUrl
+        ? `<img src="${eventData.thumbnailUrl}" alt="${eventData.title}" loading="lazy" />`
+        : eventData.thumbnailEmoji || '🎉';
+
+      card.innerHTML = `
+        ${liveBadgeMarkup}
+        <div class="event-header">
+          <div class="event-thumbnail">
+            ${thumbnailContent}
+          </div>
+          <div class="event-info">
+            <div class="event-title">${eventData.title}</div>
+            <div class="event-host">
+              <span>${eventData.hostAvatar || '👤'}</span>
+              <span>${eventData.host || 'Community Host'}</span>
+            </div>
+            <div class="event-type-badge ${eventData.eventStage === 'upcoming' ? 'upcoming-badge' : ''}">
+              ${eventData.platform || 'Community Event'}
+            </div>
+            <div class="event-stats">
+              ${primaryStatMarkup}
+              ${secondaryStatMarkup}
+            </div>
+          </div>
+        </div>
+        <div class="event-description">
+          ${eventData.description}
+        </div>
+        <div class="event-actions">
+          <button class="join-button" onclick="event.stopPropagation(); openEvent('${eventData.id}')">
+            <span>${eventData.ctaIcon || '▶'}</span>
+            <span>${eventData.ctaLabel || 'View Details'}</span>
+          </button>
+          <button class="share-button" onclick="event.stopPropagation(); shareEvent('${eventData.id}')">
+            <i data-lucide="share-2" class="w-5 h-5"></i>
+          </button>
+        </div>
+      `;
+
+      card.addEventListener('click', function () {
+        openEvent(eventData.id);
+      });
+
+      return card;
+    }
+
+    function filterEvents(filter, buttonElement) {
+      currentFilter = filter;
+
+      document.querySelectorAll('.filter-tab').forEach(tab => tab.classList.remove('active'));
+      if (buttonElement) {
+        buttonElement.classList.add('active');
+      }
+
+      if (filter === 'all') {
+        displayedEvents = [...events];
+      } else if (filter === 'live') {
+        displayedEvents = events.filter(event => event.eventStage === 'live');
+      } else if (filter === 'upcoming') {
+        displayedEvents = events.filter(event => event.eventStage === 'upcoming');
+      } else if (filter === 'recent') {
+        displayedEvents = events.filter(event => event.eventStage === 'completed');
+      } else {
+        displayedEvents = [...events];
+      }
+
+      renderEvents();
+    }
+
+    function openEvent(eventId) {
+      const target = events.find(item => item.id === eventId);
+      if (!target) {
+        return;
+      }
+      if (target.url) {
+        window.open(target.url, '_blank', 'noopener');
+      } else {
+        alert('This celebration will be available soon. Stay tuned!');
+      }
+    }
+
+    function shareEvent(eventId) {
+      const target = events.find(item => item.id === eventId);
+      if (!target) {
+        return;
+      }
+
+      const sharePayload = {
+        title: target.title,
+        text: target.shareText || target.title,
+        url: target.url || window.location.href
+      };
+
+      if (navigator.share) {
+        navigator.share(sharePayload).catch(() => {});
+        return;
+      }
+
+      if (navigator.clipboard && sharePayload.url) {
+        navigator.clipboard.writeText(sharePayload.url).then(function () {
+          alert('Link copied to clipboard.');
+        }).catch(function () {
+          window.prompt('Copy this link to share:', sharePayload.url);
+        });
+        return;
+      }
+
+      window.prompt('Copy this link to share:', sharePayload.url);
+    }
+
+    function startLiveRefresh() {
+      if (refreshTimer) {
+        clearInterval(refreshTimer);
+      }
+      const interval = Number(youtubeConfig.refreshIntervalMs) || 120000;
+      refreshTimer = setInterval(refreshLiveViewerCounts, interval);
+    }
+
+    async function refreshLiveViewerCounts() {
+      const liveEvents = events.filter(event => event.isLive && event.videoId);
+      if (!liveEvents.length) {
+        return;
+      }
+
+      try {
+        const details = await fetchVideoDetails(liveEvents.map(event => event.videoId));
+        const detailsById = new Map(details.map(item => {
+          const id = typeof item.id === 'string' ? item.id : item.id && item.id.videoId;
+          return [id, item];
+        }));
+
+        liveEvents.forEach(event => {
+          const detail = detailsById.get(event.videoId);
+          if (!detail || !detail.liveStreamingDetails) {
+            return;
+          }
+          const viewerCount = Number(detail.liveStreamingDetails.concurrentViewers || 0);
+          if (!Number.isNaN(viewerCount)) {
+            event.viewers = viewerCount;
+            const viewerElement = document.getElementById(`viewers-${event.id}`);
+            if (viewerElement) {
+              viewerElement.textContent = formatNumber(viewerCount);
+            }
+          }
+        });
+      } catch (error) {
+        console.warn('Unable to refresh live viewer counts', error);
+      }
+    }
+
+    function buildFallbackEvents() {
+      const now = new Date();
+      const upcomingSoon = new Date(now.getTime() + 2 * 60 * 60 * 1000);
+      const completedAt = new Date(now.getTime() - 6 * 60 * 60 * 1000);
+
+      return [
+        {
+          id: 'sample-live-1',
+          videoId: null,
+          source: 'sample',
+          eventStage: 'live',
+          isLive: true,
+          title: 'Community Mantra Chanting',
+          host: 'Guru Priya',
+          hostAvatar: '🧘',
+          description: 'A 30 minute mantra chanting session to ground and uplift the community.',
+          thumbnailEmoji: '🔔',
+          thumbnailUrl: null,
+          viewers: 286,
+          url: null,
+          platform: 'Community Live',
+          primaryStatIcon: 'users',
+          primaryStatText: null,
+          secondaryStatIcon: 'radio',
+          secondaryStatText: 'Streaming now',
+          ctaIcon: '▶',
+          ctaLabel: 'Details Soon',
+          shareText: 'Join the community mantra chanting live.',
+          startTimestamp: now.getTime()
+        },
+        {
+          id: 'sample-upcoming-1',
+          videoId: null,
+          source: 'sample',
+          eventStage: 'upcoming',
+          isLive: false,
+          title: 'Sunrise Guided Meditation',
+          host: 'Swami Ananda',
+          hostAvatar: '🌅',
+          description: 'Prepare for the day with mindful breathing, intention setting, and soft chanting.',
+          thumbnailEmoji: '🌄',
+          thumbnailUrl: null,
+          viewers: 0,
+          url: null,
+          platform: 'Community Gathering',
+          primaryStatIcon: 'calendar',
+          primaryStatText: formatSchedule(upcomingSoon),
+          secondaryStatIcon: 'clock',
+          secondaryStatText: `Starts ${formatRelativeTime(upcomingSoon)}`,
+          ctaIcon: '🔔',
+          ctaLabel: 'Notify Me',
+          shareText: 'Join the sunrise guided meditation.',
+          startTimestamp: upcomingSoon.getTime()
+        },
+        {
+          id: 'sample-completed-1',
+          videoId: null,
+          source: 'sample',
+          eventStage: 'completed',
+          isLive: false,
+          title: 'Bhagavad Gita Discourse Replay',
+          host: 'Acharya Dev',
+          hostAvatar: '📖',
+          description: 'Replay of yesterday evening discourse on the wisdom of the Bhagavad Gita, Chapter 4.',
+          thumbnailEmoji: '📚',
+          thumbnailUrl: null,
+          viewers: 0,
+          url: null,
+          platform: 'Community Replay',
+          primaryStatIcon: 'calendar',
+          primaryStatText: formatSchedule(completedAt),
+          secondaryStatIcon: 'history',
+          secondaryStatText: `Ended ${formatRelativeTime(completedAt)}`,
+          ctaIcon: '↺',
+          ctaLabel: 'Watch Soon',
+          shareText: 'Replay of Bhagavad Gita discourse.',
+          startTimestamp: completedAt.getTime()
+        }
+      ];
+    }
+
+    function setupSwipeNavigation() {
+      let touchStartX = 0;
+      let touchStartY = 0;
+      let touchEndX = 0;
+      let touchEndY = 0;
+
+      document.addEventListener('touchstart', function (e) {
+        if (!e.changedTouches || !e.changedTouches.length) {
+          return;
+        }
+        touchStartX = e.changedTouches[0].screenX;
+        touchStartY = e.changedTouches[0].screenY;
+      }, { passive: true });
+
+      document.addEventListener('touchend', function (e) {
+        if (!e.changedTouches || !e.changedTouches.length) {
+          return;
+        }
+        touchEndX = e.changedTouches[0].screenX;
+        touchEndY = e.changedTouches[0].screenY;
+        handleSwipe();
+      }, { passive: true });
+
+      function handleSwipe() {
+        const deltaX = touchEndX - touchStartX;
+        const deltaY = touchEndY - touchStartY;
+        const minSwipeDistance = 100;
+
+        if (Math.abs(deltaX) > Math.abs(deltaY) && deltaX > minSwipeDistance) {
+          window.location.href = '/pages/categories/categories.html';
+        }
+      }
+    }
+  </script>
+</body>
+</html>
+

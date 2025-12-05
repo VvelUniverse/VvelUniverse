@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vvel Universe | Register</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles/loading-styles.css">
+  <style>
+    :root {
+      --navy-100: #0b1a3a;
+      --navy-200: #0f2a5a;
+      --navy-300: #123571;
+      --navy-400: #174ea6;
+      --glass-bg: rgba(13, 31, 74, 0.26);
+      --glass-blur: blur(18px);
+      --glass-border: 1.4px solid rgba(23, 78, 166, 0.55);
+      --panel-shadow: 0 20px 50px rgba(3, 10, 24, 0.55);
+      --title-color: #ffffff;
+      --body-color: #e5e7eb;
+      --muted-color: #c7c9d4;
+      --field-border: 1.2px solid rgba(23, 78, 166, 0.35);
+      --field-border-focus: 1.6px solid rgba(23, 78, 166, 0.85);
+      --button-bg: linear-gradient(90deg, #0f2a5a 0%, #123571 55%, #174ea6 100%);
+      --button-shadow: 0 12px 26px rgba(23, 78, 166, 0.45);
+      --font-title: 'Orbitron', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      --font-body: 'Outfit', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: #000;
+      color: var(--body-color);
+      font-family: var(--font-body);
+      overflow-y: auto;
+      min-height: 100vh;
+      background-image: url('/assets/images/space-bg.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(1200px 900px at 20% 20%, rgba(0,0,0,0.35), transparent 55%),
+                  linear-gradient(180deg, rgba(0,0,0,0.42), rgba(0,0,0,0.55));
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    main {
+      position: relative;
+      z-index: 2;
+      height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    .panel {
+      width: min(520px, 94vw);
+      background: var(--glass-bg);
+      border: var(--glass-border);
+      border-radius: 22px;
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      box-shadow: var(--panel-shadow);
+      padding: 30px 30px 24px 30px;
+      animation: enter 700ms ease both;
+    }
+    @keyframes enter { 0% { opacity: 0; transform: translateY(28px) scale(0.98) } 100% { opacity: 1; transform: translateY(0) scale(1) } }
+
+    .title {
+      font-family: var(--font-title);
+      font-size: clamp(26px, 4.4vw, 36px);
+      letter-spacing: 0.02em;
+      color: var(--title-color);
+      text-align: left;
+      margin: 2px 0 6px 0;
+      font-weight: 800;
+    }
+    .tagline { text-align: left; color: var(--muted-color); font-size: clamp(13px, 2.6vw, 15px); margin: 0 0 22px 0; font-weight: 500; }
+
+    form { display: grid; gap: 16px; }
+
+    .field { display: grid; gap: 6px; }
+    label { color: #dbeafe; font-weight: 600; font-size: 14px; }
+    input {
+      width: 100%; padding: 12px 14px; border-radius: 12px; border: var(--field-border); outline: none;
+      background: rgba(255,255,255,0.06); color: #ffffff; font-size: 15px;
+      transition: border-color .2s ease, box-shadow .2s ease, transform .12s ease;
+    }
+    input::placeholder { color: rgba(255,255,255,0.7); }
+    input:focus { border: var(--field-border-focus); box-shadow: 0 0 0 6px rgba(23, 78, 166, 0.25); transform: translateY(-1px); }
+
+    .submit {
+      margin-top: 4px; width: 100%; padding: 12px 16px; border-radius: 12px; border: none; cursor: pointer;
+      background: var(--button-bg); color: #fff; font-weight: 800; font-family: var(--font-title);
+      letter-spacing: 0.02em; font-size: 16px; box-shadow: var(--button-shadow);
+      transition: filter .18s ease, box-shadow .2s ease, transform .12s ease;
+    }
+    .submit:hover, .submit:focus { filter: brightness(1.06) saturate(1.05); box-shadow: 0 12px 30px rgba(23, 78, 166, 0.55); transform: translateY(-1px); outline: none; }
+
+    .divider { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 12px; margin: 8px 0; color: #d1d5db; font-size: 13px; }
+    .divider::before, .divider::after { content: ""; height: 1px; background: rgba(255,255,255,0.25); }
+
+    .socials { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 6px; }
+    .social-btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 10px 12px;
+      border-radius: 12px; border: 1.2px solid rgba(255,255,255,0.28); background: rgba(255,255,255,0.06);
+      color: #fff; cursor: pointer; text-decoration: none; font-weight: 700; font-size: 14px;
+      transition: background .18s ease, transform .12s ease, border-color .18s ease;
+      backdrop-filter: blur(8px);
+    }
+    .social-btn:hover { background: rgba(255,255,255,0.12); transform: translateY(-1px); border-color: rgba(255,255,255,0.42); }
+    .icon { width: 18px; height: 18px; display: inline-block; }
+    .icon svg { width: 100%; height: 100%; display: block; }
+
+    .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 8px; }
+    .agree { display: inline-flex; align-items: center; gap: 10px; color: var(--muted-color); font-size: 14px; }
+    .agree input { width: 16px; height: 16px; border-radius: 6px; }
+
+    /* Account Type Toggle */
+    .account-type-toggle {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px;
+      background: rgba(255,255,255,0.04);
+      border: var(--field-border);
+      border-radius: 12px;
+      margin-bottom: 8px;
+    }
+
+    .account-type-label {
+      color: #dbeafe;
+      font-weight: 600;
+      font-size: 14px;
+      flex: 1;
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 60px;
+      height: 32px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: 1.5px solid rgba(255,255,255,0.2);
+    }
+
+    .toggle-switch.active {
+      background: rgba(23, 78, 166, 0.6);
+      border-color: rgba(23, 78, 166, 0.8);
+    }
+
+    .toggle-switch::before {
+      content: '';
+      position: absolute;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: #fff;
+      top: 2px;
+      left: 2px;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    .toggle-switch.active::before {
+      left: 30px;
+      background: #bfdbfe;
+    }
+
+    .account-type-display {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #fff;
+      font-weight: 600;
+      font-size: 14px;
+      min-width: 80px;
+      justify-content: flex-end;
+    }
+
+    .account-type-badge {
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 700;
+      background: rgba(23, 78, 166, 0.3);
+      border: 1px solid rgba(23, 78, 166, 0.5);
+    }
+
+    .account-type-badge.client {
+      background: rgba(236, 72, 153, 0.3);
+      border-color: rgba(236, 72, 153, 0.5);
+    }
+
+    .links { display: flex; justify-content: center; gap: 6px; margin-top: 18px; }
+    .links span { color: var(--muted-color); font-size: 14px; }
+    .links a { color: #bfdbfe; text-decoration: none; font-weight: 700; font-size: 14px; }
+    .links a:hover { color: #93c5fd; text-decoration: underline; }
+
+    @media (max-width: 520px) { .panel { padding: 18px 16px 14px 16px; border-radius: 18px; } }
+
+    /* Error message styling */
+    .error-message {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.5);
+      color: #fca5a5;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 14px;
+      margin-bottom: 12px;
+      display: none;
+    }
+    .error-message.show { display: block; }
+    
+    .success-message {
+      background: rgba(34, 197, 94, 0.15);
+      border: 1px solid rgba(34, 197, 94, 0.5);
+      color: #86efac;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 14px;
+      margin-bottom: 12px;
+      display: none;
+    }
+    .success-message.show { display: block; }
+
+    .submit:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* Language Switcher Styles */
+    .language-switcher {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+    }
+
+    .language-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      background: var(--glass-bg);
+      border: var(--glass-border);
+      border-radius: 12px;
+      color: #fff;
+      font-family: var(--font-body);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .language-btn:hover {
+      background: rgba(255,255,255,0.12);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+    }
+
+    .language-btn .flag {
+      font-size: 18px;
+    }
+
+    .language-dropdown {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      min-width: 200px;
+      background: var(--glass-bg);
+      border: var(--glass-border);
+      border-radius: 12px;
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      padding: 8px;
+      display: none;
+      flex-direction: column;
+      gap: 4px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .language-dropdown.show {
+      display: flex;
+    }
+
+    .language-option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .language-option:hover {
+      background: rgba(255,255,255,0.1);
+    }
+
+    .language-option.active {
+      background: rgba(23, 78, 166, 0.3);
+      font-weight: 600;
+    }
+
+    .language-option .flag {
+      font-size: 20px;
+    }
+
+    @media (max-width: 480px) {
+      .language-switcher {
+        top: 12px;
+        right: 12px;
+      }
+      .language-btn {
+        padding: 8px 12px;
+        font-size: 13px;
+      }
+      .language-dropdown {
+        min-width: 180px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Language Switcher -->
+  <div class="language-switcher">
+    <button class="language-btn" id="languageBtn" aria-label="Select Language">
+      <span class="flag" id="currentFlag">🇬🇧</span>
+      <span id="currentLang">English</span>
+      <span style="margin-left: 4px;">▼</span>
+    </button>
+    <div class="language-dropdown" id="languageDropdown"></div>
+  </div>
+
+  <main>
+    <section class="panel" aria-label="Create your account">
+      <h1 class="title" data-i18n="register.title">Create Account</h1>
+      <p class="tagline" data-i18n="register.tagline">Join Vvel Universe and start your journey</p>
+
+      <div id="errorMessage" class="error-message"></div>
+      <div id="successMessage" class="success-message"></div>
+
+      <!-- Account Type Toggle -->
+      <div class="account-type-toggle">
+        <label class="account-type-label" data-i18n="register.accountType.label">Account Type</label>
+        <div class="account-type-display">
+          <span id="accountTypeText" data-i18n="register.accountType.user">User</span>
+          <span class="account-type-badge" id="accountTypeBadge">USER</span>
+        </div>
+        <div class="toggle-switch" id="accountTypeToggle" role="switch" aria-label="Toggle account type" tabindex="0">
+        </div>
+      </div>
+      <input type="hidden" id="accountType" name="accountType" value="user" />
+
+      <form id="registerForm" onsubmit="event.preventDefault(); handleRegister();">
+        <div class="field">
+          <label for="fullname" data-i18n="register.name">Full Name</label>
+          <input id="fullname" name="fullname" type="text" placeholder="Your name" required />
+        </div>
+        <div class="field">
+          <label for="email" data-i18n="login.email">Email</label>
+          <input id="email" name="email" type="email" placeholder="you@example.com" required autocomplete="email" />
+        </div>
+        <div class="field">
+          <label for="mobile" data-i18n="register.mobile">Mobile Number</label>
+          <input id="mobile" name="mobile" type="tel" placeholder="e.g., +1 555 123 4567" required autocomplete="tel" />
+        </div>
+        <div class="field">
+          <label for="password" data-i18n="login.password">Password</label>
+          <input id="password" name="password" type="password" placeholder="Create a strong password" required autocomplete="new-password" />
+        </div>
+        <div class="field">
+          <label for="confirm" data-i18n="login.password">Confirm Password</label>
+          <input id="confirm" name="confirm" type="password" placeholder="Re-enter your password" required autocomplete="new-password" />
+        </div>
+        <div class="row">
+          <label class="agree"><input type="checkbox" id="terms" required /> <span data-i18n="register.agreeTerms">I agree to the Terms & Privacy Policy</span></label>
+        </div>
+        <button class="submit" type="submit" id="submitBtn" data-i18n="register.submit">Create Account</button>
+      </form>
+
+      <div class="divider" data-i18n="authGate.continueWith">or sign up with</div>
+      <div class="socials">
+        <a class="social-btn" href="/api/auth/google" aria-label="Sign up with Gmail" onclick="handleSocialLogin(event, 'Gmail')">
+          <span class="icon" aria-hidden="true">
+            <!-- Gmail SVG -->
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M20 18.5H18V9.7L12 13.7L6 9.7V18.5H4C3.45 18.5 3 18.05 3 17.5V6.8C3 5.8 4.14 5.22 4.97 5.79L12 10.5L19.03 5.79C19.86 5.22 21 5.8 21 6.8V17.5C21 18.05 20.55 18.5 20 18.5Z" fill="#ffffff"/>
+            </svg>
+          </span>
+          Gmail
+        </a>
+        <a class="social-btn" href="#" aria-label="Sign up with Mobile Number" onclick="alert('Mobile authentication coming soon'); return false;">
+          <span class="icon" aria-hidden="true">
+            <!-- Phone SVG -->
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M17 2H7C5.895 2 5 2.895 5 4V20C5 21.105 5.895 22 7 22H17C18.105 22 19 21.105 19 20V4C19 2.895 18.105 2 17 2Z" stroke="#ffffff" stroke-width="1.6"/>
+              <circle cx="12" cy="18" r="1.3" fill="#ffffff"/>
+            </svg>
+          </span>
+          Mobile No
+        </a>
+        <a class="social-btn" href="/api/auth/instagram" aria-label="Sign up with Instagram" onclick="handleSocialLogin(event, 'Instagram')">
+          <span class="icon" aria-hidden="true">
+            <!-- Instagram SVG -->
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="3" y="3" width="18" height="18" rx="5" stroke="#ffffff" stroke-width="1.6"/>
+              <circle cx="12" cy="12" r="3.5" stroke="#ffffff" stroke-width="1.6"/>
+              <circle cx="17.5" cy="6.5" r="1.2" fill="#ffffff"/>
+            </svg>
+          </span>
+          Instagram
+        </a>
+      </div>
+
+      <div class="links" style="margin-top: 16px;"><span data-i18n="register.haveAccount">Already have an account?</span> <a href="./index.html" data-i18n="register.login">Sign in</a></div>
+    </section>
+  </main>
+  <script src="/scripts/common/i18n.js"></script>
+  <script src="/scripts/common/loading-utils.js"></script>
+  <script>
+    // API base URL - adjust if your backend runs on a different port
+    const API_BASE = '/api';
+
+    // Show error message
+    function showError(message) {
+      const errorDiv = document.getElementById('errorMessage');
+      const successDiv = document.getElementById('successMessage');
+      errorDiv.textContent = message;
+      errorDiv.classList.add('show');
+      successDiv.classList.remove('show');
+    }
+
+    // Show success message
+    function showSuccess(message) {
+      const successDiv = document.getElementById('successMessage');
+      const errorDiv = document.getElementById('errorMessage');
+      successDiv.textContent = message;
+      successDiv.classList.add('show');
+      errorDiv.classList.remove('show');
+    }
+
+    // Hide messages
+    function hideMessages() {
+      document.getElementById('errorMessage').classList.remove('show');
+      document.getElementById('successMessage').classList.remove('show');
+    }
+
+    // Handle registration form submission
+    async function handleRegister() {
+      hideMessages();
+      
+      const name = document.getElementById('fullname').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const mobile = document.getElementById('mobile').value.trim();
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirm').value;
+      const terms = document.getElementById('terms').checked;
+      const accountType = document.getElementById('accountType').value;
+      const submitBtn = document.getElementById('submitBtn');
+
+      // Client-side validation
+      if (!name || !email || !mobile || !password || !confirmPassword) {
+        showError('Please fill in all fields');
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        showError('Passwords do not match');
+        return;
+      }
+
+      if (password.length < 6) {
+        showError('Password must be at least 6 characters long');
+        return;
+      }
+
+      if (!terms) {
+        showError('Please agree to the Terms & Privacy Policy');
+        return;
+      }
+
+      // Show loading state
+      setButtonLoading(submitBtn, true, window.i18n.t('register.submit'));
+      showLoadingOverlay(window.i18n.t('common.loading'));
+
+      try {
+        const response = await fetch(`${API_BASE}/register`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include', // Include cookies for session
+          body: JSON.stringify({
+            name,
+            email,
+            mobile,
+            password,
+            accountType
+          })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          // Store account type in localStorage for KYC page access check
+          localStorage.setItem('userAccountType', accountType);
+          
+          showSuccess(window.i18n.t('login.success'));
+          showLoadingOverlay(window.i18n.t('login.success'));
+          // Redirect based on account type
+          setTimeout(() => {
+            if (accountType === 'client') {
+              // Redirect to KYC verification page for clients
+              window.location.href = '/pages/features/influencer-kyc-verification.html';
+            } else {
+              // Redirect to categories page for regular users
+              window.location.href = '/pages/categories/categories.html';
+            }
+          }, 800);
+        } else {
+          hideLoadingOverlay();
+          showError(data.message || 'Registration failed. Please try again.');
+          setButtonLoading(submitBtn, false);
+        }
+      } catch (error) {
+        console.error('Registration error:', error);
+        hideLoadingOverlay();
+        showError('Network error. Please check your connection and try again.');
+        setButtonLoading(submitBtn, false);
+      }
+    }
+
+    // Handle social login
+    function handleSocialLogin(event, provider) {
+      event.preventDefault();
+      const button = event.currentTarget;
+      setSocialButtonLoading(button, true);
+      showLoadingOverlay(`Redirecting to ${provider}...`);
+      
+      // Allow navigation to proceed
+      setTimeout(() => {
+        window.location.href = button.href;
+      }, 300);
+    }
+
+    // Account Type Toggle Handler
+    function initAccountTypeToggle() {
+      const toggle = document.getElementById('accountTypeToggle');
+      const accountTypeInput = document.getElementById('accountType');
+      const accountTypeText = document.getElementById('accountTypeText');
+      const accountTypeBadge = document.getElementById('accountTypeBadge');
+
+      if (!toggle) return;
+
+      function updateAccountType(isClient) {
+        if (isClient) {
+          toggle.classList.add('active');
+          accountTypeInput.value = 'client';
+          accountTypeText.textContent = window.i18n.t('register.accountType.client');
+          accountTypeBadge.textContent = 'CLIENT';
+          accountTypeBadge.classList.add('client');
+        } else {
+          toggle.classList.remove('active');
+          accountTypeInput.value = 'user';
+          accountTypeText.textContent = window.i18n.t('register.accountType.user');
+          accountTypeBadge.textContent = 'USER';
+          accountTypeBadge.classList.remove('client');
+        }
+      }
+
+      toggle.addEventListener('click', () => {
+        const isCurrentlyClient = toggle.classList.contains('active');
+        updateAccountType(!isCurrentlyClient);
+      });
+
+      toggle.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          toggle.click();
+        }
+      });
+
+      // Initialize - default to user
+      updateAccountType(false);
+
+      // Update account type text when language changes
+      document.addEventListener('languageChanged', () => {
+        const isClient = toggle.classList.contains('active');
+        updateAccountType(isClient);
+      });
+    }
+
+    // Clear messages when user starts typing
+    document.getElementById('registerForm').addEventListener('input', hideMessages);
+
+    // Initialize account type toggle
+    initAccountTypeToggle();
+
+    // Initialize language switcher
+    function initLanguageSwitcher() {
+      const languageBtn = document.getElementById('languageBtn');
+      const languageDropdown = document.getElementById('languageDropdown');
+      const currentFlag = document.getElementById('currentFlag');
+      const currentLang = document.getElementById('currentLang');
+
+      if (!languageBtn || !languageDropdown) return;
+
+      // Populate dropdown
+      const languages = window.i18n.getSupportedLanguages();
+      const currentLangCode = window.i18n.getLanguage();
+      
+      languageDropdown.innerHTML = '';
+      languages.forEach(lang => {
+        const option = document.createElement('div');
+        option.className = 'language-option';
+        if (lang.code === currentLangCode) {
+          option.classList.add('active');
+        }
+        option.innerHTML = `
+          <span class="flag">${lang.flag}</span>
+          <span>${lang.name}</span>
+        `;
+        option.addEventListener('click', () => {
+          window.i18n.setLanguage(lang.code);
+          updateLanguageSwitcher();
+          languageDropdown.classList.remove('show');
+        });
+        languageDropdown.appendChild(option);
+      });
+
+      // Update current language display
+      updateLanguageSwitcher();
+
+      // Toggle dropdown
+      languageBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        languageDropdown.classList.toggle('show');
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!languageBtn.contains(e.target) && !languageDropdown.contains(e.target)) {
+          languageDropdown.classList.remove('show');
+        }
+      });
+    }
+
+    function updateLanguageSwitcher() {
+      const currentLangCode = window.i18n.getLanguage();
+      const languages = window.i18n.getSupportedLanguagesObject();
+      const currentLang = languages[currentLangCode];
+      
+      if (currentLang) {
+        const currentFlag = document.getElementById('currentFlag');
+        const currentLangText = document.getElementById('currentLang');
+        if (currentFlag) currentFlag.textContent = currentLang.flag;
+        if (currentLangText) currentLangText.textContent = currentLang.name;
+      }
+
+      // Update active state in dropdown
+      const options = document.querySelectorAll('.language-option');
+      options.forEach(option => {
+        option.classList.remove('active');
+        const langCode = Array.from(option.querySelectorAll('.flag'))[0]?.textContent;
+        const languages = window.i18n.getSupportedLanguages();
+        const matchingLang = languages.find(l => l.flag === langCode);
+        if (matchingLang && matchingLang.code === currentLangCode) {
+          option.classList.add('active');
+        }
+      });
+    }
+
+    // Listen for language changes
+    document.addEventListener('languageChanged', () => {
+      updateLanguageSwitcher();
+    });
+
+    // Initialize on page load
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initLanguageSwitcher);
+    } else {
+      initLanguageSwitcher();
+    }
+  </script>
+</body>
+</html>
+
+

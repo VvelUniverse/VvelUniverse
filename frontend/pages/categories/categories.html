@@ -1,0 +1,248 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vvel Universe | Choose Your Universe</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy-100: #0b1a3a;
+      --navy-200: #0f2a5a;
+      --navy-300: #123571;
+      --navy-400: #174ea6;
+      --glass-bg: rgba(13, 31, 74, 0.26);
+      --glass-blur: blur(18px);
+      --glass-border: 1.4px solid rgba(23, 78, 166, 0.55);
+      --panel-shadow: 0 20px 50px rgba(3, 10, 24, 0.55);
+      --title-color: #ffffff;
+      --body-color: #e5e7eb;
+      --muted-color: #c7c9d4;
+      --button-bg: linear-gradient(90deg, #0f2a5a 0%, #123571 55%, #174ea6 100%);
+      --button-shadow: 0 12px 26px rgba(23, 78, 166, 0.45);
+      --font-title: 'Orbitron', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      --font-body: 'Outfit', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      --glow-blue: #60a5fa;
+      --glow-cyan: #22d3ee;
+      --glow-pink: #f472b6;
+      --disabled: #7c869c;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      background: #000;
+      color: var(--body-color);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      background-image:
+        url('/assets/images/space-bg.jpg'),
+        url('Space-bg.png'),
+        url('Space-bg.jpeg'),
+        url('/assets/images/space-bg.jpg'),
+        url('space-bg.png'),
+        url('space-bg.jpeg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(1200px 900px at 20% 20%, rgba(0,0,0,0.35), transparent 55%),
+                  linear-gradient(180deg, rgba(0,0,0,0.42), rgba(0,0,0,0.55));
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    main {
+      position: relative;
+      z-index: 2;
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 20px;
+      padding: 28px clamp(16px, 4vw, 48px);
+    }
+
+    .header {
+      display: grid;
+      gap: 6px;
+      max-width: 980px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .title { font-family: var(--font-title); color: #fff; font-size: clamp(26px, 3.6vw, 40px); letter-spacing: .02em; margin: 0; }
+    .subtitle { color: var(--muted-color); margin: 0; font-size: clamp(14px, 2.4vw, 18px); }
+
+    .grid {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: clamp(12px, 3vw, 22px);
+    }
+
+    @media (max-width: 1100px) { .grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+    @media (max-width: 900px) { .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+    @media (max-width: 620px) { .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 420px) { .grid { grid-template-columns: 1fr; } }
+
+    .card {
+      position: relative;
+      background: var(--glass-bg);
+      border: var(--glass-border);
+      border-radius: 18px;
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      box-shadow: var(--panel-shadow);
+      padding: 18px 16px;
+      display: grid;
+      place-items: center;
+      gap: 10px;
+      text-align: center;
+      cursor: pointer;
+      user-select: none;
+      transition: transform .16s ease, box-shadow .2s ease, border-color .2s ease;
+    }
+    .card:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 10px 30px rgba(96,165,250,.45); }
+    .card:active { transform: translateY(0) scale(.99); }
+
+    .icon { font-size: 28px; }
+    .label { color: #fff; font-weight: 700; letter-spacing: .02em; }
+
+    .card::after {
+      content: ""; position: absolute; inset: -2px; border-radius: 20px; pointer-events: none;
+      box-shadow: 0 0 0 0 rgba(96,165,250,0.0), 0 0 0 0 rgba(244,114,182,0.0);
+      transition: box-shadow .25s ease;
+    }
+
+    .card.selected { border-color: rgba(34,211,238,.8); }
+    .card.selected::after { box-shadow: 0 0 0 6px rgba(34,211,238,.18), 0 0 25px 8px rgba(96,165,250,.35); }
+
+  </style>
+</head>
+<body>
+  <main>
+    <header class="header">
+      <h1 class="title">Choose Your Universe</h1>
+      <p class="subtitle">Select what excites you in the Multi Vvel Universe.</p>
+    </header>
+
+    <section class="grid" id="categories" aria-label="Category selection grid">
+      <div class="card" data-key="medical" role="button" tabindex="0" aria-pressed="false" aria-label="Medical" onclick="window.location.href='medical/medical-home.html'" style="cursor: pointer;">
+        <div class="icon">🏥</div>
+        <div class="label">Medical</div>
+      </div>
+      <div class="card" data-key="cinema" role="button" tabindex="0" aria-pressed="false" aria-label="Cinema" onclick="window.location.href='cinema/cinema-home.html'" style="cursor: pointer;">
+        <div class="icon">🎬</div>
+        <div class="label">Cinema</div>
+      </div>
+      <div class="card" data-key="politics" role="button" tabindex="0" aria-pressed="false" aria-label="Politics" onclick="window.location.href='politics/politics-home.html'" style="cursor: pointer;">
+        <div class="icon">🗳️</div>
+        <div class="label">Politics</div>
+      </div>
+      <div class="card" data-key="sports" role="button" tabindex="0" aria-pressed="false" aria-label="Sports" onclick="window.location.href='sports/sports-home.html'" style="cursor: pointer;">
+        <div class="icon">⚽</div>
+        <div class="label">Sports</div>
+      </div>
+      <div class="card" data-key="spiritual" role="button" tabindex="0" aria-pressed="false" aria-label="Spiritual" onclick="window.location.href='../spiritual/spiritual.html'" style="cursor: pointer;">
+        <div class="icon">🕉️</div>
+        <div class="label">Spiritual</div>
+      </div>
+      <div class="card" data-key="science" role="button" tabindex="0" aria-pressed="false" aria-label="Science" onclick="window.location.href='science/science-home.html'" style="cursor: pointer;">
+        <div class="icon">🔬</div>
+        <div class="label">Science</div>
+      </div>
+      <div class="card" data-key="business" role="button" tabindex="0" aria-pressed="false" aria-label="Business" onclick="window.location.href='business/business-home.html'" style="cursor: pointer;">
+        <div class="icon">💼</div>
+        <div class="label">Business</div>
+      </div>
+      <div class="card" data-key="law" role="button" tabindex="0" aria-pressed="false" aria-label="Law" onclick="window.location.href='law/law-home.html'" style="cursor: pointer;">
+        <div class="icon">⚖️</div>
+        <div class="label">Law</div>
+      </div>
+      <div class="card" data-key="creator" role="button" tabindex="0" aria-pressed="false" aria-label="Influencers" onclick="window.location.href='influencers/influencers-home.html'" style="cursor: pointer;">
+        <div class="icon">🎨</div>
+        <div class="label">Influencers</div>
+      </div>
+      <div class="card" data-key="education" role="button" tabindex="0" aria-pressed="false" aria-label="Education" onclick="window.location.href='education/education-home.html'" style="cursor: pointer;">
+        <div class="icon">📚</div>
+        <div class="label">Education</div>
+      </div>
+    </section>
+  </main>
+
+  <script src="/scripts/common/swipe-navigation.js"></script>
+  <script src="/scripts/common/profile-icon.js"></script>
+  <script>
+    // Check authentication status on page load
+    (async function checkAuthOnLoad() {
+      try {
+        const response = await fetch('/api/auth/status', {
+          credentials: 'include'
+        });
+        const data = await response.json();
+        
+        if (!data.success || !data.authenticated) {
+          // User is not authenticated, redirect to login
+          window.location.href = '/index.html';
+          return;
+        }
+        // User is authenticated, continue loading the page
+      } catch (error) {
+        console.error('Auth check error:', error);
+        // On error, redirect to login to be safe
+        window.location.href = '/index.html';
+        return;
+      }
+    })();
+
+    (function () {
+      const grid = document.getElementById('categories');
+      const selected = new Set();
+
+      function toggleCard(card) {
+        const key = card.getAttribute('data-key');
+        const isSelected = card.classList.toggle('selected');
+        card.setAttribute('aria-pressed', String(isSelected));
+        if (isSelected) selected.add(key); else selected.delete(key);
+      }
+
+      grid.addEventListener('click', (e) => {
+        const card = e.target.closest('.card');
+        if (!card) return;
+        
+        // If card has onclick handler, let it execute (for navigation)
+        if (card.getAttribute('onclick')) {
+          return; // Let the onclick handler execute
+        }
+        
+        toggleCard(card);
+      });
+
+      grid.addEventListener('keydown', (e) => {
+        if ((e.key === 'Enter' || e.key === ' ') && e.target.classList.contains('card')) {
+          e.preventDefault();
+          
+          // If card has onclick handler, execute it (for navigation)
+          const onclick = e.target.getAttribute('onclick');
+          if (onclick) {
+            eval(onclick); // Execute the onclick handler
+            return;
+          }
+          
+          toggleCard(e.target);
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
+
+

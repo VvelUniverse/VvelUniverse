@@ -1,0 +1,276 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vvel Universe | Medical</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root {
+      --navy-100: #0b1a3a;
+      --navy-200: #0f2a5a;
+      --navy-300: #123571;
+      --navy-400: #174ea6;
+      --glass-bg: rgba(13, 31, 74, 0.26);
+      --glass-border: 1.4px solid rgba(23, 78, 166, 0.55);
+      --panel-shadow: 0 20px 50px rgba(3, 10, 24, 0.55);
+      --title-color: #ffffff;
+      --body-color: #e5e7eb;
+      --muted-color: #c7c9d4;
+      --font-title: 'Orbitron', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      --font-body: 'Outfit', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: #000;
+      color: var(--body-color);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      background-image:
+        url('/assets/images/space-bg.jpg'),
+        url('Space-bg.png'),
+        url('Space-bg.jpeg'),
+        url('/assets/images/space-bg.jpg'),
+        url('space-bg.png'),
+        url('space-bg.jpeg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(1200px 900px at 20% 20%, rgba(0,0,0,0.35), transparent 55%),
+                  linear-gradient(180deg, rgba(0,0,0,0.42), rgba(0,0,0,0.55));
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .content-wrapper {
+      position: relative;
+      z-index: 2;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 2rem clamp(1rem, 4vw, 3rem);
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: var(--glass-border);
+      box-shadow: var(--panel-shadow);
+    }
+
+    .card-hover {
+      transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    }
+
+    .card-hover:hover {
+      transform: translateY(-6px) scale(1.02);
+      box-shadow: 0 18px 40px rgba(34, 197, 94, 0.45);
+      border-color: rgba(34, 197, 94, 0.8);
+    }
+
+    .card-hover:active {
+      transform: translateY(-2px) scale(1.01);
+    }
+
+    .title-text {
+      font-family: var(--font-title);
+      color: var(--title-color);
+      letter-spacing: 0.02em;
+      font-weight: 800;
+    }
+
+    .badge {
+      background: linear-gradient(120deg, rgba(34, 197, 94, 0.4), rgba(22, 163, 74, 0.4));
+      border: 1px solid rgba(34, 197, 94, 0.5);
+      border-radius: 9999px;
+      padding: 4px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #bbf7d0;
+      letter-spacing: 0.06em;
+    }
+
+    .medical-list {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1.5rem;
+      max-width: 1400px;
+      margin: 2rem auto;
+      width: 100%;
+    }
+
+    @media (max-width: 1200px) {
+      .medical-list {
+        grid-template-columns: repeat(4, 1fr);
+      }
+    }
+
+    @media (max-width: 900px) {
+      .medical-list {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 600px) {
+      .medical-list {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .medical-card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 16px;
+      padding: 1.5rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+    }
+
+    .medical-card:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(34, 197, 94, 0.3);
+      border-color: rgba(34, 197, 94, 0.6);
+    }
+
+    .medical-icon {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .medical-name {
+      font-family: var(--font-title);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 0.25rem;
+    }
+
+    .medical-desc {
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.7);
+    }
+  </style>
+</head>
+<body>
+  <div class="content-wrapper">
+    <header class="text-center mb-10 space-y-3">
+      <div class="badge inline-flex items-center gap-2 uppercase tracking-widest">
+        <i data-lucide="heart-pulse" class="w-4 h-4"></i>
+        Medical Universe
+      </div>
+      <h1 class="title-text text-4xl md:text-6xl">Explore Medical Systems</h1>
+      <p class="text-[#c7c9d4] text-base md:text-lg max-w-2xl mx-auto">
+        Select a medical system to explore treatments, practitioners, and health discussions from around the world.
+      </p>
+    </header>
+
+    <main class="flex-1 flex justify-center">
+      <div class="medical-list">
+        <div class="medical-card glass-card card-hover" data-medical="ayurveda" onclick="openMedical('ayurveda')">
+          <div class="medical-icon">🌿</div>
+          <div class="medical-name">Ayurveda</div>
+          <div class="medical-desc">Ancient Indian Medicine</div>
+        </div>
+        <div class="medical-card glass-card card-hover" data-medical="allopathy" onclick="openMedical('allopathy')">
+          <div class="medical-icon">💊</div>
+          <div class="medical-name">Allopathy</div>
+          <div class="medical-desc">Modern Western Medicine</div>
+        </div>
+        <div class="medical-card glass-card card-hover" data-medical="homeopathy" onclick="openMedical('homeopathy')">
+          <div class="medical-icon">💧</div>
+          <div class="medical-name">Homeopathy</div>
+          <div class="medical-desc">Natural Remedies</div>
+        </div>
+        <div class="medical-card glass-card card-hover" data-medical="unani-medicine" onclick="openMedical('unani-medicine')">
+          <div class="medical-icon">🌙</div>
+          <div class="medical-name">Unani Medicine</div>
+          <div class="medical-desc">Greco-Arabic Medicine</div>
+        </div>
+        <div class="medical-card glass-card card-hover" data-medical="siddha-medicine" onclick="openMedical('siddha-medicine')">
+          <div class="medical-icon">🔮</div>
+          <div class="medical-name">Siddha Medicine</div>
+          <div class="medical-desc">Tamil Traditional Medicine</div>
+        </div>
+        <div class="medical-card glass-card card-hover" data-medical="tcm" onclick="openMedical('tcm')">
+          <div class="medical-icon">☯️</div>
+          <div class="medical-name">Traditional Chinese Medicine</div>
+          <div class="medical-desc">TCM Healing</div>
+        </div>
+        <div class="medical-card glass-card card-hover" data-medical="naturopathy" onclick="openMedical('naturopathy')">
+          <div class="medical-icon">🌱</div>
+          <div class="medical-name">Naturopathy</div>
+          <div class="medical-desc">Natural Healing</div>
+        </div>
+        <div class="medical-card glass-card card-hover" data-medical="chiropractic" onclick="openMedical('chiropractic')">
+          <div class="medical-icon">🦴</div>
+          <div class="medical-name">Chiropractic</div>
+          <div class="medical-desc">Spinal Care</div>
+        </div>
+        <div class="medical-card glass-card card-hover" data-medical="osteopathy" onclick="openMedical('osteopathy')">
+          <div class="medical-icon">🫀</div>
+          <div class="medical-name">Osteopathy</div>
+          <div class="medical-desc">Manual Therapy</div>
+        </div>
+        <div class="medical-card glass-card card-hover" data-medical="integrative-medicine" onclick="openMedical('integrative-medicine')">
+          <div class="medical-icon">⚕️</div>
+          <div class="medical-name">Integrative Medicine</div>
+          <div class="medical-desc">Combined Approaches</div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    lucide.createIcons();
+
+    const routes = {
+      'ayurveda': 'Category/Sub-Category/Medical/medical-ayurveda.html',
+      'allopathy': 'Category/Sub-Category/Medical/medical-allopathy.html',
+      'homeopathy': 'Category/Sub-Category/Medical/medical-homeopathy.html',
+      'unani-medicine': 'Category/Sub-Category/Medical/medical-unani-medicine.html',
+      'siddha-medicine': 'Category/Sub-Category/Medical/medical-siddha-medicine.html',
+      'tcm': 'Category/Sub-Category/Medical/medical-tcm.html',
+      'naturopathy': 'Category/Sub-Category/Medical/medical-naturopathy.html',
+      'chiropractic': 'Category/Sub-Category/Medical/medical-chiropractic.html',
+      'osteopathy': 'Category/Sub-Category/Medical/medical-osteopathy.html',
+      'integrative-medicine': 'Category/Sub-Category/Medical/medical-integrative-medicine.html'
+    };
+
+    function openMedical(medical) {
+      const target = routes[medical];
+      if (target) {
+        localStorage.setItem('selectedMedical', medical);
+        window.location.href = target;
+      }
+    }
+  </script>
+  <script src="/scripts/common/profile-icon.js"></script>
+</body>
+</html>
+
+
+

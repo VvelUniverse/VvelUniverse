@@ -1,0 +1,271 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vvel Universe | Law</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    :root {
+      --navy-100: #0b1a3a;
+      --navy-200: #0f2a5a;
+      --navy-300: #123571;
+      --navy-400: #174ea6;
+      --glass-bg: rgba(13, 31, 74, 0.26);
+      --glass-border: 1.4px solid rgba(23, 78, 166, 0.55);
+      --panel-shadow: 0 20px 50px rgba(3, 10, 24, 0.55);
+      --title-color: #ffffff;
+      --body-color: #e5e7eb;
+      --muted-color: #c7c9d4;
+      --font-title: 'Orbitron', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      --font-body: 'Outfit', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: #000;
+      color: var(--body-color);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      background-image:
+        url('/assets/images/space-bg.jpg'),
+        url('Space-bg.png'),
+        url('Space-bg.jpeg'),
+        url('/assets/images/space-bg.jpg'),
+        url('space-bg.png'),
+        url('space-bg.jpeg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(1200px 900px at 20% 20%, rgba(0,0,0,0.35), transparent 55%),
+                  linear-gradient(180deg, rgba(0,0,0,0.42), rgba(0,0,0,0.55));
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .content-wrapper {
+      position: relative;
+      z-index: 2;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 2rem clamp(1rem, 4vw, 3rem);
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: var(--glass-border);
+      box-shadow: var(--panel-shadow);
+    }
+
+    .card-hover {
+      transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    }
+
+    .card-hover:hover {
+      transform: translateY(-6px) scale(1.02);
+      box-shadow: 0 18px 40px rgba(139, 92, 246, 0.45);
+      border-color: rgba(139, 92, 246, 0.8);
+    }
+
+    .card-hover:active {
+      transform: translateY(-2px) scale(1.01);
+    }
+
+    .title-text {
+      font-family: var(--font-title);
+      color: var(--title-color);
+      letter-spacing: 0.02em;
+      font-weight: 800;
+    }
+
+    .badge {
+      background: linear-gradient(120deg, rgba(139, 92, 246, 0.4), rgba(124, 58, 237, 0.4));
+      border: 1px solid rgba(139, 92, 246, 0.5);
+      border-radius: 9999px;
+      padding: 4px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #e9d5ff;
+      letter-spacing: 0.06em;
+    }
+
+    .law-list {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      max-width: 1400px;
+      margin: 2rem auto;
+      width: 100%;
+    }
+
+    @media (max-width: 1200px) {
+      .law-list {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 900px) {
+      .law-list {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 600px) {
+      .law-list {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .law-card {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 16px;
+      padding: 1.5rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+    }
+
+    .law-card:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(139, 92, 246, 0.3);
+      border-color: rgba(139, 92, 246, 0.6);
+    }
+
+    .law-icon {
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .law-name {
+      font-family: var(--font-title);
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: white;
+      margin-bottom: 0.25rem;
+      line-height: 1.2;
+    }
+
+    .law-desc {
+      font-size: 0.7rem;
+      color: rgba(255, 255, 255, 0.7);
+    }
+  </style>
+</head>
+<body>
+  <div class="content-wrapper">
+    <header class="text-center mb-10 space-y-3">
+      <div class="badge inline-flex items-center gap-2 uppercase tracking-widest">
+        <i data-lucide="scale" class="w-4 h-4"></i>
+        Law Universe
+      </div>
+      <h1 class="title-text text-4xl md:text-6xl">Explore Law Categories</h1>
+      <p class="text-[#c7c9d4] text-base md:text-lg max-w-2xl mx-auto">
+        Select a category to explore legal services, departments, and community discussions.
+      </p>
+    </header>
+
+    <main class="flex-1 flex justify-center">
+      <div class="law-list">
+        <div class="law-card glass-card card-hover" data-law="legal-aid-services" onclick="openLaw('legal-aid-services')">
+          <div class="law-icon">⚖️</div>
+          <div class="law-name">Legal Aid Services</div>
+          <div class="law-desc">Legal Assistance</div>
+        </div>
+        <div class="law-card glass-card card-hover" data-law="corporate-legal-department" onclick="openLaw('corporate-legal-department')">
+          <div class="law-icon">🏢</div>
+          <div class="law-name">Corporate Legal Department</div>
+          <div class="law-desc">Business Law</div>
+        </div>
+        <div class="law-card glass-card card-hover" data-law="intellectual-property-rights" onclick="openLaw('intellectual-property-rights')">
+          <div class="law-icon">💡</div>
+          <div class="law-name">Intellectual Property Rights (IPR) Department</div>
+          <div class="law-desc">IP Protection</div>
+        </div>
+        <div class="law-card glass-card card-hover" data-law="regulatory-compliance-department" onclick="openLaw('regulatory-compliance-department')">
+          <div class="law-icon">📋</div>
+          <div class="law-name">Regulatory & Compliance Department</div>
+          <div class="law-desc">Compliance</div>
+        </div>
+        <div class="law-card glass-card card-hover" data-law="alternative-dispute-resolution" onclick="openLaw('alternative-dispute-resolution')">
+          <div class="law-icon">🤝</div>
+          <div class="law-name">Alternative Dispute Resolution (ADR)</div>
+          <div class="law-desc">Mediation & Arbitration</div>
+        </div>
+        <div class="law-card glass-card card-hover" data-law="legal-research-policy-department" onclick="openLaw('legal-research-policy-department')">
+          <div class="law-icon">📚</div>
+          <div class="law-name">Legal Research & Policy Department</div>
+          <div class="law-desc">Research & Policy</div>
+        </div>
+        <div class="law-card glass-card card-hover" data-law="human-rights-public-interest-law" onclick="openLaw('human-rights-public-interest-law')">
+          <div class="law-icon">🕊️</div>
+          <div class="law-name">Human Rights & Public Interest Law</div>
+          <div class="law-desc">Human Rights</div>
+        </div>
+        <div class="law-card glass-card card-hover" data-law="environmental-land-law-department" onclick="openLaw('environmental-land-law-department')">
+          <div class="law-icon">🌳</div>
+          <div class="law-name">Environmental & Land Law Department</div>
+          <div class="law-desc">Environmental Law</div>
+        </div>
+        <div class="law-card glass-card card-hover" data-law="family-personal-law-services" onclick="openLaw('family-personal-law-services')">
+          <div class="law-icon">👨‍👩‍👧‍👦</div>
+          <div class="law-name">Family & Personal Law Services</div>
+          <div class="law-desc">Family Law</div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    lucide.createIcons();
+
+    const routes = {
+      'legal-aid-services': 'Category/Sub-Category/Law/law-legal-aid-services.html',
+      'corporate-legal-department': 'Category/Sub-Category/Law/law-corporate-legal-department.html',
+      'intellectual-property-rights': 'Category/Sub-Category/Law/law-intellectual-property-rights.html',
+      'regulatory-compliance-department': 'Category/Sub-Category/Law/law-regulatory-compliance-department.html',
+      'alternative-dispute-resolution': 'Category/Sub-Category/Law/law-alternative-dispute-resolution.html',
+      'legal-research-policy-department': 'Category/Sub-Category/Law/law-legal-research-policy-department.html',
+      'human-rights-public-interest-law': 'Category/Sub-Category/Law/law-human-rights-public-interest-law.html',
+      'environmental-land-law-department': 'Category/Sub-Category/Law/law-environmental-land-law-department.html',
+      'family-personal-law-services': 'Category/Sub-Category/Law/law-family-personal-law-services.html'
+    };
+
+    function openLaw(law) {
+      const target = routes[law];
+      if (target) {
+        localStorage.setItem('selectedLaw', law);
+        window.location.href = target;
+      }
+    }
+  </script>
+  <script src="/scripts/common/profile-icon.js"></script>
+</body>
+</html>
+
+
+

@@ -539,6 +539,33 @@ router.get('/connect-requests/my-requests', requireAuth, async (req, res) => {
 });
 
 /**
+ * GET /api/connect-requests/my-connections-count
+ * Get count of approved connections for the authenticated user
+ */
+router.get('/connect-requests/my-connections-count', requireAuth, async (req, res) => {
+  try {
+    const count = await ConnectRequest.countDocuments({
+      $or: [
+        { requesterId: req.user._id },
+        { influencerId: req.user._id }
+      ],
+      status: 'approved'
+    });
+
+    res.json({
+      success: true,
+      count
+    });
+  } catch (error) {
+    console.error('Get connections count error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch connections count'
+    });
+  }
+});
+
+/**
  * POST /api/admin/grant-admin
  * Grant admin access to a user (admin only)
  */

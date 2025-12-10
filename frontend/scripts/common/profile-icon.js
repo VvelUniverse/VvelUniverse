@@ -167,14 +167,14 @@
         </div>
         
         <div class="sidebar-menu-items">
-          <a id="sidebarHomeLink" href="/pages/categories/categories.html" class="sidebar-menu-item">
+          <a id="sidebarHomeLink" href="/categories" class="sidebar-menu-item">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
               <polyline points="9 22 9 12 15 12 15 22"></polyline>
             </svg>
             <span>Home</span>
           </a>
-          <a href="/pages/profile/profile.html" class="sidebar-menu-item">
+          <a href="/profile" class="sidebar-menu-item">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
               <circle cx="12" cy="7" r="4"></circle>
@@ -224,7 +224,7 @@
         }
       } catch (error) {
         console.error('Logout error:', error);
-        window.location.href = '/index.html';
+        window.location.href = '/login';
       }
     };
 
@@ -530,15 +530,15 @@
     // Detect category from current page URL or path
     const path = window.location.pathname;
     const categoryMap = {
-      'medical': '/pages/categories/medical/medical-home.html',
-      'business': '/pages/categories/business/business-home.html',
-      'cinema': '/pages/categories/cinema/cinema-home.html',
-      'education': '/pages/categories/education/education-home.html',
-      'influencers': '/pages/categories/influencers/influencers-home.html',
-      'law': '/pages/categories/law/law-home.html',
-      'politics': '/pages/categories/politics/politics-home.html',
-      'science': '/pages/categories/science/science-home.html',
-      'sports': '/pages/categories/sports/sports-home.html'
+      'medical': '/medical',
+      'business': '/business',
+      'cinema': '/cinema',
+      'education': '/education',
+      'influencers': '/influencers',
+      'law': '/law',
+      'politics': '/politics',
+      'science': '/science',
+      'sports': '/sports'
     };
 
     for (const [category, homeUrl] of Object.entries(categoryMap)) {

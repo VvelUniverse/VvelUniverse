@@ -41,12 +41,8 @@
       overflow-y: auto;
       min-height: 100vh;
       background-image:
-        url('/assets/images/space-bg.jpg'),
-        url('Space-bg.png'),
-        url('Space-bg.jpeg'),
-        url('/assets/images/space-bg.jpg'),
-        url('space-bg.png'),
-        url('space-bg.jpeg');
+        url('/assets/images/Space-bg.jpg'),
+        url('/assets/images/Space-bg-2.jpg');
       background-size: cover;
       background-position: center;
       background-attachment: fixed;
@@ -846,7 +842,7 @@
           showSuccess(window.i18n.t('kyc.success'));
           hideLoadingOverlay();
           setTimeout(() => {
-            window.location.href = '/influencers-home.html';
+            window.location.href='/';
           }, 2000);
         } else {
           hideLoadingOverlay();

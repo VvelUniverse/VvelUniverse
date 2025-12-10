@@ -39,12 +39,8 @@
       font-family: var(--font-body);
       min-height: 100vh;
       background-image:
-        url('/assets/images/space-bg.jpg'),
-        url('Space-bg.png'),
-        url('Space-bg.jpeg'),
-        url('/assets/images/space-bg.jpg'),
-        url('space-bg.png'),
-        url('space-bg.jpeg');
+        url('/assets/images/Space-bg.jpg'),
+        url('/assets/images/Space-bg-2.jpg');
       background-size: cover;
       background-position: center;
       background-attachment: fixed;
@@ -187,16 +183,16 @@
 
     function openCategory(key) {
       const routes = {
-        'ball-sports': 'Category/Sub-Category/Sports/Sports/sports-ball-sports.html',
-        'track-sports': 'Category/Sub-Category/Sports/Sports/sports-track-sports.html',
-        'stick-sports': 'Category/Sub-Category/Sports/Sports/sports-stick-sports.html',
-        'water-sports': 'Category/Sub-Category/Sports/Sports/sports-water-sports.html',
-        'motor-sports': 'Category/Sub-Category/Sports/Sports/sports-motor-sports.html',
-        'gymnastics': 'Category/Sub-Category/Sports/Sports/sports-gymnastics.html',
-        'ice-sports': 'Category/Sub-Category/Sports/Sports/sports-ice-sports.html',
-        'animal-sports': 'Category/Sub-Category/Sports/Sports/sports-animal-sports.html',
-        'contact-team-sport': 'Category/Sub-Category/Sports/Sports/sports-contact-team-sport.html',
-        'other-sports': 'Category/Sub-Category/Sports/Sports/sports-other-sports.html'
+        'ball-sports': 'subcategories/sports-ball-sports.html',
+        'track-sports': 'subcategories/sports-track-sports.html',
+        'stick-sports': 'subcategories/sports-stick-sports.html',
+        'water-sports': 'subcategories/sports-water-sports.html',
+        'motor-sports': 'subcategories/sports-motor-sports.html',
+        'gymnastics': 'subcategories/sports-gymnastics.html',
+        'ice-sports': 'subcategories/sports-ice-sports.html',
+        'animal-sports': 'subcategories/sports-animal-sports.html',
+        'contact-team-sport': 'subcategories/sports-contact-team-sport.html',
+        'other-sports': 'subcategories/sports-other-sports.html'
       };
 
       const target = routes[key];

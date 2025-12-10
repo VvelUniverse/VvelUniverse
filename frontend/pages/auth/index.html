@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -40,7 +40,7 @@
       font-family: var(--font-body);
       overflow-y: auto;
       min-height: 100vh;
-      background-image: url('/assets/images/space-bg.jpg');
+      background-image: url('/assets/images/Space-bg.jpg');
       background-size: cover;
       background-position: center;
       background-attachment: fixed;
@@ -516,7 +516,7 @@
       </div>
 
       <div class="links" style="margin-top:16px"><span data-i18n="authGate.alreadyRegistered">Already registered?</span> <a href="#" id="showLogin" data-i18n="authGate.signIn">Sign in</a></div>
-      <div class="links"><span data-i18n="authGate.newHere">New here?</span> <a href="./register.html" data-i18n="authGate.signUp">Sign up</a></div>
+      <div class="links"><span data-i18n="authGate.newHere">New here?</span> <a href="/register" data-i18n="authGate.signUp">Sign up</a></div>
     </section>
 
     <!-- REGULAR SIGN IN FORM (hidden if not registered) -->
@@ -545,7 +545,7 @@
           <button type="button" class="forgot-btn" id="forgotLoginIdBtn" data-i18n="login.forgotLoginId">Forgot Login ID?</button>
         </div>
       </form>
-      <div class="links"><span data-i18n="login.noAccount">Don't have an account?</span> <a href="./register.html" data-i18n="login.signup">Signup</a></div>
+      <div class="links"><span data-i18n="login.noAccount">Don't have an account?</span> <a href="/register" data-i18n="login.signup">Signup</a></div>
 
       <div class="admin-access">
         <button type="button" class="admin-toggle" id="adminToggleBtn">
@@ -677,7 +677,7 @@
           // User is authenticated, redirect to categories
           showLoadingOverlay(window.i18n.t('login.redirecting'));
           setTimeout(() => {
-            window.location.href = '/pages/categories/categories.html';
+            window.location.href = '/categories';
           }, 500);
         } else {
           hideLoadingOverlay();
@@ -726,7 +726,7 @@
           showLoadingOverlay(window.i18n.t('login.success'));
           // Redirect to categories page after successful login
           setTimeout(() => {
-            window.location.href = '/pages/categories/categories.html';
+            window.location.href = '/categories';
           }, 800);
         } else {
           hideLoadingOverlay();

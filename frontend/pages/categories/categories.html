@@ -39,12 +39,8 @@
       font-family: var(--font-body);
       min-height: 100vh;
       background-image:
-        url('/assets/images/space-bg.jpg'),
-        url('Space-bg.png'),
-        url('Space-bg.jpeg'),
-        url('/assets/images/space-bg.jpg'),
-        url('space-bg.png'),
-        url('space-bg.jpeg');
+        url('/assets/images/Space-bg.jpg'),
+        url('/assets/images/Space-bg-2.jpg');
       background-size: cover;
       background-position: center;
       background-attachment: fixed;
@@ -135,43 +131,43 @@
     </header>
 
     <section class="grid" id="categories" aria-label="Category selection grid">
-      <div class="card" data-key="medical" role="button" tabindex="0" aria-pressed="false" aria-label="Medical" onclick="window.location.href='medical/medical-home.html'" style="cursor: pointer;">
+      <div class="card" data-key="medical" role="button" tabindex="0" aria-pressed="false" aria-label="Medical" onclick="window.location.href='/medical'" style="cursor: pointer;">
         <div class="icon">🏥</div>
         <div class="label">Medical</div>
       </div>
-      <div class="card" data-key="cinema" role="button" tabindex="0" aria-pressed="false" aria-label="Cinema" onclick="window.location.href='cinema/cinema-home.html'" style="cursor: pointer;">
+      <div class="card" data-key="cinema" role="button" tabindex="0" aria-pressed="false" aria-label="Cinema" onclick="window.location.href='/cinema'" style="cursor: pointer;">
         <div class="icon">🎬</div>
         <div class="label">Cinema</div>
       </div>
-      <div class="card" data-key="politics" role="button" tabindex="0" aria-pressed="false" aria-label="Politics" onclick="window.location.href='politics/politics-home.html'" style="cursor: pointer;">
+      <div class="card" data-key="politics" role="button" tabindex="0" aria-pressed="false" aria-label="Politics" onclick="window.location.href='/politics'" style="cursor: pointer;">
         <div class="icon">🗳️</div>
         <div class="label">Politics</div>
       </div>
-      <div class="card" data-key="sports" role="button" tabindex="0" aria-pressed="false" aria-label="Sports" onclick="window.location.href='sports/sports-home.html'" style="cursor: pointer;">
+      <div class="card" data-key="sports" role="button" tabindex="0" aria-pressed="false" aria-label="Sports" onclick="window.location.href='/sports'" style="cursor: pointer;">
         <div class="icon">⚽</div>
         <div class="label">Sports</div>
       </div>
-      <div class="card" data-key="spiritual" role="button" tabindex="0" aria-pressed="false" aria-label="Spiritual" onclick="window.location.href='../spiritual/spiritual.html'" style="cursor: pointer;">
+      <div class="card" data-key="spiritual" role="button" tabindex="0" aria-pressed="false" aria-label="Spiritual" onclick="window.location.href='/spiritual'" style="cursor: pointer;">
         <div class="icon">🕉️</div>
         <div class="label">Spiritual</div>
       </div>
-      <div class="card" data-key="science" role="button" tabindex="0" aria-pressed="false" aria-label="Science" onclick="window.location.href='science/science-home.html'" style="cursor: pointer;">
+      <div class="card" data-key="science" role="button" tabindex="0" aria-pressed="false" aria-label="Science" onclick="window.location.href='/science'" style="cursor: pointer;">
         <div class="icon">🔬</div>
         <div class="label">Science</div>
       </div>
-      <div class="card" data-key="business" role="button" tabindex="0" aria-pressed="false" aria-label="Business" onclick="window.location.href='business/business-home.html'" style="cursor: pointer;">
+      <div class="card" data-key="business" role="button" tabindex="0" aria-pressed="false" aria-label="Business" onclick="window.location.href='/business'" style="cursor: pointer;">
         <div class="icon">💼</div>
         <div class="label">Business</div>
       </div>
-      <div class="card" data-key="law" role="button" tabindex="0" aria-pressed="false" aria-label="Law" onclick="window.location.href='law/law-home.html'" style="cursor: pointer;">
+      <div class="card" data-key="law" role="button" tabindex="0" aria-pressed="false" aria-label="Law" onclick="window.location.href='/law'" style="cursor: pointer;">
         <div class="icon">⚖️</div>
         <div class="label">Law</div>
       </div>
-      <div class="card" data-key="creator" role="button" tabindex="0" aria-pressed="false" aria-label="Influencers" onclick="window.location.href='influencers/influencers-home.html'" style="cursor: pointer;">
+      <div class="card" data-key="creator" role="button" tabindex="0" aria-pressed="false" aria-label="Influencers" onclick="window.location.href='/influencers'" style="cursor: pointer;">
         <div class="icon">🎨</div>
         <div class="label">Influencers</div>
       </div>
-      <div class="card" data-key="education" role="button" tabindex="0" aria-pressed="false" aria-label="Education" onclick="window.location.href='education/education-home.html'" style="cursor: pointer;">
+      <div class="card" data-key="education" role="button" tabindex="0" aria-pressed="false" aria-label="Education" onclick="window.location.href='/education'" style="cursor: pointer;">
         <div class="icon">📚</div>
         <div class="label">Education</div>
       </div>
@@ -191,14 +187,14 @@
         
         if (!data.success || !data.authenticated) {
           // User is not authenticated, redirect to login
-          window.location.href = '/index.html';
+          window.location.href = '/login';
           return;
         }
         // User is authenticated, continue loading the page
       } catch (error) {
         console.error('Auth check error:', error);
         // On error, redirect to login to be safe
-        window.location.href = '/index.html';
+        window.location.href = '/login';
         return;
       }
     })();

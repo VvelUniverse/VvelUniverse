@@ -557,11 +557,11 @@
   <!-- Bottom Navigation -->
   <nav class="bottom-nav fixed bottom-0 left-0 right-0 border-t border-white/20">
     <div class="max-w-2xl mx-auto flex justify-around items-center py-4 px-4">  
-      <button onclick="window.location.href = '/pages/categories/categories.html'" class="nav-icon flex flex-col items-center gap-1">
+      <button onclick="window.location.href = '/categories'" class="nav-icon flex flex-col items-center gap-1">
         <i data-lucide="home" class="w-6 h-6"></i>
         <span class="text-xs">Home</span>
       </button>
-      <button onclick="window.location.href='community.html'" class="nav-icon flex flex-col items-center gap-1">
+      <button onclick="window.location.href='law-community.html'" class="nav-icon flex flex-col items-center gap-1">
         <i data-lucide="users" class="w-6 h-6"></i>
         <span class="text-xs">Community</span>
       </button>
@@ -571,15 +571,15 @@
         </div>
         <span class="text-xs">Search</span>
       </button>
-      <button onclick="window.location.href='wallet.html'" class="nav-icon flex flex-col items-center gap-1">
+      <button onclick="window.location.href='law-wallet.html'" class="nav-icon flex flex-col items-center gap-1">
         <i data-lucide="wallet" class="w-6 h-6"></i>
         <span class="text-xs">Wallet</span>
       </button>
-      <button onclick="window.location.href='alerts.html'" class="nav-icon flex flex-col items-center gap-1">
+      <button onclick="window.location.href='law-alerts.html'" class="nav-icon flex flex-col items-center gap-1">
         <i data-lucide="bell" class="w-6 h-6"></i>
         <span class="text-xs">Alerts</span>
       </button>
-      <button onclick="window.location.href='celebrations.html'" class="nav-icon flex flex-col items-center gap-1">
+      <button onclick="window.location.href='law-celebrations.html'" class="nav-icon flex flex-col items-center gap-1">
         <i data-lucide="party-popper" class="w-6 h-6"></i>
         <span class="text-xs">Celebrations</span>
       </button>
@@ -1152,7 +1152,7 @@
       if (Math.abs(deltaX) > Math.abs(deltaY)) {
         // Left to right swipe (positive deltaX) - swipe from anywhere on screen
         if (deltaX > minSwipeDistance) {
-          window.location.href = '/pages/categories/categories.html';
+          window.location.href = '/categories';
         }
       }
     }

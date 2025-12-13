@@ -667,7 +667,8 @@
     // Check authentication status on page load
     async function checkAuthStatus() {
       try {
-        showLoadingOverlay(window.i18n.t('login.checking'));
+        const checkingMsg = (window.i18n && window.i18n.t) ? window.i18n.t('login.checking') : 'Checking authentication...';
+        showLoadingOverlay(checkingMsg);
         const response = await fetch(`${API_BASE}/auth/status`, {
           credentials: 'include'
         });
@@ -675,7 +676,8 @@
         
         if (data.success && data.authenticated) {
           // User is authenticated, redirect to categories
-          showLoadingOverlay(window.i18n.t('login.redirecting'));
+          const redirectMsg = (window.i18n && window.i18n.t) ? window.i18n.t('login.redirecting') : 'Redirecting...';
+          showLoadingOverlay(redirectMsg);
           setTimeout(() => {
             window.location.href = '/categories';
           }, 500);
@@ -698,13 +700,16 @@
 
       // Client-side validation
       if (!email || !password) {
-        showError(window.i18n.t('login.error'));
+        const errorMsg = (window.i18n && window.i18n.t) ? window.i18n.t('login.error') : 'Login failed. Please try again.';
+        showError(errorMsg);
         return;
       }
 
       // Show loading state
-      setButtonLoading(submitBtn, true, window.i18n.t('login.signingIn'));
-      showLoadingOverlay(window.i18n.t('login.authenticating'));
+      const signingInMsg = (window.i18n && window.i18n.t) ? window.i18n.t('login.signingIn') : 'Signing In...';
+      const authenticatingMsg = (window.i18n && window.i18n.t) ? window.i18n.t('login.authenticating') : 'Authenticating...';
+      setButtonLoading(submitBtn, true, signingInMsg);
+      showLoadingOverlay(authenticatingMsg);
 
       try {
         const response = await fetch(`${API_BASE}/login`, {
@@ -722,15 +727,17 @@
         const data = await response.json();
 
         if (response.ok && data.success) {
-          showSuccess(window.i18n.t('login.success'));
-          showLoadingOverlay(window.i18n.t('login.success'));
+          const successMsg = (window.i18n && window.i18n.t) ? window.i18n.t('login.success') : 'Login successful! Redirecting...';
+          showSuccess(successMsg);
+          showLoadingOverlay(successMsg);
           // Redirect to categories page after successful login
           setTimeout(() => {
             window.location.href = '/categories';
           }, 800);
         } else {
           hideLoadingOverlay();
-          showError(data.message || window.i18n.t('login.error'));
+          const errorMsg = (window.i18n && window.i18n.t) ? window.i18n.t('login.error') : 'Login failed. Please try again.';
+          showError(data.message || errorMsg);
           setButtonLoading(submitBtn, false);
         }
       } catch (error) {
@@ -785,12 +792,14 @@
       const password = adminPortalPassword ? adminPortalPassword.value : '';
 
       if (!email || !password) {
-        showAdminError(window.i18n.t('admin.error'));
+        const adminErrorMsg = (window.i18n && window.i18n.t) ? window.i18n.t('admin.error') : 'Please fill in all fields.';
+        showAdminError(adminErrorMsg);
         return;
       }
 
       if (adminPortalSubmit) {
-        setButtonLoading(adminPortalSubmit, true, window.i18n.t('admin.verifying'));
+        const verifyingMsg = (window.i18n && window.i18n.t) ? window.i18n.t('admin.verifying') : 'Verifying...';
+        setButtonLoading(adminPortalSubmit, true, verifyingMsg);
       }
 
       try {
@@ -810,7 +819,8 @@
           timestamp: Date.now()
         }));
 
-        showLoadingOverlay(window.i18n.t('admin.opening'));
+        const openingMsg = (window.i18n && window.i18n.t) ? window.i18n.t('admin.opening') : 'Opening admin panel...';
+        showLoadingOverlay(openingMsg);
         setTimeout(() => {
           window.location.href = '/pages/admin/admin.html';
         }, 400);
@@ -982,15 +992,17 @@
 
     // Initialize page
     (function(){
-      const loginPanel = document.getElementById('loginPanel');
-      const authGate = document.getElementById('authGate');
-      const showLogin = document.getElementById('showLogin');
-      const form = document.getElementById('signinForm');
-      const forgotPasswordBtn = document.getElementById('forgotPasswordBtn');
-      const forgotLoginIdBtn = document.getElementById('forgotLoginIdBtn');
+      // Wait for DOM and scripts to be ready
+      function initializePage() {
+        const loginPanel = document.getElementById('loginPanel');
+        const authGate = document.getElementById('authGate');
+        const showLogin = document.getElementById('showLogin');
+        const form = document.getElementById('signinForm');
+        const forgotPasswordBtn = document.getElementById('forgotPasswordBtn');
+        const forgotLoginIdBtn = document.getElementById('forgotLoginIdBtn');
 
-      // Check auth status first
-      checkAuthStatus();
+        // Check auth status first
+        checkAuthStatus();
 
       // Show login form by default (backend will handle auth check)
       if (authGate) authGate.style.display = 'none';
@@ -1024,8 +1036,17 @@
         adminToggleBtn.addEventListener('click', toggleAdminPortal);
       }
 
-      // Initialize language switcher
-      initLanguageSwitcher();
+        // Initialize language switcher
+        initLanguageSwitcher();
+      }
+      
+      // Initialize when DOM is ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializePage);
+      } else {
+        // DOM already loaded, but wait a bit for scripts to initialize
+        setTimeout(initializePage, 50);
+      }
     })();
 
     // Language Switcher Functions
@@ -1036,6 +1057,14 @@
       const currentLang = document.getElementById('currentLang');
 
       if (!languageBtn || !languageDropdown) return;
+      
+      // Check if i18n is available
+      if (!window.i18n || !window.i18n.getSupportedLanguages || !window.i18n.getLanguage) {
+        console.warn('i18n not available yet, language switcher will be initialized later');
+        // Retry after a short delay
+        setTimeout(initLanguageSwitcher, 100);
+        return;
+      }
 
       // Populate dropdown
       const languages = window.i18n.getSupportedLanguages();
@@ -1078,6 +1107,9 @@
     }
 
     function updateLanguageSwitcher() {
+      if (!window.i18n || !window.i18n.getLanguage || !window.i18n.getSupportedLanguagesObject) {
+        return;
+      }
       const currentLangCode = window.i18n.getLanguage();
       const languages = window.i18n.getSupportedLanguagesObject();
       const currentLang = languages[currentLangCode];

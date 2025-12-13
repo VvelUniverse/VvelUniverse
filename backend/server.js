@@ -3,7 +3,9 @@
  * Express server setup with authentication routes
  */
 
-require('dotenv').config();
+const path = require('path');
+// Load .env from project root (one level up from backend directory)
+require('dotenv').config({ path: path.join(__dirname, '../.env') });
 const express = require('express');
 const session = require('express-session');
 const passport = require('./config/passport');
@@ -12,7 +14,6 @@ const authRoutes = require('./routes/auth');
 const profileRoutes = require('./routes/profile');
 const connectRequestRoutes = require('./routes/connectRequests');
 const cors = require('cors');
-const path = require('path');
 
 const imagesDir = path.join(__dirname, '../frontend/public/assets/images');
 const defaultBackground = path.join(imagesDir, 'Space-bg.jpg');

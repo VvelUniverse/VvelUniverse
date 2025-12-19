@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Java Backend API Tester</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+        }
+        
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+        
+        .input-group {
+            margin-bottom: 1rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        button {
+            width: 100%;
+            padding: 0.75rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .output {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .output h2 {
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+        
+        #result {
+            background: #f5f5f5;
+            border-radius: 8px;
+            padding: 1rem;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        .success {
+            color: #10b981;
+        }
+        
+        .error {
+            color: #ef4444;
+        }
+        
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            background: #f5f5f5;
+            border-radius: 8px;
+        }
+        
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ef4444;
+        }
+        
+        .status-dot.online {
+            background: #10b981;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 VvelUniverse Java Backend Tester</h1>
+        
+        <div class="status" id="statusBar">
+            <span class="status-dot" id="statusDot"></span>
+            <span id="statusText">Checking backend status...</span>
+        </div>
+        
+        <div class="cards">
+            <!-- Register Card -->
+            <div class="card">
+                <h2>👤 Register User</h2>
+                <div class="input-group">
+                    <label>Name</label>
+                    <input type="text" id="regName" placeholder="Admin User">
+                </div>
+                <div class="input-group">
+                    <label>Email</label>
+                    <input type="email" id="regEmail" placeholder="admin@vveluniverse.com">
+                </div>
+                <div class="input-group">
+                    <label>Mobile</label>
+                    <input type="tel" id="regMobile" placeholder="9876543210">
+                </div>
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" id="regPassword" placeholder="Admin@123">
+                </div>
+                <button onclick="testRegister()">Register</button>
+            </div>
+            
+            <!-- Login Card -->
+            <div class="card">
+                <h2>🔐 Login</h2>
+                <div class="input-group">
+                    <label>Email</label>
+                    <input type="email" id="loginEmail" placeholder="admin@vveluniverse.com">
+                </div>
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" placeholder="Admin@123">
+                </div>
+                <button onclick="testLogin()">Login</button>
+            </div>
+            
+            <!-- Create Category Card -->
+            <div class="card">
+                <h2>📁 Create Category</h2>
+                <div class="input-group">
+                    <label>Name</label>
+                    <input type="text" id="catName" placeholder="Sports">
+                </div>
+                <div class="input-group">
+                    <label>Icon (Emoji)</label>
+                    <input type="text" id="catIcon" placeholder="⚽">
+                </div>
+                <div class="input-group">
+                    <label>Description</label>
+                    <textarea id="catDesc" placeholder="Sports and athletics" rows="2"></textarea>
+                </div>
+                <button onclick="testCreateCategory()">Create Category</button>
+            </div>
+            
+            <!-- Get Categories Card -->
+            <div class="card">
+                <h2>📋 Get Categories</h2>
+                <button onclick="testGetCategories()">Get All Categories</button>
+            </div>
+        </div>
+        
+        <div class="output">
+            <h2>📊 Response Output</h2>
+            <div id="result">Waiting for API call...</div>
+        </div>
+    </div>
+    
+    <script src="frontend/scripts/api/java-backend-api.js"></script>
+    <script>
+        const api = new JavaBackendAPI();
+        
+        function showResult(data, isError = false) {
+            const result = document.getElementById('result');
+            result.className = isError ? 'error' : 'success';
+            result.textContent = JSON.stringify(data, null, 2);
+        }
+        
+        async function checkBackendStatus() {
+            try {
+                const response = await api.checkAuthStatus();
+                document.getElementById('statusDot').classList.add('online');
+                document.getElementById('statusText').textContent = '✓ Backend is running on http://localhost:8080/api';
+                showResult(response);
+            } catch (error) {
+                document.getElementById('statusText').textContent = '✗ Backend is offline. Please start the server.';
+                showResult({ error: error.message }, true);
+            }
+        }
+        
+        async function testRegister() {
+            try {
+                const data = {
+                    name: document.getElementById('regName').value,
+                    email: document.getElementById('regEmail').value,
+                    mobile: document.getElementById('regMobile').value,
+                    password: document.getElementById('regPassword').value,
+                };
+                const response = await api.register(data);
+                showResult(response);
+            } catch (error) {
+                showResult({ error: error.message }, true);
+            }
+        }
+        
+        async function testLogin() {
+            try {
+                const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
+                const response = await api.login(email, password);
+                showResult(response);
+            } catch (error) {
+                showResult({ error: error.message }, true);
+            }
+        }
+        
+        async function testCreateCategory() {
+            try {
+                const data = {
+                    name: document.getElementById('catName').value,
+                    icon: document.getElementById('catIcon').value,
+                    description: document.getElementById('catDesc').value,
+                    color: '#6366f1',
+                    order: 0,
+                };
+                const response = await api.createCategory(data);
+                showResult(response);
+            } catch (error) {
+                showResult({ error: error.message }, true);
+            }
+        }
+        
+        async function testGetCategories() {
+            try {
+                const response = await api.getAllCategories();
+                showResult(response);
+            } catch (error) {
+                showResult({ error: error.message }, true);
+            }
+        }
+        
+        // Check backend status on load
+        checkBackendStatus();
+    </script>
+</body>
+</html>
+

@@ -13,6 +13,7 @@ const connectDB = require('./config/database');
 const authRoutes = require('./routes/auth');
 const profileRoutes = require('./routes/profile');
 const connectRequestRoutes = require('./routes/connectRequests');
+const categoryRoutes = require('./routes/categories');
 const cors = require('cors');
 
 const imagesDir = path.join(__dirname, '../frontend/public/assets/images');
@@ -84,6 +85,7 @@ app.get([
 app.use('/api', authRoutes);
 app.use('/api', profileRoutes);
 app.use('/api', connectRequestRoutes);
+app.use('/api', categoryRoutes);
 
 // Root route - redirect to login page
 app.get('/', (req, res) => {
@@ -111,6 +113,11 @@ app.get('/profile', (req, res) => {
 
 app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/pages/admin/admin.html'));
+});
+
+// Admin login page (accessible only via direct URL)
+app.get('/vveladmins', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/pages/auth/admin-login.html'));
 });
 
 // Category routes

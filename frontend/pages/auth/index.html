@@ -328,59 +328,6 @@
     }
     .social-btn:hover { background: rgba(255,255,255,0.12); transform: translateY(-1px); border-color: rgba(255,255,255,0.42); }
 
-    .admin-access {
-      margin-top: 26px;
-      padding-top: 22px;
-      border-top: 1px solid rgba(255,255,255,0.12);
-    }
-
-    .admin-toggle {
-      width: 100%;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      padding: 11px 14px;
-      border-radius: 12px;
-      border: 1.2px solid rgba(255,255,255,0.22);
-      background: rgba(255,255,255,0.06);
-      color: #bfdbfe;
-      font-family: var(--font-title);
-      font-size: 14px;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      cursor: pointer;
-      transition: background .18s ease, transform .12s ease, border-color .18s ease;
-    }
-
-    .admin-toggle:hover,
-    .admin-toggle.open {
-      background: rgba(99,102,241,0.18);
-      border-color: rgba(129,140,248,0.42);
-      color: #e0e7ff;
-      transform: translateY(-1px);
-    }
-
-    #adminPortalForm {
-      margin-top: 18px;
-      display: none;
-      gap: 16px;
-    }
-
-    #adminPortalForm[data-open="true"] {
-      display: grid;
-    }
-
-    #adminPortalError {
-      margin-bottom: 0;
-    }
-
-    .admin-note {
-      font-size: 12px;
-      color: rgba(226,232,240,0.65);
-      text-align: left;
-    }
-
     /* Language Switcher Styles */
     .language-switcher {
       position: fixed;
@@ -546,26 +493,6 @@
         </div>
       </form>
       <div class="links"><span data-i18n="login.noAccount">Don't have an account?</span> <a href="/register" data-i18n="login.signup">Signup</a></div>
-
-      <div class="admin-access">
-        <button type="button" class="admin-toggle" id="adminToggleBtn">
-          <span aria-hidden="true">👑</span>
-          <span data-i18n="admin.portal">Admin Portal</span>
-        </button>
-        <form id="adminPortalForm" onsubmit="event.preventDefault(); handleAdminPortalLogin();" data-open="false">
-          <div id="adminPortalError" class="error-message"></div>
-          <div class="field">
-            <label for="adminPortalEmail" data-i18n="admin.email">Admin Email</label>
-            <input id="adminPortalEmail" type="email" placeholder="admin@vveluniverse.com" autocomplete="off" />
-          </div>
-          <div class="field">
-            <label for="adminPortalPassword" data-i18n="admin.password">Password</label>
-            <input id="adminPortalPassword" type="password" placeholder="Enter admin password" autocomplete="off" />
-          </div>
-          <button class="submit" type="submit" id="adminPortalSubmit" data-i18n="admin.submit">Access Admin Panel</button>
-          <p class="admin-note" data-i18n="admin.note">Admin access is limited to authorised mentors and community managers.</p>
-        </form>
-      </div>
     </section>
   </main>
 
@@ -622,13 +549,6 @@
   <script>
     // API base URL - adjust if your backend runs on a different port
     const API_BASE = '/api';
-    const ADMIN_SESSION_KEY = 'vvelAdminSession';
-    const adminPortalForm = document.getElementById('adminPortalForm');
-    const adminToggleBtn = document.getElementById('adminToggleBtn');
-    const adminPortalError = document.getElementById('adminPortalError');
-    const adminPortalSubmit = document.getElementById('adminPortalSubmit');
-    const adminPortalEmail = document.getElementById('adminPortalEmail');
-    const adminPortalPassword = document.getElementById('adminPortalPassword');
 
     // Show error message
     function showError(message) {
@@ -759,82 +679,6 @@
       setTimeout(() => {
         window.location.href = button.href;
       }, 300);
-    }
-
-    function toggleAdminPortal() {
-      if (!adminPortalForm) return;
-      const isOpen = adminPortalForm.dataset.open === 'true';
-      adminPortalForm.dataset.open = isOpen ? 'false' : 'true';
-      adminPortalForm.style.display = isOpen ? 'none' : 'grid';
-      if (adminToggleBtn) {
-        adminToggleBtn.classList.toggle('open', !isOpen);
-      }
-      clearAdminError();
-    }
-
-    function showAdminError(message) {
-      if (!adminPortalError) return;
-      adminPortalError.textContent = message;
-      adminPortalError.classList.add('show');
-    }
-
-    function clearAdminError() {
-      if (adminPortalError) {
-        adminPortalError.classList.remove('show');
-      }
-    }
-
-    function handleAdminPortalLogin() {
-      if (!adminPortalForm) return;
-      clearAdminError();
-
-      const email = adminPortalEmail ? adminPortalEmail.value.trim().toLowerCase() : '';
-      const password = adminPortalPassword ? adminPortalPassword.value : '';
-
-      if (!email || !password) {
-        const adminErrorMsg = (window.i18n && window.i18n.t) ? window.i18n.t('admin.error') : 'Please fill in all fields.';
-        showAdminError(adminErrorMsg);
-        return;
-      }
-
-      if (adminPortalSubmit) {
-        const verifyingMsg = (window.i18n && window.i18n.t) ? window.i18n.t('admin.verifying') : 'Verifying...';
-        setButtonLoading(adminPortalSubmit, true, verifyingMsg);
-      }
-
-      try {
-        const result = vvelAppState.authenticateAdmin(email, password);
-        if (!result.success) {
-          showAdminError(result.reason === 'invalid_password'
-            ? 'Incorrect admin password.'
-            : result.reason === 'not_found'
-              ? 'Admin account not recognised.'
-              : 'Unable to authenticate admin credentials.');
-          return;
-        }
-
-        sessionStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify({
-          email,
-          password,
-          timestamp: Date.now()
-        }));
-
-        const openingMsg = (window.i18n && window.i18n.t) ? window.i18n.t('admin.opening') : 'Opening admin panel...';
-        showLoadingOverlay(openingMsg);
-        setTimeout(() => {
-          window.location.href = '/pages/admin/admin.html';
-        }, 400);
-      } catch (error) {
-        console.error('Admin login error:', error);
-        showAdminError('Unexpected error. Please try again.');
-      } finally {
-        if (adminPortalSubmit) {
-          setButtonLoading(adminPortalSubmit, false);
-        }
-        if (!sessionStorage.getItem(ADMIN_SESSION_KEY)) {
-          hideLoadingOverlay();
-        }
-      }
     }
 
     // Forgot Password Modal Functions
@@ -1028,12 +872,6 @@
       // Clear messages when user starts typing
       if (form) {
         form.addEventListener('input', hideMessages);
-      }
-      if (adminPortalForm) {
-        adminPortalForm.addEventListener('input', clearAdminError);
-      }
-      if (adminToggleBtn) {
-        adminToggleBtn.addEventListener('click', toggleAdminPortal);
       }
 
         // Initialize language switcher

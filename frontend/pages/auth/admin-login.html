@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vvel Universe | Admin Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles/loading-styles.css">
+  <style>
+    :root {
+      --navy-100: #0b1a3a;
+      --navy-200: #0f2a5a;
+      --navy-300: #123571;
+      --navy-400: #174ea6;
+      --glass-bg: rgba(13, 31, 74, 0.26);
+      --glass-blur: blur(18px);
+      --glass-border: 1.4px solid rgba(23, 78, 166, 0.55);
+      --panel-shadow: 0 20px 50px rgba(3, 10, 24, 0.55);
+      --title-color: #ffffff;
+      --body-color: #e5e7eb;
+      --muted-color: #c7c9d4;
+      --field-border: 1.2px solid rgba(23, 78, 166, 0.35);
+      --field-border-focus: 1.6px solid rgba(23, 78, 166, 0.85);
+      --button-bg: linear-gradient(90deg, #0f2a5a 0%, #123571 55%, #174ea6 100%);
+      --button-shadow: 0 12px 26px rgba(23, 78, 166, 0.45);
+      --font-title: 'Orbitron', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      --font-body: 'Outfit', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      height: 100%;
+    }
+
+    body {
+      margin: 0;
+      background: #000;
+      color: var(--body-color);
+      font-family: var(--font-body);
+      overflow-y: auto;
+      min-height: 100vh;
+      background-image: url('/assets/images/Space-bg.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+    }
+
+    /* dark veil to improve contrast */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(1200px 900px at 20% 20%, rgba(0,0,0,0.35), transparent 55%),
+                  linear-gradient(180deg, rgba(0,0,0,0.42), rgba(0,0,0,0.55));
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    main {
+      position: relative;
+      z-index: 2;
+      height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    .panel {
+      width: min(460px, 92vw);
+      background: var(--glass-bg);
+      border: var(--glass-border);
+      border-radius: 22px;
+      backdrop-filter: var(--glass-blur);
+      -webkit-backdrop-filter: var(--glass-blur);
+      box-shadow: var(--panel-shadow);
+      padding: 30px 30px 24px 30px;
+      animation: enter 700ms ease both;
+    }
+
+    @keyframes enter { 0% { opacity: 0; transform: translateY(28px) scale(0.98) } 100% { opacity: 1; transform: translateY(0) scale(1) } }
+
+    .title {
+      font-family: var(--font-title);
+      font-size: clamp(26px, 4.4vw, 36px);
+      letter-spacing: 0.02em;
+      color: var(--title-color);
+      text-align: left;
+      margin: 2px 0 6px 0;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .tagline {
+      text-align: left;
+      color: var(--muted-color);
+      font-size: clamp(13px, 2.6vw, 15px);
+      margin: 0 0 22px 0;
+      font-weight: 500;
+    }
+
+    form {
+      display: grid;
+      gap: 16px;
+      animation: fadein 1s ease both;
+      animation-delay: 120ms;
+    }
+
+    @keyframes fadein { from { opacity: 0; transform: translateY(14px) } to { opacity: 1; transform: none } }
+
+    .field { display: grid; gap: 6px; }
+
+    label { color: #dbeafe; font-weight: 600; font-size: 14px; }
+
+    input {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: var(--field-border);
+      outline: none;
+      background: rgba(255,255,255,0.06);
+      color: #ffffff;
+      font-size: 15px;
+      transition: border-color .2s ease, box-shadow .2s ease, transform .12s ease;
+    }
+
+    input::placeholder { color: rgba(255,255,255,0.7); }
+    input:focus { border: var(--field-border-focus); box-shadow: 0 0 0 6px rgba(23, 78, 166, 0.25); transform: translateY(-1px); }
+
+    .submit {
+      margin-top: 4px;
+      width: 100%;
+      padding: 12px 16px;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      background: var(--button-bg);
+      color: #fff;
+      font-weight: 800;
+      font-family: var(--font-title);
+      letter-spacing: 0.02em;
+      font-size: 16px;
+      box-shadow: var(--button-shadow);
+      transition: filter .18s ease, box-shadow .2s ease, transform .12s ease;
+    }
+
+    .submit:hover, .submit:focus {
+      filter: brightness(1.06) saturate(1.05);
+      box-shadow: 0 12px 30px rgba(23, 78, 166, 0.55);
+      transform: translateY(-1px);
+      outline: none;
+    }
+
+    .submit:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* Subtle staged entrance for fields */
+    .field input, .submit { opacity: 0; transform: translateY(18px); animation: lift .9s ease both; }
+    .field:nth-child(1) input { animation-delay: .35s; }
+    .field:nth-child(2) input { animation-delay: .5s; }
+    .submit { animation-delay: .65s; }
+
+    @keyframes lift { to { opacity: 1; transform: none } }
+
+    /* Responsive refinements */
+    @media (max-width: 480px) {
+      .panel { padding: 18px 16px 14px 16px; border-radius: 18px; }
+    }
+
+    /* Error message styling */
+    .error-message {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.5);
+      color: #fca5a5;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 14px;
+      margin-bottom: 12px;
+      display: none;
+    }
+    .error-message.show { display: block; }
+
+    .admin-note {
+      font-size: 12px;
+      color: rgba(226,232,240,0.65);
+      text-align: left;
+      margin-top: 12px;
+    }
+
+    .crown-icon {
+      font-size: 32px;
+      filter: drop-shadow(0 0 12px rgba(255, 215, 0, 0.5));
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="panel" aria-label="Admin Login">
+      <h1 class="title">
+        <span class="crown-icon" aria-hidden="true">👑</span>
+        Admin Portal
+      </h1>
+      <p class="tagline">Authorized access only</p>
+      
+      <div id="errorMessage" class="error-message"></div>
+
+      <form id="adminLoginForm" onsubmit="event.preventDefault(); handleAdminLogin();">
+        <div class="field">
+          <label for="adminEmail">Admin Email</label>
+          <input id="adminEmail" type="email" placeholder="admin@vveluniverse.com" required autocomplete="off" autofocus />
+        </div>
+        <div class="field">
+          <label for="adminPassword">Password</label>
+          <input id="adminPassword" type="password" placeholder="Enter admin password" required autocomplete="off" />
+        </div>
+        <button class="submit" type="submit" id="submitBtn">Access Admin Panel</button>
+        <p class="admin-note">Admin access is limited to authorised mentors and community managers.</p>
+      </form>
+    </section>
+  </main>
+
+  <script src="/scripts/config/admin-config.js"></script>
+  <script src="/scripts/common/app-state.js"></script>
+  <script src="/scripts/common/loading-utils.js"></script>
+  <script>
+    const ADMIN_SESSION_KEY = 'vvelAdminSession';
+    const errorMessage = document.getElementById('errorMessage');
+    const submitBtn = document.getElementById('submitBtn');
+    const adminEmail = document.getElementById('adminEmail');
+    const adminPassword = document.getElementById('adminPassword');
+
+    // Show error message
+    function showError(message) {
+      if (errorMessage) {
+        errorMessage.textContent = message;
+        errorMessage.classList.add('show');
+      }
+    }
+
+    // Clear error message
+    function clearError() {
+      if (errorMessage) {
+        errorMessage.classList.remove('show');
+      }
+    }
+
+    // Check if already logged in as admin
+    function checkExistingSession() {
+      const adminSession = sessionStorage.getItem(ADMIN_SESSION_KEY);
+      if (adminSession) {
+        try {
+          const session = JSON.parse(adminSession);
+          // Session exists, verify it's still valid (less than 8 hours old)
+          const eightHours = 8 * 60 * 60 * 1000;
+          if (Date.now() - session.timestamp < eightHours) {
+            // Valid session, redirect to admin panel
+            showLoadingOverlay('Redirecting to admin panel...');
+            setTimeout(() => {
+              window.location.href = '/pages/admin/admin.html';
+            }, 500);
+            return true;
+          } else {
+            // Session expired
+            sessionStorage.removeItem(ADMIN_SESSION_KEY);
+          }
+        } catch (e) {
+          sessionStorage.removeItem(ADMIN_SESSION_KEY);
+        }
+      }
+      return false;
+    }
+
+    // Handle admin login
+    function handleAdminLogin() {
+      clearError();
+
+      const email = adminEmail.value.trim().toLowerCase();
+      const password = adminPassword.value;
+
+      if (!email || !password) {
+        showError('Please fill in all fields.');
+        return;
+      }
+
+      // Disable button and show loading
+      if (submitBtn) {
+        setButtonLoading(submitBtn, true, 'Verifying...');
+      }
+      showLoadingOverlay('Verifying admin credentials...');
+
+      try {
+        // Authenticate using app-state
+        const result = vvelAppState.authenticateAdmin(email, password);
+        
+        if (!result.success) {
+          hideLoadingOverlay();
+          showError(result.reason === 'invalid_password'
+            ? 'Incorrect admin password.'
+            : result.reason === 'not_found'
+              ? 'Admin account not recognized.'
+              : 'Unable to authenticate admin credentials.');
+          
+          if (submitBtn) {
+            setButtonLoading(submitBtn, false);
+          }
+          return;
+        }
+
+        // Authentication successful - store session
+        sessionStorage.setItem(ADMIN_SESSION_KEY, JSON.stringify({
+          email,
+          password,
+          timestamp: Date.now()
+        }));
+
+        // Redirect to admin panel
+        showLoadingOverlay('Opening admin panel...');
+        setTimeout(() => {
+          window.location.href = '/pages/admin/admin.html';
+        }, 400);
+      } catch (error) {
+        console.error('Admin login error:', error);
+        hideLoadingOverlay();
+        showError('Unexpected error. Please try again.');
+        if (submitBtn) {
+          setButtonLoading(submitBtn, false);
+        }
+      }
+    }
+
+    // Clear error when user starts typing
+    const form = document.getElementById('adminLoginForm');
+    if (form) {
+      form.addEventListener('input', clearError);
+    }
+
+    // Check for existing session on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      checkExistingSession();
+    });
+  </script>
+</body>
+</html>
+

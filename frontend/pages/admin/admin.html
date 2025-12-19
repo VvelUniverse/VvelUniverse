@@ -1,12 +1,13 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Vvel Universe | Admin Panel</title>
+  <title>Vvel Universe | Admin Dashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;700;800&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js"></script>
   <style>
     * {
       margin: 0;
@@ -14,46 +15,279 @@
       box-sizing: border-box;
     }
 
+    :root {
+      --sidebar-width: 260px;
+      --header-height: 70px;
+      --primary-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      --danger-gradient: linear-gradient(135deg, #ef4444 0%, #f87171 100%);
+      --success-gradient: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+    }
+
     body {
       font-family: 'Outfit', sans-serif;
       min-height: 100vh;
-      background: radial-gradient(circle at top, rgba(99, 102, 241, 0.2), transparent 60%),
-                  linear-gradient(180deg, #0f172a 0%, #1e1b4b 50%, #000000 100%);
-      color: white;
-      padding-bottom: 120px;
+      background: #0f172a;
+      color: #e2e8f0;
+      overflow-x: hidden;
     }
 
-    .container {
-      max-width: 1080px;
-      margin: 0 auto;
-      padding: 2rem 1.5rem 4rem;
+    /* Sidebar Styles */
+    .sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: var(--sidebar-width);
+      background: linear-gradient(180deg, #1e1b4b 0%, #0f172a 100%);
+      border-right: 1px solid rgba(99, 102, 241, 0.2);
+      padding: 0;
+      z-index: 100;
+      box-shadow: 4px 0 24px rgba(0, 0, 0, 0.3);
     }
 
-    .glow-title {
+    .sidebar-header {
+      padding: 1.5rem 1.25rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(99, 102, 241, 0.1);
+    }
+
+    .sidebar-logo {
       font-family: 'Orbitron', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #fff;
       text-align: center;
+      letter-spacing: 0.02em;
+      text-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
+    }
+
+    .sidebar-subtitle {
+      text-align: center;
+      font-size: 0.75rem;
+      color: rgba(226, 232, 240, 0.6);
+      margin-top: 0.25rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .sidebar-nav {
+      padding: 1.5rem 0;
+      overflow-y: auto;
+      max-height: calc(100vh - 120px);
+    }
+
+    .nav-section {
+      margin-bottom: 1.5rem;
+    }
+
+    .nav-section-title {
+      padding: 0.5rem 1.25rem;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: rgba(226, 232, 240, 0.5);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.875rem 1.25rem;
+      color: rgba(226, 232, 240, 0.8);
+      text-decoration: none;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      border-left: 3px solid transparent;
+      font-weight: 500;
+    }
+
+    .nav-item:hover {
+      background: rgba(99, 102, 241, 0.15);
+      color: #fff;
+      border-left-color: #6366f1;
+    }
+
+    .nav-item.active {
+      background: rgba(99, 102, 241, 0.2);
+      color: #fff;
+      border-left-color: #6366f1;
+      font-weight: 600;
+    }
+
+    .nav-item i {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* Header Styles */
+    .header {
+      position: fixed;
+      left: var(--sidebar-width);
+      top: 0;
+      right: 0;
+      height: var(--header-height);
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 2rem;
+      z-index: 90;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .header-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .profile-dropdown {
+      position: relative;
+    }
+
+    .profile-button {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.5rem 1rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .profile-button:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(99, 102, 241, 0.5);
+    }
+
+    .profile-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--primary-gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.875rem;
+      color: #fff;
+    }
+
+    .profile-info {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .profile-name {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .profile-role {
+      font-size: 0.75rem;
+      color: rgba(226, 232, 240, 0.6);
+    }
+
+    .dropdown-menu {
+      position: absolute;
+      top: calc(100% + 0.5rem);
+      right: 0;
+      min-width: 200px;
+      background: #1e293b;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 0.5rem;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+      display: none;
+      z-index: 1000;
+    }
+
+    .dropdown-menu.show {
+      display: block;
+    }
+
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      color: rgba(226, 232, 240, 0.9);
+      text-decoration: none;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      font-size: 0.875rem;
+    }
+
+    .dropdown-item:hover {
+      background: rgba(99, 102, 241, 0.15);
+      color: #fff;
+    }
+
+    .dropdown-divider {
+      height: 1px;
+      background: rgba(255, 255, 255, 0.1);
+      margin: 0.5rem 0;
+    }
+
+    /* Main Content Styles */
+    .main-content {
+      margin-left: var(--sidebar-width);
+      margin-top: var(--header-height);
+      padding: 2rem;
+      min-height: calc(100vh - var(--header-height));
+    }
+
+    .page-header {
       margin-bottom: 2rem;
-      font-size: 2.25rem;
-      text-shadow: 0 0 18px rgba(147, 197, 253, 0.6);
+    }
+
+    .page-title {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.5rem;
+    }
+
+    .page-subtitle {
+      color: rgba(226, 232, 240, 0.7);
+      font-size: 1rem;
     }
 
     .card {
-      background: rgba(17, 24, 39, 0.75);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 18px;
-      padding: 1.75rem;
+      background: rgba(30, 41, 59, 0.6);
       backdrop-filter: blur(12px);
-      box-shadow: 0 25px 80px rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      margin-bottom: 1.5rem;
     }
 
-    .card + .card {
-      margin-top: 1.5rem;
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
     }
 
     .card-title {
       font-size: 1.25rem;
       font-weight: 700;
-      margin-bottom: 1rem;
+      color: #fff;
       display: flex;
       align-items: center;
       gap: 0.75rem;
@@ -62,84 +296,80 @@
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 1rem;
-      margin-bottom: 1.5rem;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
     }
 
     .stat-card {
-      background: rgba(255, 255, 255, 0.06);
+      background: rgba(255, 255, 255, 0.03);
       border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 14px;
-      padding: 1.25rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
+      padding: 1.5rem;
+      transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(99, 102, 241, 0.2);
+      border-color: rgba(99, 102, 241, 0.3);
     }
 
     .stat-label {
       font-size: 0.85rem;
       color: rgba(226, 232, 240, 0.7);
       text-transform: uppercase;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.75rem;
+      font-weight: 600;
     }
 
     .stat-value {
-      font-size: 1.75rem;
+      font-size: 2rem;
       font-weight: 700;
-      color: #f8fafc;
+      color: #fff;
+      margin-bottom: 0.5rem;
     }
 
     .stat-hint {
       font-size: 0.8rem;
-      color: rgba(226, 232, 240, 0.55);
-    }
-
-    .input-group {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-      margin-bottom: 1rem;
-    }
-
-    label {
-      font-size: 0.9rem;
-      color: rgba(226, 232, 240, 0.8);
-    }
-
-    input, select, textarea {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 12px;
-      padding: 0.75rem 1rem;
-      color: white;
-      font-size: 0.95rem;
-      transition: border 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    input:focus, select:focus, textarea:focus {
-      outline: none;
-      border-color: rgba(99, 102, 241, 0.8);
-      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+      color: rgba(226, 232, 240, 0.5);
     }
 
     .button {
       border: none;
-      border-radius: 12px;
+      border-radius: 10px;
       padding: 0.75rem 1.25rem;
       font-size: 0.95rem;
       font-weight: 600;
       cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      transition: all 0.2s ease;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 0.5rem;
+      font-family: 'Outfit', sans-serif;
     }
 
     .button.primary {
-      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      background: var(--primary-gradient);
       color: white;
-      box-shadow: 0 12px 35px rgba(99, 102, 241, 0.35);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    .button.primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4);
+    }
+
+    .button.danger {
+      background: var(--danger-gradient);
+      color: white;
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    }
+
+    .button.danger:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
     }
 
     .button.neutral {
@@ -148,23 +378,18 @@
       border: 1px solid rgba(255, 255, 255, 0.12);
     }
 
-    .button.danger {
-      background: linear-gradient(135deg, #ef4444 0%, #f87171 100%);
-      color: white;
-      box-shadow: 0 12px 35px rgba(239, 68, 68, 0.3);
-    }
-
-    .button:hover {
-      transform: translateY(-1px);
+    .button.neutral:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.2);
     }
 
     .button:disabled {
-      opacity: 0.6;
+      opacity: 0.5;
       cursor: not-allowed;
-      transform: none;
-      box-shadow: none;
+      transform: none !important;
     }
 
+    /* Request Card Styles */
     .request-list {
       display: flex;
       flex-direction: column;
@@ -172,269 +397,1886 @@
     }
 
     .request-card {
-      background: rgba(255, 255, 255, 0.05);
+      background: rgba(255, 255, 255, 0.03);
       border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 16px;
-      padding: 1.25rem;
-      display: grid;
-      gap: 0.75rem;
+      border-radius: 14px;
+      padding: 1.5rem;
+      transition: all 0.3s ease;
+    }
+
+    .request-card:hover {
+      border-color: rgba(99, 102, 241, 0.3);
+      box-shadow: 0 4px 16px rgba(99, 102, 241, 0.15);
     }
 
     .request-header {
       display: flex;
       justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1rem;
       flex-wrap: wrap;
-      gap: 0.75rem;
+      gap: 1rem;
     }
 
     .request-meta {
-      display: flex;
-      flex-direction: column;
-      gap: 0.25rem;
+      flex: 1;
+    }
+
+    .request-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.5rem;
+    }
+
+    .request-info {
+      color: rgba(226, 232, 240, 0.7);
+      font-size: 0.9rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .request-id {
+      color: rgba(226, 232, 240, 0.5);
+      font-size: 0.85rem;
     }
 
     .status-badge {
       display: inline-flex;
       align-items: center;
       gap: 0.35rem;
-      padding: 0.35rem 0.75rem;
-      border-radius: 999px;
+      padding: 0.5rem 1rem;
+      border-radius: 50px;
       font-size: 0.75rem;
-      font-weight: 600;
+      font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.05em;
+      white-space: nowrap;
     }
 
     .status-pending {
       background: rgba(250, 204, 21, 0.2);
-      color: #facc15;
+      color: #fbbf24;
+      border: 1px solid rgba(250, 204, 21, 0.3);
     }
 
     .status-approved {
       background: rgba(34, 197, 94, 0.2);
       color: #4ade80;
+      border: 1px solid rgba(34, 197, 94, 0.3);
     }
 
     .status-needs_payment {
       background: rgba(59, 130, 246, 0.2);
-      color: #93c5fd;
+      color: #60a5fa;
+      border: 1px solid rgba(59, 130, 246, 0.3);
     }
 
     .status-rejected {
       background: rgba(239, 68, 68, 0.2);
       color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      background: rgba(255, 255, 255, 0.08);
+      color: rgba(226, 232, 240, 0.9);
+      margin-right: 0.5rem;
+      margin-top: 0.5rem;
     }
 
     .request-actions {
       display: flex;
       flex-wrap: wrap;
       gap: 0.75rem;
-      margin-top: 0.5rem;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
     }
 
-    .tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.3rem;
-      padding: 0.3rem 0.6rem;
-      border-radius: 8px;
-      font-size: 0.75rem;
-      background: rgba(255, 255, 255, 0.08);
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: rgba(226, 232, 240, 0.6);
+    }
+
+    .empty-state-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    /* Form Styles */
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    label {
+      font-size: 0.875rem;
+      font-weight: 600;
       color: rgba(226, 232, 240, 0.9);
     }
 
+    input, select, textarea {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      color: white;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: rgba(99, 102, 241, 0.8);
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    input::placeholder {
+      color: rgba(226, 232, 240, 0.4);
+    }
+
+    .info-text {
+      font-size: 0.85rem;
+      color: rgba(226, 232, 240, 0.6);
+      margin-top: 0.5rem;
+    }
+
+    /* Admin list */
     .admin-list {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
       gap: 1rem;
+      margin-top: 1.5rem;
     }
 
     .admin-card {
       background: rgba(255, 255, 255, 0.04);
       border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 14px;
-      padding: 1rem;
+      border-radius: 12px;
+      padding: 1.25rem;
+    }
+
+    .admin-name {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 0.25rem;
+    }
+
+    .admin-email {
+      font-size: 0.85rem;
+      color: rgba(226, 232, 240, 0.6);
+      margin-bottom: 0.75rem;
     }
 
     .chip {
       display: inline-flex;
       align-items: center;
       gap: 0.35rem;
-      padding: 0.3rem 0.6rem;
-      border-radius: 999px;
+      padding: 0.25rem 0.6rem;
+      border-radius: 50px;
       font-size: 0.7rem;
       background: rgba(99, 102, 241, 0.2);
       color: #c7d2fe;
       margin-right: 0.35rem;
       margin-top: 0.35rem;
-    }
-
-    .info-banner {
-      background: rgba(59, 130, 246, 0.15);
-      border: 1px solid rgba(59, 130, 246, 0.25);
-      border-radius: 12px;
-      padding: 1rem;
-      font-size: 0.9rem;
-      color: #bfdbfe;
-      margin-bottom: 1.5rem;
-      display: flex;
-      gap: 0.75rem;
-      align-items: flex-start;
+      font-weight: 600;
     }
 
     .error-text {
-      margin-top: 0.75rem;
-      font-size: 0.85rem;
       color: #fca5a5;
+      font-size: 0.875rem;
+      margin-top: 0.75rem;
+      display: none;
+    }
+
+    .error-text.show {
+      display: block;
+    }
+
+    /* Categories Grid */
+    .categories-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .category-card {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 1.25rem;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .category-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(99, 102, 241, 0.2);
+      border-color: rgba(99, 102, 241, 0.4);
+    }
+
+    .category-icon {
+      font-size: 2.5rem;
+      margin-bottom: 0.75rem;
+      display: block;
+      text-align: center;
+    }
+
+    .category-name {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 0.5rem;
+      text-align: center;
+    }
+
+    .category-description {
+      font-size: 0.85rem;
+      color: rgba(226, 232, 240, 0.6);
+      text-align: center;
+      margin-bottom: 0.75rem;
+      line-height: 1.4;
+      min-height: 40px;
+    }
+
+    .category-meta {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.75rem;
+    }
+
+    .category-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 0.25rem 0.5rem;
+      border-radius: 50px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.08);
+      color: rgba(226, 232, 240, 0.8);
+    }
+
+    .category-actions {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+      padding-top: 0.75rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .category-action-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 8px;
+      padding: 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .category-action-btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(99, 102, 241, 0.5);
+    }
+
+    .category-action-btn.danger:hover {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: rgba(239, 68, 68, 0.5);
+    }
+
+    .category-color-indicator {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+
+    /* Login View */
+    #loginView {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: radial-gradient(circle at top, rgba(99, 102, 241, 0.15), transparent 60%),
+                  linear-gradient(180deg, #0f172a 0%, #1e1b4b 50%, #000000 100%);
+    }
+
+    .login-card {
+      max-width: 450px;
+      width: 100%;
+      background: rgba(30, 41, 59, 0.8);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      border-radius: 20px;
+      padding: 2.5rem;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    }
+
+    .login-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .login-icon {
+      width: 60px;
+      height: 60px;
+      background: var(--primary-gradient);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1rem;
+    }
+
+    .login-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 0.5rem;
+    }
+
+    .login-subtitle {
+      color: rgba(226, 232, 240, 0.7);
+      font-size: 0.9rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      :root {
+        --sidebar-width: 70px;
+      }
+
+      .sidebar-logo,
+      .sidebar-subtitle,
+      .nav-section-title,
+      .nav-item span {
+        display: none;
+      }
+
+      .nav-item {
+        justify-content: center;
+        padding: 1rem;
+      }
+
+      .main-content {
+        padding: 1.5rem;
+      }
     }
 
     @media (max-width: 768px) {
-      .card {
-        padding: 1.25rem;
+      .header {
+        padding: 0 1rem;
       }
 
-      .glow-title {
-        font-size: 1.8rem;
+      .header-title {
+        font-size: 1.25rem;
+      }
+
+      .profile-info {
+        display: none;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .main-content {
+        padding: 1rem;
+      }
+
+      .page-title {
+        font-size: 1.5rem;
       }
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1 class="glow-title">Vvel Universe Admin Control</h1>
-
-    <div id="loginView" class="card" style="max-width: 480px; margin: 0 auto;">
-      <div class="card-title">
-        <i data-lucide="shield-check" class="w-6 h-6 text-indigo-300"></i>
-        Secure Sign In
+  <!-- Login View -->
+  <div id="loginView">
+    <div class="login-card">
+      <div class="login-header">
+        <div class="login-icon">
+          <i data-lucide="shield-check" class="w-8 h-8 text-white"></i>
+        </div>
+        <h1 class="login-title">Admin Portal</h1>
+        <p class="login-subtitle">Sign in to access the dashboard</p>
       </div>
-      <p style="color: rgba(226, 232, 240, 0.7); font-size: 0.9rem; margin-bottom: 1.5rem;">
-        Use the credentials provisioned in <code style="background: rgba(255,255,255,0.08); padding: 0.2rem 0.4rem; border-radius: 6px;">admin-config.js</code> or a granted admin account to access the control center.
-      </p>
       <form id="adminLoginForm">
         <div class="input-group">
           <label for="adminEmail">Admin Email</label>
-          <input type="email" id="adminEmail" placeholder="admin@vveluniverse.com" required />
+          <input type="email" id="adminEmail" placeholder="admin@vveluniverse.com" required autofocus />
         </div>
         <div class="input-group">
           <label for="adminPassword">Password</label>
-          <input type="password" id="adminPassword" placeholder="********" required />
+          <input type="password" id="adminPassword" placeholder="Enter your password" required />
         </div>
-        <button type="submit" class="button primary" style="width: 100%; margin-top: 0.5rem;">
+        <button type="submit" class="button primary" style="width: 100%; margin-top: 1.5rem;">
           <i data-lucide="log-in" class="w-5 h-5"></i>
           Sign In
         </button>
-        <div id="loginError" class="error-text" style="display: none;"></div>
+        <div id="loginError" class="error-text"></div>
       </form>
     </div>
+  </div>
 
-    <div id="dashboardView" style="display: none; gap: 1.5rem; flex-direction: column;">
-      <div class="info-banner">
-        <i data-lucide="info" class="w-5 h-5"></i>
-        <div>
-          <strong>Welcome back, <span id="adminNameLabel"></span>!</strong><br/>
-          Review live connection requests, approve or decline access, and keep wallet automation aligned with your policies.
+  <!-- Dashboard View -->
+  <div id="dashboardView" style="display: none;">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">VVEL UNIVERSE</div>
+        <div class="sidebar-subtitle">Admin Panel</div>
+      </div>
+      <nav class="sidebar-nav">
+        <!-- Main Section -->
+        <div class="nav-section">
+          <div class="nav-section-title">Main</div>
+          <div class="nav-item active" data-page="dashboard">
+            <i data-lucide="layout-dashboard"></i>
+            <span>Dashboard</span>
+          </div>
         </div>
-        <button class="button neutral" style="margin-left:auto; white-space:nowrap;" onclick="adminLogout()">
-          <i data-lucide="log-out" class="w-4 h-4"></i>
-          Sign Out
-        </button>
+
+        <!-- Users Section -->
+        <div class="nav-section">
+          <div class="nav-section-title">Users</div>
+          <div class="nav-item" data-page="users">
+            <i data-lucide="users"></i>
+            <span>User Management</span>
+          </div>
+        </div>
+
+        <!-- Content Section -->
+        <div class="nav-section">
+          <div class="nav-section-title">Content</div>
+          <div class="nav-item" data-page="categories">
+            <i data-lucide="grid-3x3"></i>
+            <span>Categories</span>
+          </div>
+          <div class="nav-item" data-page="moderation">
+            <i data-lucide="shield-check"></i>
+            <span>Content Moderation</span>
+          </div>
+          <div class="nav-item" data-page="content-management">
+            <i data-lucide="file-text"></i>
+            <span>Static Content</span>
+          </div>
+        </div>
+
+        <!-- Requests Section -->
+        <div class="nav-section">
+          <div class="nav-section-title">Requests</div>
+          <div class="nav-item" data-page="connect-requests">
+            <i data-lucide="handshake"></i>
+            <span>Connect Requests</span>
+          </div>
+          <div class="nav-item" data-page="kyc-verification">
+            <i data-lucide="badge-check"></i>
+            <span>KYC Verification</span>
+          </div>
+        </div>
+
+        <!-- Finance Section -->
+        <div class="nav-section">
+          <div class="nav-section-title">Finance</div>
+          <div class="nav-item" data-page="transactions">
+            <i data-lucide="credit-card"></i>
+            <span>Transactions</span>
+          </div>
+          <div class="nav-item" data-page="analytics">
+            <i data-lucide="trending-up"></i>
+            <span>Analytics & Reports</span>
+          </div>
+        </div>
+
+        <!-- Communication Section -->
+        <div class="nav-section">
+          <div class="nav-section-title">Communication</div>
+          <div class="nav-item" data-page="notifications">
+            <i data-lucide="bell"></i>
+            <span>Notifications</span>
+          </div>
+        </div>
+
+        <!-- Growth Section -->
+        <div class="nav-section">
+          <div class="nav-section-title">Growth</div>
+          <div class="nav-item" data-page="search-discovery">
+            <i data-lucide="search"></i>
+            <span>Search & Discovery</span>
+          </div>
+          <div class="nav-item" data-page="marketing">
+            <i data-lucide="megaphone"></i>
+            <span>Marketing</span>
+          </div>
+        </div>
+
+        <!-- System Section -->
+        <div class="nav-section">
+          <div class="nav-section-title">System</div>
+          <div class="nav-item" data-page="admin-users">
+            <i data-lucide="user-cog"></i>
+            <span>Admin Users</span>
+          </div>
+          <div class="nav-item" data-page="settings">
+            <i data-lucide="settings"></i>
+            <span>Platform Settings</span>
+          </div>
+          <div class="nav-item" data-page="system-logs">
+            <i data-lucide="activity"></i>
+            <span>System Logs</span>
+          </div>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Header -->
+    <header class="header">
+      <h1 class="header-title" id="headerTitle">Dashboard</h1>
+      <div class="header-actions">
+        <div class="profile-dropdown">
+          <button class="profile-button" onclick="toggleProfileDropdown()">
+            <div class="profile-avatar" id="profileAvatar">A</div>
+            <div class="profile-info">
+              <div class="profile-name" id="profileName">Admin</div>
+              <div class="profile-role">Administrator</div>
+            </div>
+            <i data-lucide="chevron-down" class="w-4 h-4"></i>
+          </button>
+          <div class="dropdown-menu" id="profileDropdown">
+            <div class="dropdown-item">
+              <i data-lucide="user" class="w-4 h-4"></i>
+              <span>Profile Settings</span>
+            </div>
+            <div class="dropdown-item">
+              <i data-lucide="settings" class="w-4 h-4"></i>
+              <span>Account Settings</span>
+            </div>
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-item" onclick="adminLogout()">
+              <i data-lucide="log-out" class="w-4 h-4"></i>
+              <span>Sign Out</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Dashboard Page -->
+      <div id="dashboardPage" class="page-content">
+        <div class="page-header">
+          <h2 class="page-title">Dashboard Overview</h2>
+          <p class="page-subtitle">Welcome back! Here's what's happening on your platform.</p>
+        </div>
+
+        <!-- Key Metrics Grid -->
+        <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+          <div class="stat-card" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(99, 102, 241, 0.05) 100%);">
+            <div style="display: flex; justify-content: space-between; align-items: start;">
+              <div>
+                <div class="stat-label">Total Users</div>
+                <div class="stat-value" id="totalUsersStat">1,247</div>
+                <div class="stat-hint" style="color: #10b981;">
+                  <i data-lucide="trending-up" style="width: 14px; height: 14px; display: inline;"></i>
+                  +12.5% this month
+                </div>
+              </div>
+              <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(99, 102, 241, 0.2); display: flex; align-items: center; justify-content: center;">
+                <i data-lucide="users" style="width: 24px; height: 24px; color: #6366f1;"></i>
+              </div>
+            </div>
+          </div>
+
+          <div class="stat-card" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%);">
+            <div style="display: flex; justify-content: space-between; align-items: start;">
+              <div>
+                <div class="stat-label">Total Revenue</div>
+                <div class="stat-value" id="totalRevenueStat">₹45,890</div>
+                <div class="stat-hint" style="color: #10b981;">
+                  <i data-lucide="trending-up" style="width: 14px; height: 14px; display: inline;"></i>
+                  +23.1% this month
+                </div>
+              </div>
+              <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(16, 185, 129, 0.2); display: flex; align-items: center; justify-content: center;">
+                <i data-lucide="dollar-sign" style="width: 24px; height: 24px; color: #10b981;"></i>
+              </div>
+            </div>
+          </div>
+
+          <div class="stat-card" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(245, 158, 11, 0.05) 100%);">
+            <div style="display: flex; justify-content: space-between; align-items: start;">
+              <div>
+                <div class="stat-label">Active Sessions</div>
+                <div class="stat-value" id="activeSessionsStat">89</div>
+                <div class="stat-hint" style="color: #10b981;">
+                  <i data-lucide="trending-up" style="width: 14px; height: 14px; display: inline;"></i>
+                  +8.3% this week
+                </div>
+              </div>
+              <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(245, 158, 11, 0.2); display: flex; align-items: center; justify-content: center;">
+                <i data-lucide="video" style="width: 24px; height: 24px; color: #f59e0b;"></i>
+              </div>
+            </div>
+          </div>
+
+          <div class="stat-card" style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(139, 92, 246, 0.05) 100%);">
+            <div style="display: flex; justify-content: space-between; align-items: start;">
+              <div>
+                <div class="stat-label">Pending Requests</div>
+                <div class="stat-value" id="pendingRequestsStat">24</div>
+                <div class="stat-hint" style="color: #f59e0b;">
+                  <i data-lucide="alert-circle" style="width: 14px; height: 14px; display: inline;"></i>
+                  Requires attention
+                </div>
+              </div>
+              <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(139, 92, 246, 0.2); display: flex; align-items: center; justify-content: center;">
+                <i data-lucide="inbox" style="width: 24px; height: 24px; color: #8b5cf6;"></i>
+              </div>
+            </div>
+          </div>
+
+          <div class="stat-card" style="background: linear-gradient(135deg, rgba(236, 72, 153, 0.1) 0%, rgba(236, 72, 153, 0.05) 100%);">
+            <div style="display: flex; justify-content: space-between; align-items: start;">
+              <div>
+                <div class="stat-label">Total Categories</div>
+                <div class="stat-value" id="totalCategoriesStat">0</div>
+                <div class="stat-hint">Active categories</div>
+              </div>
+              <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(236, 72, 153, 0.2); display: flex; align-items: center; justify-content: center;">
+                <i data-lucide="grid-3x3" style="width: 24px; height: 24px; color: #ec4899;"></i>
+              </div>
+            </div>
+          </div>
+
+          <div class="stat-card" style="background: linear-gradient(135deg, rgba(14, 165, 233, 0.1) 0%, rgba(14, 165, 233, 0.05) 100%);">
+            <div style="display: flex; justify-content: space-between; align-items: start;">
+              <div>
+                <div class="stat-label">Avg. Session Time</div>
+                <div class="stat-value">42m</div>
+                <div class="stat-hint">Per user session</div>
+              </div>
+              <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(14, 165, 233, 0.2); display: flex; align-items: center; justify-content: center;">
+                <i data-lucide="clock" style="width: 24px; height: 24px; color: #0ea5e9;"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Charts Row 1 -->
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+          <!-- Revenue & Growth Chart -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <i data-lucide="trending-up" class="w-6 h-6"></i>
+                Revenue & Growth Trends
+              </div>
+              <div style="display: flex; gap: 0.5rem;">
+                <button class="button neutral" style="padding: 0.5rem 0.75rem; font-size: 0.875rem;" onclick="updateRevenueChart('7d')">7D</button>
+                <button class="button primary" style="padding: 0.5rem 0.75rem; font-size: 0.875rem;" onclick="updateRevenueChart('30d')">30D</button>
+                <button class="button neutral" style="padding: 0.5rem 0.75rem; font-size: 0.875rem;" onclick="updateRevenueChart('90d')">90D</button>
+              </div>
+            </div>
+            <div style="position: relative; height: 300px;">
+              <canvas id="revenueChart"></canvas>
+            </div>
+          </div>
+
+          <!-- User Distribution Pie Chart -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <i data-lucide="pie-chart" class="w-6 h-6"></i>
+                User Distribution
+              </div>
+            </div>
+            <div style="position: relative; height: 300px; display: flex; align-items: center; justify-content: center;">
+              <canvas id="userDistributionChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Charts Row 2 -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+          <!-- Category Performance -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <i data-lucide="bar-chart-3" class="w-6 h-6"></i>
+                Top Categories Performance
+              </div>
+            </div>
+            <div style="position: relative; height: 300px;">
+              <canvas id="categoryChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Session Activity -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <i data-lucide="activity" class="w-6 h-6"></i>
+                Session Activity (24h)
+              </div>
+            </div>
+            <div style="position: relative; height: 300px;">
+              <canvas id="sessionActivityChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bottom Row: Recent Activity & Top Performers -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+          <!-- Recent Activity Feed -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <i data-lucide="clock" class="w-6 h-6"></i>
+                Recent Activity
+              </div>
+              <button class="button neutral" onclick="navigateToPage('system-logs')">
+                View All
+              </button>
+            </div>
+            <div id="recentActivityFeed" style="max-height: 400px; overflow-y: auto;">
+              <!-- Activity items will be populated here -->
+              <div class="activity-item" style="padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; gap: 1rem; align-items: start;">
+                <div style="width: 40px; height: 40px; border-radius: 10px; background: rgba(99, 102, 241, 0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                  <i data-lucide="user-plus" style="width: 20px; height: 20px; color: #6366f1;"></i>
+                </div>
+                <div style="flex: 1;">
+                  <div style="font-weight: 600; margin-bottom: 0.25rem;">New User Registration</div>
+                  <div style="font-size: 0.875rem; color: rgba(226, 232, 240, 0.6);">John Doe joined as an influencer</div>
+                  <div style="font-size: 0.75rem; color: rgba(226, 232, 240, 0.5); margin-top: 0.25rem;">2 minutes ago</div>
+                </div>
+              </div>
+              <div class="activity-item" style="padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; gap: 1rem; align-items: start;">
+                <div style="width: 40px; height: 40px; border-radius: 10px; background: rgba(16, 185, 129, 0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                  <i data-lucide="credit-card" style="width: 20px; height: 20px; color: #10b981;"></i>
+                </div>
+                <div style="flex: 1;">
+                  <div style="font-weight: 600; margin-bottom: 0.25rem;">Payment Received</div>
+                  <div style="font-size: 0.875rem; color: rgba(226, 232, 240, 0.6);">₹1,500 from Sarah Williams</div>
+                  <div style="font-size: 0.75rem; color: rgba(226, 232, 240, 0.5); margin-top: 0.25rem;">15 minutes ago</div>
+                </div>
+              </div>
+              <div class="activity-item" style="padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; gap: 1rem; align-items: start;">
+                <div style="width: 40px; height: 40px; border-radius: 10px; background: rgba(245, 158, 11, 0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                  <i data-lucide="video" style="width: 20px; height: 20px; color: #f59e0b;"></i>
+                </div>
+                <div style="flex: 1;">
+                  <div style="font-weight: 600; margin-bottom: 0.25rem;">Session Completed</div>
+                  <div style="font-size: 0.875rem; color: rgba(226, 232, 240, 0.6);">45-minute session with Mike Chen</div>
+                  <div style="font-size: 0.75rem; color: rgba(226, 232, 240, 0.5); margin-top: 0.25rem;">1 hour ago</div>
+                </div>
+              </div>
+              <div class="activity-item" style="padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; gap: 1rem; align-items: start;">
+                <div style="width: 40px; height: 40px; border-radius: 10px; background: rgba(139, 92, 246, 0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                  <i data-lucide="check-circle" style="width: 20px; height: 20px; color: #8b5cf6;"></i>
+                </div>
+                <div style="flex: 1;">
+                  <div style="font-weight: 600; margin-bottom: 0.25rem;">KYC Approved</div>
+                  <div style="font-size: 0.875rem; color: rgba(226, 232, 240, 0.6);">Emily Rodriguez verification completed</div>
+                  <div style="font-size: 0.75rem; color: rgba(226, 232, 240, 0.5); margin-top: 0.25rem;">2 hours ago</div>
+                </div>
+              </div>
+              <div class="activity-item" style="padding: 1rem; display: flex; gap: 1rem; align-items: start;">
+                <div style="width: 40px; height: 40px; border-radius: 10px; background: rgba(236, 72, 153, 0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                  <i data-lucide="grid-3x3" style="width: 20px; height: 20px; color: #ec4899;"></i>
+                </div>
+                <div style="flex: 1;">
+                  <div style="font-weight: 600; margin-bottom: 0.25rem;">New Category Added</div>
+                  <div style="font-size: 0.875rem; color: rgba(226, 232, 240, 0.6);">Technology & Innovation category created</div>
+                  <div style="font-size: 0.75rem; color: rgba(226, 232, 240, 0.5); margin-top: 0.25rem;">3 hours ago</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Top Performers -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">
+                <i data-lucide="trophy" class="w-6 h-6"></i>
+                Top Influencers
+              </div>
+              <button class="button neutral" onclick="navigateToPage('users')">
+                View All
+              </button>
+            </div>
+            <div id="topPerformersList" style="max-height: 400px; overflow-y: auto;">
+              <!-- Top performer items -->
+              <div class="performer-item" style="padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; gap: 1rem; align-items: center;">
+                <div style="width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #6366f1, #8b5cf6); display: flex; align-items: center; justify-content: center; font-weight: 700; color: white;">1</div>
+                <div style="flex: 1;">
+                  <div style="font-weight: 600; margin-bottom: 0.25rem;">Dr. Priya Sharma</div>
+                  <div style="font-size: 0.875rem; color: rgba(226, 232, 240, 0.6);">Medical Consultation</div>
+                </div>
+                <div style="text-align: right;">
+                  <div style="font-weight: 700; color: #10b981;">₹24,580</div>
+                  <div style="font-size: 0.75rem; color: rgba(226, 232, 240, 0.5);">89 sessions</div>
+                </div>
+              </div>
+              <div class="performer-item" style="padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; gap: 1rem; align-items: center;">
+                <div style="width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #10b981, #059669); display: flex; align-items: center; justify-content: center; font-weight: 700; color: white;">2</div>
+                <div style="flex: 1;">
+                  <div style="font-weight: 600; margin-bottom: 0.25rem;">Coach Rahul Mehta</div>
+                  <div style="font-size: 0.875rem; color: rgba(226, 232, 240, 0.6);">Sports & Fitness</div>
+                </div>
+                <div style="text-align: right;">
+                  <div style="font-weight: 700; color: #10b981;">₹18,340</div>
+                  <div style="font-size: 0.75rem; color: rgba(226, 232, 240, 0.5);">67 sessions</div>
+                </div>
+              </div>
+              <div class="performer-item" style="padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; gap: 1rem; align-items: center;">
+                <div style="width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #f59e0b, #d97706); display: flex; align-items: center; justify-content: center; font-weight: 700; color: white;">3</div>
+                <div style="flex: 1;">
+                  <div style="font-weight: 600; margin-bottom: 0.25rem;">Swami Anand</div>
+                  <div style="font-size: 0.875rem; color: rgba(226, 232, 240, 0.6);">Spiritual Guidance</div>
+                </div>
+                <div style="text-align: right;">
+                  <div style="font-weight: 700; color: #10b981;">₹15,920</div>
+                  <div style="font-size: 0.75rem; color: rgba(226, 232, 240, 0.5);">54 sessions</div>
+                </div>
+              </div>
+              <div class="performer-item" style="padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; gap: 1rem; align-items: center;">
+                <div style="width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #8b5cf6, #7c3aed); display: flex; align-items: center; justify-content: center; font-weight: 700; color: white;">4</div>
+                <div style="flex: 1;">
+                  <div style="font-weight: 600; margin-bottom: 0.25rem;">Advocate Arjun Singh</div>
+                  <div style="font-size: 0.875rem; color: rgba(226, 232, 240, 0.6);">Legal Advice</div>
+                </div>
+                <div style="text-align: right;">
+                  <div style="font-weight: 700; color: #10b981;">₹13,450</div>
+                  <div style="font-size: 0.75rem; color: rgba(226, 232, 240, 0.5);">42 sessions</div>
+                </div>
+              </div>
+              <div class="performer-item" style="padding: 1rem; display: flex; gap: 1rem; align-items: center;">
+                <div style="width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #ec4899, #db2777); display: flex; align-items: center; justify-content: center; font-weight: 700; color: white;">5</div>
+                <div style="flex: 1;">
+                  <div style="font-weight: 600; margin-bottom: 0.25rem;">CA Neha Kapoor</div>
+                  <div style="font-size: 0.875rem; color: rgba(226, 232, 240, 0.6);">Financial Advisory</div>
+                </div>
+                <div style="text-align: right;">
+                  <div style="font-weight: 700; color: #10b981;">₹11,280</div>
+                  <div style="font-size: 0.75rem; color: rgba(226, 232, 240, 0.5);">38 sessions</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions (Compact) -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <i data-lucide="zap" class="w-6 h-6"></i>
+              Quick Actions
+            </div>
+          </div>
+          <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <button class="button primary" onclick="refreshDashboard()">
+              <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+              Refresh Dashboard
+            </button>
+            <button class="button neutral" onclick="navigateToPage('connect-requests')">
+              <i data-lucide="inbox" class="w-5 h-5"></i>
+              View Requests
+            </button>
+            <button class="button neutral" onclick="navigateToPage('users')">
+              <i data-lucide="users" class="w-5 h-5"></i>
+              Manage Users
+            </button>
+            <button class="button neutral" onclick="navigateToPage('analytics')">
+              <i data-lucide="bar-chart" class="w-5 h-5"></i>
+              Full Analytics
+            </button>
+            <button class="button neutral" onclick="navigateToPage('notifications')">
+              <i data-lucide="send" class="w-5 h-5"></i>
+              Send Notification
+            </button>
+          </div>
+        </div>
       </div>
 
-      <div class="card">
-        <div class="card-title">
-          <i data-lucide="activity" class="w-6 h-6 text-indigo-300"></i>
-          Control Center Snapshot
+      <!-- Categories Page -->
+      <div id="categoriesPage" class="page-content" style="display: none;">
+        <div class="page-header">
+          <h2 class="page-title">Categories Management</h2>
+          <p class="page-subtitle">Manage content categories and subcategories</p>
         </div>
-        <div class="stats-grid">
-          <div class="stat-card">
-            <div class="stat-label">Total Connection Requests</div>
-            <div class="stat-value" id="totalRequestsStat">0</div>
-            <div class="stat-hint">All profile connection requests</div>
+
+        <!-- Add Category Form -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <i data-lucide="plus-circle" class="w-6 h-6"></i>
+              Add New Category
+            </div>
           </div>
-          <div class="stat-card">
-            <div class="stat-label">Pending Requests</div>
-            <div class="stat-value" id="pendingRequestsStat">0</div>
-            <div class="stat-hint">Awaiting your approval</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Needs Payment</div>
-            <div class="stat-value" id="needsPaymentStat">0</div>
-            <div class="stat-hint">Approved but waiting for manual payment</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Confirmed Sessions</div>
-            <div class="stat-value" id="confirmedSessionsStat">0</div>
-            <div class="stat-hint">Users with meeting links issued</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-label">Wallet Balance</div>
-            <div class="stat-value" id="walletBalanceStat">₹0.00</div>
-            <div class="stat-hint">Auto-pay uses wallet balance when enabled</div>
-          </div>
+          <form id="addCategoryForm">
+            <div class="form-grid">
+              <div class="input-group">
+                <label for="categoryName">Category Name *</label>
+                <input type="text" id="categoryName" placeholder="e.g., Sports, Business, Education" required />
+              </div>
+              <div class="input-group">
+                <label for="categoryIcon">Icon (Emoji)</label>
+                <input type="text" id="categoryIcon" placeholder="⚽ 💼 📚" maxlength="2" />
+              </div>
+              <div class="input-group">
+                <label for="categoryColor">Color</label>
+                <input type="color" id="categoryColor" value="#6366f1" />
+              </div>
+              <div class="input-group">
+                <label for="categoryOrder">Display Order</label>
+                <input type="number" id="categoryOrder" placeholder="0" min="0" value="0" />
+              </div>
+            </div>
+            <div class="input-group">
+              <label for="categoryDescription">Description (Optional)</label>
+              <textarea id="categoryDescription" rows="2" placeholder="Brief description of this category..." style="resize: vertical;"></textarea>
+            </div>
+            <button type="submit" class="button primary" style="margin-top: 1rem;">
+              <i data-lucide="plus" class="w-5 h-5"></i>
+              Add Category
+            </button>
+            <div id="addCategoryError" class="error-text"></div>
+          </form>
         </div>
-        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-          <button class="button neutral" onclick="refreshDashboard()">
-            <i data-lucide="refresh-cw" class="w-5 h-5"></i>
-            Refresh Data
-          </button>
-          <button class="button neutral" onclick="toggleAutopaySetting()">
-            <i data-lucide="zap" class="w-5 h-5"></i>
-            Toggle Auto-Pay
-          </button>
+
+        <!-- Categories List -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <i data-lucide="grid-3x3" class="w-6 h-6"></i>
+              All Categories
+            </div>
+            <button class="button neutral" onclick="loadCategories()">
+              <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+              Refresh
+            </button>
+          </div>
+          <div id="categoriesGrid" class="categories-grid"></div>
+          <div id="categoriesEmpty" class="empty-state" style="display: none;">
+            <div class="empty-state-icon">📂</div>
+            <p>No categories yet. Add your first category above!</p>
+          </div>
         </div>
       </div>
 
-      <div class="card">
-        <div class="card-title">
-          <i data-lucide="list-checks" class="w-6 h-6 text-indigo-300"></i>
-          Join Requests Queue
+      <!-- Requests Page -->
+      <div id="requestsPage" class="page-content" style="display: none;">
+        <div class="page-header">
+          <h2 class="page-title">Connection Requests</h2>
+          <p class="page-subtitle">Manage all user connection requests</p>
         </div>
-        <div id="requestsList" class="request-list"></div>
-        <div id="requestsEmpty" style="display: none; text-align: center; padding: 2rem; color: rgba(226,232,240,0.6);">
-          <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🎉</div>
-          All connection requests are handled. Great job!
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <i data-lucide="list-checks" class="w-6 h-6"></i>
+              All Requests
+            </div>
+          </div>
+          <div id="requestsList" class="request-list"></div>
+          <div id="requestsEmpty" class="empty-state" style="display: none;">
+            <div class="empty-state-icon">✅</div>
+            <p>All requests are handled. Great job!</p>
+          </div>
         </div>
       </div>
 
-      <div class="card">
-        <div class="card-title">
-          <i data-lucide="user-plus" class="w-6 h-6 text-indigo-300"></i>
-          Delegate Admin Access
+      <!-- Users Page -->
+      <div id="usersPage" class="page-content" style="display: none;">
+        <div class="page-header">
+          <h2 class="page-title">Users Management</h2>
+          <p class="page-subtitle">View and manage platform users</p>
         </div>
-        <form id="grantAdminForm">
-          <div class="stats-grid" style="margin-bottom: 1rem;">
-            <div class="input-group">
-              <label for="newAdminEmail">Delegate Email</label>
-              <input type="email" id="newAdminEmail" placeholder="mentor@community.org" required />
-            </div>
-            <div class="input-group">
-              <label for="newAdminName">Name (optional)</label>
-              <input type="text" id="newAdminName" placeholder="Mentor Priya" />
-            </div>
-            <div class="input-group">
-              <label for="newAdminPassword">Temporary Password</label>
-              <input type="text" id="newAdminPassword" placeholder="Generate a secure passphrase" required />
+        <div class="card">
+          <div class="card-title">
+            <i data-lucide="users" class="w-6 h-6"></i>
+            Users coming soon...
+          </div>
+          <p style="color: rgba(226, 232, 240, 0.7);">This feature will display all registered users.</p>
+        </div>
+      </div>
+
+      <!-- Admins Page -->
+      <div id="adminsPage" class="page-content" style="display: none;">
+        <div class="page-header">
+          <h2 class="page-title">Admin Management</h2>
+          <p class="page-subtitle">Manage admin access and permissions</p>
+        </div>
+
+        <!-- Grant Admin Form -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <i data-lucide="user-plus" class="w-6 h-6"></i>
+              Grant Admin Access
             </div>
           </div>
-          <p style="font-size: 0.85rem; color: rgba(226,232,240,0.65); margin-bottom: 1rem;">
-            Delegated admins authenticate with the credentials you set above. They inherit request management permissions only.
-          </p>
-          <button type="submit" class="button primary">
-            <i data-lucide="user-check" class="w-5 h-5"></i>
-            Grant Access
-          </button>
-        </form>
+          <form id="grantAdminForm">
+            <div class="form-grid">
+              <div class="input-group">
+                <label for="newAdminEmail">Email Address</label>
+                <input type="email" id="newAdminEmail" placeholder="admin@example.com" required />
+              </div>
+              <div class="input-group">
+                <label for="newAdminName">Name (optional)</label>
+                <input type="text" id="newAdminName" placeholder="John Doe" />
+              </div>
+              <div class="input-group">
+                <label for="newAdminPassword">Temporary Password</label>
+                <input type="text" id="newAdminPassword" placeholder="Generate secure password" required />
+              </div>
+            </div>
+            <p class="info-text">New admins will be granted request management permissions.</p>
+            <button type="submit" class="button primary" style="margin-top: 1rem;">
+              <i data-lucide="user-check" class="w-5 h-5"></i>
+              Grant Access
+            </button>
+          </form>
+        </div>
 
-        <div style="margin-top: 2rem;">
-          <div class="card-title" style="font-size: 1rem;">
-            <i data-lucide="shield" class="w-5 h-5 text-indigo-300"></i>
-            Active Admin Accounts
+        <!-- Admin Accounts List -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <i data-lucide="shield" class="w-6 h-6"></i>
+              Active Admin Accounts
+            </div>
           </div>
           <div id="adminAccountsList" class="admin-list"></div>
         </div>
       </div>
-    </div>
+
+      <!-- Connect Requests Page -->
+      <div id="connect-requestsPage" class="page-content" style="display: none;">
+        <div class="page-header">
+          <h2 class="page-title">Connect Requests Management</h2>
+          <p class="page-subtitle">Manage user-to-influencer connection requests</p>
+        </div>
+
+        <!-- Status Filters -->
+        <div class="card">
+          <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <button class="button primary">
+              <i data-lucide="list" class="w-4 h-4"></i>
+              All Requests
+            </button>
+            <button class="button neutral">
+              <i data-lucide="clock" class="w-4 h-4"></i>
+              Pending (0)
+            </button>
+            <button class="button neutral">
+              <i data-lucide="check-circle" class="w-4 h-4"></i>
+              Approved (0)
+            </button>
+            <button class="button neutral">
+              <i data-lucide="x-circle" class="w-4 h-4"></i>
+              Rejected (0)
+            </button>
+            <button class="button neutral">
+              <i data-lucide="check-check" class="w-4 h-4"></i>
+              Completed (0)
+            </button>
+          </div>
+        </div>
+
+        <!-- Requests Table -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <i data-lucide="handshake" class="w-6 h-6"></i>
+              Connection Requests
+            </div>
+            <button class="button neutral">
+              <i data-lucide="download" class="w-4 h-4"></i>
+              Export CSV
+            </button>
+          </div>
+          <div class="empty-state">
+            <div class="empty-state-icon">🤝</div>
+            <p>No connect requests found. Functionality coming soon.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- KYC Verification Page -->
+      <div id="kyc-verificationPage" class="page-content" style="display: none;">
+        <div class="page-header">
+          <h2 class="page-title">KYC Verification Management</h2>
+          <p class="page-subtitle">Review and approve influencer verification requests</p>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Pending Verifications</div>
+            <div class="stat-value">0</div>
+            <div class="stat-hint">Awaiting review</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Approved This Month</div>
+            <div class="stat-value">0</div>
+            <div class="stat-hint">Successfully verified</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Rejected</div>
+            <div class="stat-value">0</div>
+            <div class="stat-hint">Did not meet criteria</div>
+          </div>
+        </div>
+
+        <!-- Verification Queue -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <i data-lucide="badge-check" class="w-6 h-6"></i>
+              Verification Queue
+            </div>
+            <button class="button primary">
+              <i data-lucide="filter" class="w-4 h-4"></i>
+              Filter Applications
+            </button>
+          </div>
+          <div class="empty-state">
+            <div class="empty-state-icon">✅</div>
+            <p>No pending KYC verification requests. Functionality coming soon.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Transactions Page -->
+      <div id="transactionsPage" class="page-content" style="display: none;">
+        <div class="page-header">
+          <h2 class="page-title">Payments & Transactions</h2>
+          <p class="page-subtitle">Monitor financial transactions and revenue</p>
+        </div>
+
+        <!-- Financial Stats -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Total Revenue</div>
+            <div class="stat-value">₹0.00</div>
+            <div class="stat-hint">All-time earnings</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">This Month</div>
+            <div class="stat-value">₹0.00</div>
+            <div class="stat-hint">Current month revenue</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Pending Payments</div>
+            <div class="stat-value">₹0.00</div>
+            <div class="stat-hint">Awaiting processing</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Platform Fees</div>
+            <div class="stat-value">₹0.00</div>
+            <div class="stat-hint">Fees collected</div>
+          </div>
+        </div>
+
+        <!-- Transactions Table -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <i data-lucide="credit-card" class="w-6 h-6"></i>
+              Recent Transactions
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+              <button class="button neutral">
+                <i data-lucide="download" class="w-4 h-4"></i>
+                Export
+              </button>
+              <button class="button primary">
+                <i data-lucide="filter" class="w-4 h-4"></i>
+                Filter
+              </button>
+            </div>
+          </div>
+          <div class="empty-state">
+            <div class="empty-state-icon">💳</div>
+            <p>No transactions yet. Functionality coming soon.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Content Moderation Page -->
+      <div id="moderationPage" class="page-content" style="display: none;">
+        <div class="page-header">
+          <h2 class="page-title">Content Moderation</h2>
+          <p class="page-subtitle">Moderate user-generated content across the platform</p>
+        </div>
+
+        <!-- Moderation Stats -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Flagged Content</div>
+            <div class="stat-value">0</div>
+            <div class="stat-hint">Awaiting review</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Alerts Pending</div>
+            <div class="stat-value">0</div>
+            <div class="stat-hint">Alerts to review</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Community Posts</div>
+            <div class="stat-value">0</div>
+            <div class="stat-hint">Reported posts</div>
+          </div>
+        </div>
+
+        <!-- Content Tabs -->
+        <div class="card">
+          <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+            <button class="button primary">
+              <i data-lucide="flag" class="w-4 h-4"></i>
+              Flagged Content
+            </button>
+            <button class="button neutral">
+              <i data-lucide="alert-circle" class="w-4 h-4"></i>
+              Alerts
+            </button>
+            <button class="button neutral">
+              <i data-lucide="party-popper" class="w-4 h-4"></i>
+              Celebrations
+            </button>
+            <button class="button neutral">
+              <i data-lucide="message-square" class="w-4 h-4"></i>
+              Community Posts
+            </button>
+          </div>
+          <div class="empty-state">
+            <div class="empty-state-icon">🛡️</div>
+            <p>No flagged content. Keep monitoring! Functionality coming soon.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Notifications Page -->
+      <div id="notificationsPage" class="page-content" style="display: none;">
+        <div class="page-header">
+          <h2 class="page-title">Notifications & Announcements</h2>
+          <p class="page-subtitle">Send platform-wide communications to users</p>
+        </div>
+
+        <!-- Send Notification -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <i data-lucide="send" class="w-6 h-6"></i>
+              Send New Notification
+            </div>
+          </div>
+          <div class="form-grid">
+            <div class="input-group">
+              <label>Notification Title</label>
+              <input type="text" placeholder="Enter notification title..." />
+            </div>
+            <div class="input-group">
+              <label>Target Audience</label>
+              <select>
+                <option>All Users</option>
+                <option>Influencers Only</option>
+                <option>Clients Only</option>
+                <option>Specific Category</option>
+              </select>
+            </div>
+            <div class="input-group" style="grid-column: 1 / -1;">
+              <label>Message</label>
+              <textarea rows="4" placeholder="Enter your message..."></textarea>
+            </div>
+            <div class="input-group">
+              <label>Schedule (Optional)</label>
+              <input type="datetime-local" />
+            </div>
+            <div class="input-group">
+              <label>Priority</label>
+              <select>
+                <option>Normal</option>
+                <option>High</option>
+                <option>Urgent</option>
+              </select>
+            </div>
+          </div>
+          <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+            <button class="button primary">
+              <i data-lucide="send" class="w-4 h-4"></i>
+              Send Now
+            </button>
+            <button class="button neutral">
+              <i data-lucide="clock" class="w-4 h-4"></i>
+              Schedule
+            </button>
+          </div>
+        </div>
+
+        <!-- Notification History -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <i data-lucide="history" class="w-6 h-6"></i>
+              Notification History
+            </div>
+          </div>
+          <div class="empty-state">
+            <div class="empty-state-icon">📨</div>
+            <p>No notifications sent yet. Functionality coming soon.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Analytics Page -->
+      <div id="analyticsPage" class="page-content" style="display: none;">
+        <div class="page-header">
+          <h2 class="page-title">Analytics & Reports</h2>
+          <p class="page-subtitle">Track platform performance and generate reports</p>
+        </div>
+
+        <!-- Key Metrics -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Daily Active Users</div>
+            <div class="stat-value">0</div>
+            <div class="stat-hint">Today's active users</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Monthly Active Users</div>
+            <div class="stat-value">0</div>
+            <div class="stat-hint">This month</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">User Growth</div>
+            <div class="stat-value">0%</div>
+            <div class="stat-hint">vs last month</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Engagement Rate</div>
+            <div class="stat-value">0%</div>
+            <div class="stat-hint">Platform engagement</div>
+          </div>
+        </div>
+
+        <!-- Analytics Sections -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <i data-lucide="trending-up" class="w-6 h-6"></i>
+              Platform Analytics
+            </div>
+            <button class="button primary">
+              <i data-lucide="download" class="w-4 h-4"></i>
+              Export Report
+            </button>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+            <div class="stat-card">
+              <div class="stat-label">User Analytics</div>
+              <p style="color: rgba(226, 232, 240, 0.6); font-size: 0.875rem;">Growth, retention, demographics</p>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Category Analytics</div>
+              <p style="color: rgba(226, 232, 240, 0.6); font-size: 0.875rem;">Popular categories, engagement</p>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Revenue Analytics</div>
+              <p style="color: rgba(226, 232, 240, 0.6); font-size: 0.875rem;">Revenue trends, top earners</p>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Engagement Metrics</div>
+              <p style="color: rgba(226, 232, 240, 0.6); font-size: 0.875rem;">Video calls, sessions, activity</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search & Discovery Page -->
+      <div id="search-discoveryPage" class="page-content" style="display: none;">
+        <div class="page-header">
+          <h2 class="page-title">Search & Discovery</h2>
+          <p class="page-subtitle">Optimize search functionality and promote content</p>
+        </div>
+
+        <!-- Search Analytics -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <i data-lucide="search" class="w-6 h-6"></i>
+              Search Analytics
+            </div>
+          </div>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-label">Total Searches</div>
+              <div class="stat-value">0</div>
+              <div class="stat-hint">This month</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Popular Terms</div>
+              <div class="stat-value">0</div>
+              <div class="stat-hint">Trending searches</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Failed Searches</div>
+              <div class="stat-value">0</div>
+              <div class="stat-hint">No results found</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Featured Content -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <i data-lucide="star" class="w-6 h-6"></i>
+              Featured Content
+            </div>
+            <button class="button primary">
+              <i data-lucide="plus" class="w-4 h-4"></i>
+              Add Featured
+            </button>
+          </div>
+          <div class="empty-state">
+            <div class="empty-state-icon">🔍</div>
+            <p>No featured content configured. Functionality coming soon.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Marketing Page -->
+      <div id="marketingPage" class="page-content" style="display: none;">
+        <div class="page-header">
+          <h2 class="page-title">Marketing & Promotions</h2>
+          <p class="page-subtitle">Run campaigns and manage promotional activities</p>
+        </div>
+
+        <!-- Marketing Tools -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+          <div class="card">
+            <div class="card-title">
+              <i data-lucide="layout" class="w-5 h-5"></i>
+              Promotional Banners
+            </div>
+            <p style="color: rgba(226, 232, 240, 0.6); margin: 1rem 0;">Create and schedule homepage banners</p>
+            <button class="button primary">Manage Banners</button>
+          </div>
+          <div class="card">
+            <div class="card-title">
+              <i data-lucide="ticket" class="w-5 h-5"></i>
+              Discount Codes
+            </div>
+            <p style="color: rgba(226, 232, 240, 0.6); margin: 1rem 0;">Create promo codes and track usage</p>
+            <button class="button primary">Manage Codes</button>
+          </div>
+          <div class="card">
+            <div class="card-title">
+              <i data-lucide="users-2" class="w-5 h-5"></i>
+              Referral Program
+            </div>
+            <p style="color: rgba(226, 232, 240, 0.6); margin: 1rem 0;">Configure referral rewards</p>
+            <button class="button primary">Manage Program</button>
+          </div>
+        </div>
+
+        <!-- Active Campaigns -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <i data-lucide="megaphone" class="w-6 h-6"></i>
+              Active Campaigns
+            </div>
+            <button class="button primary">
+              <i data-lucide="plus" class="w-4 h-4"></i>
+              New Campaign
+            </button>
+          </div>
+          <div class="empty-state">
+            <div class="empty-state-icon">📢</div>
+            <p>No active campaigns. Functionality coming soon.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Admin Users Page -->
+      <div id="admin-usersPage" class="page-content" style="display: none;">
+        <div class="page-header">
+          <h2 class="page-title">Admin Users & Permissions</h2>
+          <p class="page-subtitle">Manage admin team and access control</p>
+        </div>
+
+        <!-- Admin Stats -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Total Admins</div>
+            <div class="stat-value">1</div>
+            <div class="stat-hint">Active admin users</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Super Admins</div>
+            <div class="stat-value">1</div>
+            <div class="stat-hint">Full access</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Active Today</div>
+            <div class="stat-value">1</div>
+            <div class="stat-hint">Logged in today</div>
+          </div>
+        </div>
+
+        <!-- Admin List -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <i data-lucide="user-cog" class="w-6 h-6"></i>
+              Admin Users
+            </div>
+            <button class="button primary">
+              <i data-lucide="user-plus" class="w-4 h-4"></i>
+              Add Admin
+            </button>
+          </div>
+          <div class="empty-state">
+            <div class="empty-state-icon">👨‍💼</div>
+            <p>Admin management functionality coming soon.</p>
+          </div>
+        </div>
+
+        <!-- Activity Log -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <i data-lucide="history" class="w-6 h-6"></i>
+              Admin Activity Log
+            </div>
+          </div>
+          <div class="empty-state">
+            <div class="empty-state-icon">📋</div>
+            <p>Activity log will appear here. Functionality coming soon.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Platform Settings Page -->
+      <div id="settingsPage" class="page-content" style="display: none;">
+        <div class="page-header">
+          <h2 class="page-title">Platform Settings</h2>
+          <p class="page-subtitle">Configure platform-wide settings and preferences</p>
+        </div>
+
+        <!-- Content Mode Toggle -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <i data-lucide="toggle-left" class="w-6 h-6"></i>
+              Content Mode
+            </div>
+          </div>
+          <div style="display: flex; align-items: center; justify-content: space-between; padding: 1rem; background: rgba(99, 102, 241, 0.1); border-radius: 8px;">
+            <div>
+              <div style="font-weight: 600; margin-bottom: 0.25rem;">Static / Dynamic Content</div>
+              <div style="font-size: 0.875rem; color: rgba(226, 232, 240, 0.6);">
+                <span id="contentModeText">Static Mode:</span> Content loaded from static files
+              </div>
+            </div>
+            <label style="position: relative; display: inline-block; width: 60px; height: 34px;">
+              <input type="checkbox" id="contentModeToggle" style="opacity: 0; width: 0; height: 0;">
+              <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #374151; transition: .4s; border-radius: 34px;">
+                <span style="position: absolute; content: ''; height: 26px; width: 26px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%;"></span>
+              </span>
+            </label>
+          </div>
+        </div>
+
+        <!-- General Settings -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <i data-lucide="settings" class="w-6 h-6"></i>
+              General Settings
+            </div>
+          </div>
+          <div class="form-grid">
+            <div class="input-group">
+              <label>Platform Name</label>
+              <input type="text" value="Vvel Universe" />
+            </div>
+            <div class="input-group">
+              <label>Support Email</label>
+              <input type="email" placeholder="support@vveluniverse.com" />
+            </div>
+            <div class="input-group">
+              <label>Timezone</label>
+              <select>
+                <option>UTC</option>
+                <option selected>Asia/Kolkata (IST)</option>
+                <option>America/New_York (EST)</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label>Default Currency</label>
+              <select>
+                <option selected>INR (₹)</option>
+                <option>USD ($)</option>
+                <option>EUR (€)</option>
+              </select>
+            </div>
+          </div>
+          <button class="button primary" style="margin-top: 1rem;">
+            <i data-lucide="save" class="w-4 h-4"></i>
+            Save Settings
+          </button>
+        </div>
+
+        <!-- Feature Toggles -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <i data-lucide="toggle-right" class="w-6 h-6"></i>
+              Feature Toggles
+            </div>
+          </div>
+          <div style="display: grid; gap: 1rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: rgba(255, 255, 255, 0.03); border-radius: 8px;">
+              <div>
+                <div style="font-weight: 600;">Video Calls</div>
+                <div style="font-size: 0.875rem; color: rgba(226, 232, 240, 0.6);">Enable/disable video calling feature</div>
+              </div>
+              <input type="checkbox" checked />
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: rgba(255, 255, 255, 0.03); border-radius: 8px;">
+              <div>
+                <div style="font-weight: 600;">Wallet System</div>
+                <div style="font-size: 0.875rem; color: rgba(226, 232, 240, 0.6);">Enable/disable wallet functionality</div>
+              </div>
+              <input type="checkbox" checked />
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: rgba(255, 255, 255, 0.03); border-radius: 8px;">
+              <div>
+                <div style="font-weight: 600;">KYC Verification</div>
+                <div style="font-size: 0.875rem; color: rgba(226, 232, 240, 0.6);">Enable/disable influencer verification</div>
+              </div>
+              <input type="checkbox" checked />
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: rgba(255, 255, 255, 0.03); border-radius: 8px;">
+              <div>
+                <div style="font-weight: 600;">Celebrations</div>
+                <div style="font-size: 0.875rem; color: rgba(226, 232, 240, 0.6);">Enable/disable celebrations feature</div>
+              </div>
+              <input type="checkbox" checked />
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment Settings -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <i data-lucide="credit-card" class="w-6 h-6"></i>
+              Payment Settings
+            </div>
+          </div>
+          <div class="form-grid">
+            <div class="input-group">
+              <label>Platform Fee (%)</label>
+              <input type="number" value="10" min="0" max="100" />
+            </div>
+            <div class="input-group">
+              <label>Minimum Transaction</label>
+              <input type="number" value="100" />
+            </div>
+            <div class="input-group">
+              <label>Payment Gateway</label>
+              <select>
+                <option>Razorpay</option>
+                <option>Stripe</option>
+                <option>PayPal</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label>Auto-Refund Days</label>
+              <input type="number" value="7" />
+            </div>
+          </div>
+          <button class="button primary" style="margin-top: 1rem;">
+            <i data-lucide="save" class="w-4 h-4"></i>
+            Save Payment Settings
+          </button>
+        </div>
+      </div>
+
+      <!-- System Logs Page -->
+      <div id="system-logsPage" class="page-content" style="display: none;">
+        <div class="page-header">
+          <h2 class="page-title">System Logs & Monitoring</h2>
+          <p class="page-subtitle">Monitor system health and view activity logs</p>
+        </div>
+
+        <!-- System Health -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Server Uptime</div>
+            <div class="stat-value">99.9%</div>
+            <div class="stat-hint">Last 30 days</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">API Response Time</div>
+            <div class="stat-value">120ms</div>
+            <div class="stat-hint">Average</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Database Status</div>
+            <div class="stat-value" style="color: #10b981;">Healthy</div>
+            <div class="stat-hint">All systems operational</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Error Rate</div>
+            <div class="stat-value">0.1%</div>
+            <div class="stat-hint">Last 24 hours</div>
+          </div>
+        </div>
+
+        <!-- Log Tabs -->
+        <div class="card">
+          <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+            <button class="button primary">
+              <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+              Error Logs
+            </button>
+            <button class="button neutral">
+              <i data-lucide="activity" class="w-4 h-4"></i>
+              Activity Logs
+            </button>
+            <button class="button neutral">
+              <i data-lucide="user-check" class="w-4 h-4"></i>
+              Login Attempts
+            </button>
+            <button class="button neutral">
+              <i data-lucide="shield-alert" class="w-4 h-4"></i>
+              Security Events
+            </button>
+          </div>
+          <div class="empty-state">
+            <div class="empty-state-icon">📊</div>
+            <p>System logs will appear here. Functionality coming soon.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Content Management Page -->
+      <div id="content-managementPage" class="page-content" style="display: none;">
+        <div class="page-header">
+          <h2 class="page-title">Content Management</h2>
+          <p class="page-subtitle">Manage static pages and platform content</p>
+        </div>
+
+        <!-- Content Sections -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+          <div class="card">
+            <div class="card-title">
+              <i data-lucide="book-open" class="w-5 h-5"></i>
+              Spiritual Content
+            </div>
+            <p style="color: rgba(226, 232, 240, 0.6); margin: 1rem 0; font-size: 0.875rem;">
+              Buddhism, Christianity, Hinduism, Islam, Judaism
+            </p>
+            <button class="button primary">Edit Content</button>
+          </div>
+          <div class="card">
+            <div class="card-title">
+              <i data-lucide="file-text" class="w-5 h-5"></i>
+              Feature Pages
+            </div>
+            <p style="color: rgba(226, 232, 240, 0.6); margin: 1rem 0; font-size: 0.875rem;">
+              Search, Wallet, Video Call pages
+            </p>
+            <button class="button primary">Edit Pages</button>
+          </div>
+          <div class="card">
+            <div class="card-title">
+              <i data-lucide="help-circle" class="w-5 h-5"></i>
+              Help & Support
+            </div>
+            <p style="color: rgba(226, 232, 240, 0.6); margin: 1rem 0; font-size: 0.875rem;">
+              FAQs, tutorials, help articles
+            </p>
+            <button class="button primary">Manage Help</button>
+          </div>
+          <div class="card">
+            <div class="card-title">
+              <i data-lucide="scale" class="w-5 h-5"></i>
+              Legal Pages
+            </div>
+            <p style="color: rgba(226, 232, 240, 0.6); margin: 1rem 0; font-size: 0.875rem;">
+              Terms, Privacy, Refund Policy
+            </p>
+            <button class="button primary">Edit Legal</button>
+          </div>
+        </div>
+
+        <!-- Recent Updates -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">
+              <i data-lucide="clock" class="w-6 h-6"></i>
+              Recent Content Updates
+            </div>
+          </div>
+          <div class="empty-state">
+            <div class="empty-state-icon">📝</div>
+            <p>Content update history will appear here. Functionality coming soon.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Wallet Page (kept for backward compatibility) -->
+      <div id="walletPage" class="page-content" style="display: none;">
+        <div class="page-header">
+          <h2 class="page-title">Wallet Settings</h2>
+          <p class="page-subtitle">Manage payment and auto-pay settings</p>
+        </div>
+        <div class="card">
+          <div class="card-title">
+            <i data-lucide="wallet" class="w-6 h-6"></i>
+            Wallet settings coming soon...
+          </div>
+          <p style="color: rgba(226, 232, 240, 0.7);">This feature will allow you to manage wallet and payment settings.</p>
+        </div>
+      </div>
+    </main>
   </div>
 
   <script src="/scripts/config/admin-config.js"></script>
@@ -446,40 +2288,64 @@
     const ADMIN_SESSION_KEY = 'vvelAdminSession';
     const state = {
       admin: null,
-      requests: []
+      requests: [],
+      currentPage: 'dashboard'
     };
 
-    const loginForm = document.getElementById('adminLoginForm');
+    // Elements
     const loginView = document.getElementById('loginView');
     const dashboardView = document.getElementById('dashboardView');
+    const loginForm = document.getElementById('adminLoginForm');
     const loginError = document.getElementById('loginError');
 
+    // Event Listeners
     loginForm.addEventListener('submit', handleAdminLogin);
+
+    // Check existing session on load
+    window.addEventListener('DOMContentLoaded', () => {
+      checkExistingSession();
+    });
+
+    function checkExistingSession() {
+      const session = sessionStorage.getItem(ADMIN_SESSION_KEY);
+      if (session) {
+        try {
+          const { email, timestamp } = JSON.parse(session);
+          const eightHours = 8 * 60 * 60 * 1000;
+          if (Date.now() - timestamp < eightHours) {
+            showDashboard(email);
+            return;
+          }
+        } catch (e) {
+          sessionStorage.removeItem(ADMIN_SESSION_KEY);
+        }
+      }
+    }
 
     async function handleAdminLogin(event) {
       event.preventDefault();
       const email = document.getElementById('adminEmail').value.trim();
       const password = document.getElementById('adminPassword').value;
-      loginError.style.display = 'none';
+      loginError.classList.remove('show');
+      
       showLoadingOverlay('Authenticating...');
 
       try {
-        // First try backend authentication
-        const loginResponse = await fetch('/api/login', {
+        // Try backend authentication first
+        const response = await fetch('/api/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'include',
           body: JSON.stringify({ email, password })
         });
 
-        const loginData = await loginResponse.json();
+        const data = await response.json();
 
-        if (loginResponse.ok && loginData.success) {
-          // Check if user is admin via backend
-          const authStatusResponse = await fetch('/api/auth/status', {
+        if (response.ok && data.success) {
+          const authResponse = await fetch('/api/auth/status', {
             credentials: 'include'
           });
-          const authData = await authStatusResponse.json();
+          const authData = await authResponse.json();
 
           if (authData.success && authData.authenticated) {
             state.admin = authData.user;
@@ -487,16 +2353,13 @@
               email,
               timestamp: Date.now()
             }));
-            document.getElementById('adminNameLabel').textContent = state.admin.name || state.admin.email;
-            loginView.style.display = 'none';
-            dashboardView.style.display = 'flex';
             hideLoadingOverlay();
-            await refreshDashboard(false);
+            showDashboard(email);
             return;
           }
         }
 
-        // Fallback to frontend admin config
+        // Fallback to frontend config
         const result = vvelAppState.authenticateAdmin(email, password);
         hideLoadingOverlay();
 
@@ -504,9 +2367,9 @@
           loginError.textContent = result.reason === 'invalid_password'
             ? 'Incorrect password. Please try again.'
             : result.reason === 'not_found'
-              ? 'Admin account not found. Verify the email or have a super admin grant access.'
-              : loginData.message || 'Unable to sign in. Please try again.';
-          loginError.style.display = 'block';
+              ? 'Admin account not found.'
+              : data.message || 'Unable to sign in. Please try again.';
+          loginError.classList.add('show');
           return;
         }
 
@@ -516,28 +2379,120 @@
           password,
           timestamp: Date.now()
         }));
-        document.getElementById('adminNameLabel').textContent = state.admin.name || state.admin.email;
-        loginView.style.display = 'none';
-        dashboardView.style.display = 'flex';
-        await refreshDashboard(false);
+        showDashboard(email);
       } catch (error) {
-        console.error('Admin login error:', error);
+        console.error('Login error:', error);
         hideLoadingOverlay();
         loginError.textContent = 'Network error. Please try again.';
-        loginError.style.display = 'block';
+        loginError.classList.add('show');
       }
     }
 
-    async function refreshDashboard(showLoader = true) {
-      if (showLoader) {
-        showLoadingOverlay('Syncing latest data...');
+    function showDashboard(email) {
+      loginView.style.display = 'none';
+      dashboardView.style.display = 'block';
+      
+      // Update profile info
+      const name = state.admin?.name || email.split('@')[0];
+      document.getElementById('profileName').textContent = name;
+      document.getElementById('profileAvatar').textContent = name.charAt(0).toUpperCase();
+      
+      // Initialize dashboard
+      refreshDashboard();
+      setupNavigation();
+      
+      // Recreate icons
+      setTimeout(() => lucide.createIcons(), 100);
+    }
+
+    function setupNavigation() {
+      const navItems = document.querySelectorAll('.nav-item');
+      navItems.forEach(item => {
+        item.addEventListener('click', () => {
+          const page = item.getAttribute('data-page');
+          if (page) {
+            navigateToPage(page);
+          }
+        });
+      });
+    }
+
+    function navigateToPage(pageName) {
+      // Hide all pages
+      document.querySelectorAll('.page-content').forEach(page => {
+        page.style.display = 'none';
+      });
+
+      // Show selected page
+      const pageElement = document.getElementById(pageName + 'Page');
+      if (pageElement) {
+        pageElement.style.display = 'block';
       }
+
+      // Update navigation active state
+      document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+        if (item.getAttribute('data-page') === pageName) {
+          item.classList.add('active');
+        }
+      });
+
+      // Update header title
+      const titles = {
+        dashboard: 'Dashboard',
+        users: 'User Management',
+        categories: 'Categories',
+        moderation: 'Content Moderation',
+        'content-management': 'Content Management',
+        'connect-requests': 'Connect Requests',
+        'kyc-verification': 'KYC Verification',
+        transactions: 'Transactions',
+        analytics: 'Analytics & Reports',
+        notifications: 'Notifications',
+        'search-discovery': 'Search & Discovery',
+        marketing: 'Marketing',
+        'admin-users': 'Admin Users',
+        settings: 'Platform Settings',
+        'system-logs': 'System Logs',
+        // Legacy
+        requests: 'Connection Requests',
+        admins: 'Admin Management',
+        wallet: 'Wallet Settings'
+      };
+      document.getElementById('headerTitle').textContent = titles[pageName] || 'Dashboard';
+
+      state.currentPage = pageName;
+
+      // Load page-specific data
+      if (pageName === 'requests') {
+        renderRequests();
+      } else if (pageName === 'admins') {
+        renderAdminAccounts();
+      } else if (pageName === 'categories') {
+        loadCategories();
+      }
+    }
+
+    function toggleProfileDropdown() {
+      const dropdown = document.getElementById('profileDropdown');
+      dropdown.classList.toggle('show');
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.profile-dropdown')) {
+        document.getElementById('profileDropdown').classList.remove('show');
+      }
+    });
+
+    async function refreshDashboard(showLoader = true) {
+      if (showLoader) showLoadingOverlay('Refreshing...');
       
       try {
-        // Try to fetch from backend API first
-        const [statsResponse, requestsResponse] = await Promise.all([
+        const [statsResponse, requestsResponse, categoriesResponse] = await Promise.all([
           fetch('/api/admin/stats', { credentials: 'include' }),
-          fetch('/api/admin/connect-requests', { credentials: 'include' })
+          fetch('/api/admin/connect-requests', { credentials: 'include' }),
+          fetch('/api/admin/categories', { credentials: 'include' })
         ]);
 
         if (statsResponse.ok && requestsResponse.ok) {
@@ -545,10 +2500,20 @@
           const requestsData = await requestsResponse.json();
 
           if (statsData.success && requestsData.success) {
-            // Use backend data
             state.requests = requestsData.requests || [];
-            renderStatsFromBackend(statsData.stats);
-            renderRequests();
+            renderStats(statsData.stats);
+            renderRecentRequests();
+            
+            // Update categories count
+            if (categoriesResponse.ok) {
+              const categoriesData = await categoriesResponse.json();
+              if (categoriesData.success) {
+                const categoriesCount = (categoriesData.data || categoriesData.categories || []).length;
+                const catStatEl = document.getElementById('totalCategoriesStat');
+                if (catStatEl) catStatEl.textContent = categoriesCount;
+              }
+            }
+            
             if (showLoader) hideLoadingOverlay();
             return;
           }
@@ -558,42 +2523,71 @@
       }
 
       // Fallback to frontend state
-      setTimeout(() => {
-        syncRequestsAndRender();
-        if (showLoader) {
-          hideLoadingOverlay();
-        }
-      }, showLoader ? 400 : 0);
-    }
-
-    function refreshRequests() {
-      // This will be handled by refreshDashboard now
       state.requests = vvelAppState.getJoinRequests();
+      const wallet = vvelAppState.getWallet();
+      
+      const stats = {
+        totalRequests: state.requests.length,
+        pendingRequests: state.requests.filter(r => r.status === 'pending').length,
+        needsPayment: state.requests.filter(r => r.status === 'needs_payment').length,
+        approvedRequests: state.requests.filter(r => r.status === 'approved').length,
+        walletBalance: wallet.balance
+      };
+      
+      renderStats(stats);
+      renderRecentRequests();
+      
+      // Try to load categories count separately
+      loadCategoriesCount();
+      
+      if (showLoader) hideLoadingOverlay();
     }
 
-    function renderStatsFromBackend(stats) {
+    async function loadCategoriesCount() {
+      try {
+        const response = await fetch('/api/admin/categories', { credentials: 'include' });
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success) {
+            const categoriesCount = (data.data || data.categories || []).length;
+            const catStatEl = document.getElementById('totalCategoriesStat');
+            if (catStatEl) catStatEl.textContent = categoriesCount;
+          }
+        }
+      } catch (error) {
+        console.warn('Could not load categories count:', error);
+      }
+    }
+
+    function renderStats(stats) {
       document.getElementById('totalRequestsStat').textContent = stats.totalRequests || 0;
       document.getElementById('pendingRequestsStat').textContent = stats.pendingRequests || 0;
       document.getElementById('needsPaymentStat').textContent = stats.needsPayment || 0;
       document.getElementById('confirmedSessionsStat').textContent = stats.approvedRequests || 0;
-      // Wallet balance might need separate endpoint
-      const wallet = vvelAppState.getWallet();
-      document.getElementById('walletBalanceStat').textContent = formatCurrency(wallet.balance);
+      
+      const balance = stats.walletBalance !== undefined ? stats.walletBalance : 
+                      (vvelAppState.getWallet().balance || 0);
+      document.getElementById('walletBalanceStat').textContent = formatCurrency(balance);
     }
 
-    function renderStats() {
-      const wallet = vvelAppState.getWallet();
-      document.getElementById('walletBalanceStat').textContent = formatCurrency(wallet.balance);
+    function renderRecentRequests() {
+      const list = document.getElementById('recentRequestsList');
+      const empty = document.getElementById('recentRequestsEmpty');
+      list.innerHTML = '';
 
-      const total = state.requests.length;
-      const pending = state.requests.filter(req => req.status === 'pending').length;
-      const needsPayment = state.requests.filter(req => req.status === 'needs_payment').length;
-      const confirmed = state.requests.filter(req => req.status === 'approved').length;
+      const recentRequests = state.requests.slice(0, 5);
+      
+      if (!recentRequests.length) {
+        empty.style.display = 'block';
+        return;
+      }
 
-      document.getElementById('totalRequestsStat').textContent = total;
-      document.getElementById('pendingRequestsStat').textContent = pending;
-      document.getElementById('needsPaymentStat').textContent = needsPayment;
-      document.getElementById('confirmedSessionsStat').textContent = confirmed;
+      empty.style.display = 'none';
+      recentRequests.forEach(request => {
+        list.appendChild(createRequestCard(request, true));
+      });
+      
+      setTimeout(() => lucide.createIcons(), 100);
     }
 
     function renderRequests() {
@@ -607,250 +2601,132 @@
       }
 
       empty.style.display = 'none';
+      state.requests.forEach(request => {
+        list.appendChild(createRequestCard(request, false));
+      });
+      
+      setTimeout(() => lucide.createIcons(), 100);
+    }
 
-      state.requests
-        .sort((a, b) => {
-          const aTime = a.createdAt ? (typeof a.createdAt === 'string' ? new Date(a.createdAt).getTime() : a.createdAt) : 0;
-          const bTime = b.createdAt ? (typeof b.createdAt === 'string' ? new Date(b.createdAt).getTime() : b.createdAt) : 0;
-          return bTime - aTime;
-        })
-        .forEach(request => {
-          const card = document.createElement('div');
-          card.className = 'request-card';
+    function createRequestCard(request, isCompact) {
+      const card = document.createElement('div');
+      card.className = 'request-card';
 
-          const requestId = request._id || request.id;
-          const statusClass = getStatusClass(request.status);
-          const statusLabel = getStatusLabel(request.status);
-          const updated = request.updatedAt
-            ? formatRelativeTime(request.updatedAt)
-            : 'Just now';
+      const requestId = request._id || request.id;
+      const statusClass = getStatusClass(request.status);
+      const statusLabel = getStatusLabel(request.status);
 
-          const amountText = formatCurrency(request.amount || 0);
-          const influencerName = request.influencerName || request.hostName || 'Unknown';
-          const requesterName = request.requesterName || request.userName || 'Member';
-          const sessionTitle = request.sessionTitle || 'Community Session';
-          const sessionId = request.sessionId || requestId;
+      card.innerHTML = `
+        <div class="request-header">
+          <div class="request-meta">
+            <div class="request-title">${request.sessionTitle || 'Community Session'}</div>
+            <div class="request-info">Influencer: ${request.influencerName || request.hostName || 'Unknown'} • Requester: ${request.requesterName || request.userName || 'Member'}</div>
+            <div class="request-id">ID: ${requestId}</div>
+            <div style="margin-top: 0.5rem;">
+              <span class="tag">
+                <i data-lucide="wallet" class="w-4 h-4"></i>
+                ${formatCurrency(request.amount || 0)}
+              </span>
+              ${request.meetingCode ? `<span class="tag" style="background: rgba(34,197,94,0.2); color: #4ade80;">
+                <i data-lucide="video" class="w-4 h-4"></i>
+                ${request.meetingCode}
+              </span>` : ''}
+            </div>
+          </div>
+          <div class="status-badge ${statusClass}">
+            <i data-lucide="dot" class="w-4 h-4"></i>
+            ${statusLabel}
+          </div>
+        </div>
+        ${!isCompact ? `
+        <div class="request-actions">
+          <button class="button primary" onclick="approveRequest('${requestId}', this)" ${request.status !== 'pending' ? 'disabled' : ''}>
+            <i data-lucide="check-circle" class="w-4 h-4"></i>
+            Approve
+          </button>
+          <button class="button neutral" onclick="markManualPayment('${requestId}', this)" ${request.status === 'approved' ? 'disabled' : ''}>
+            <i data-lucide="credit-card" class="w-4 h-4"></i>
+            Mark Paid
+          </button>
+          <button class="button danger" onclick="rejectRequest('${requestId}', this)" ${request.status === 'rejected' ? 'disabled' : ''}>
+            <i data-lucide="x-circle" class="w-4 h-4"></i>
+            Reject
+          </button>
+        </div>
+        ` : ''}
+      `;
 
-          // Create request header
-          const requestHeader = document.createElement('div');
-          requestHeader.className = 'request-header';
-
-          // Create request meta section
-          const requestMeta = document.createElement('div');
-          requestMeta.className = 'request-meta';
-
-          // Session title
-          const titleDiv = document.createElement('div');
-          titleDiv.style.fontSize = '1.1rem';
-          titleDiv.style.fontWeight = '700';
-          titleDiv.textContent = sessionTitle;
-          requestMeta.appendChild(titleDiv);
-
-          // Influencer and requester info
-          const metaDiv = document.createElement('div');
-          metaDiv.style.color = 'rgba(226,232,240,0.7)';
-          metaDiv.style.fontSize = '0.9rem';
-          metaDiv.textContent = `Influencer: ${influencerName} • Requested by: ${requesterName}`;
-          requestMeta.appendChild(metaDiv);
-
-          // Request ID
-          const requestIdDiv = document.createElement('div');
-          requestIdDiv.style.color = 'rgba(226,232,240,0.55)';
-          requestIdDiv.style.fontSize = '0.85rem';
-          requestIdDiv.textContent = `Request ID: ${requestId}`;
-          requestMeta.appendChild(requestIdDiv);
-
-          // Amount tag
-          const amountTag = document.createElement('div');
-          amountTag.className = 'tag';
-          const walletIcon = document.createElement('i');
-          walletIcon.setAttribute('data-lucide', 'wallet');
-          walletIcon.className = 'w-4 h-4';
-          amountTag.appendChild(walletIcon);
-          amountTag.appendChild(document.createTextNode(amountText));
-          requestMeta.appendChild(amountTag);
-
-          // Meeting code tag (if exists)
-          if (request.meetingCode) {
-            const meetingTag = document.createElement('div');
-            meetingTag.className = 'tag';
-            meetingTag.style.background = 'rgba(34,197,94,0.2)';
-            meetingTag.style.color = '#4ade80';
-            const videoIcon = document.createElement('i');
-            videoIcon.setAttribute('data-lucide', 'video');
-            videoIcon.className = 'w-4 h-4';
-            meetingTag.appendChild(videoIcon);
-            meetingTag.appendChild(document.createTextNode(`Meeting: ${request.meetingCode}`));
-            requestMeta.appendChild(meetingTag);
-          }
-
-          requestHeader.appendChild(requestMeta);
-
-          // Status badge
-          const statusBadge = document.createElement('div');
-          statusBadge.className = `status-badge ${statusClass}`;
-          const dotIcon = document.createElement('i');
-          dotIcon.setAttribute('data-lucide', 'dot');
-          dotIcon.className = 'w-4 h-4';
-          statusBadge.appendChild(dotIcon);
-          statusBadge.appendChild(document.createTextNode(statusLabel));
-          requestHeader.appendChild(statusBadge);
-
-          card.appendChild(requestHeader);
-
-          // Message (if exists)
-          if (request.message) {
-            const messageDiv = document.createElement('div');
-            messageDiv.style.fontSize = '0.9rem';
-            messageDiv.style.color = 'rgba(226,232,240,0.75)';
-            const strong = document.createElement('strong');
-            strong.textContent = 'Message: ';
-            messageDiv.appendChild(strong);
-            messageDiv.appendChild(document.createTextNode(request.message));
-            card.appendChild(messageDiv);
-          }
-
-          // Notes (if exists)
-          if (request.notes) {
-            const notesDiv = document.createElement('div');
-            notesDiv.style.fontSize = '0.85rem';
-            notesDiv.style.color = 'rgba(94,234,212,0.7)';
-            const strong = document.createElement('strong');
-            strong.textContent = 'Notes: ';
-            notesDiv.appendChild(strong);
-            notesDiv.appendChild(document.createTextNode(request.notes));
-            card.appendChild(notesDiv);
-          }
-
-          // Rejection reason (if exists)
-          if (request.rejectionReason) {
-            const rejectionDiv = document.createElement('div');
-            rejectionDiv.style.fontSize = '0.85rem';
-            rejectionDiv.style.color = 'rgba(248,113,113,0.7)';
-            const strong = document.createElement('strong');
-            strong.textContent = 'Rejection Reason: ';
-            rejectionDiv.appendChild(strong);
-            rejectionDiv.appendChild(document.createTextNode(request.rejectionReason));
-            card.appendChild(rejectionDiv);
-          }
-
-          // Last updated
-          const updatedDiv = document.createElement('div');
-          updatedDiv.style.fontSize = '0.8rem';
-          updatedDiv.style.color = 'rgba(226,232,240,0.55)';
-          updatedDiv.textContent = `Last updated ${updated}`;
-          card.appendChild(updatedDiv);
-
-          // Request actions
-          const actionsDiv = document.createElement('div');
-          actionsDiv.className = 'request-actions';
-
-          // Approve button
-          const approveBtn = document.createElement('button');
-          approveBtn.className = 'button primary';
-          if (request.status === 'approved' || request.status === 'rejected') {
-            approveBtn.disabled = true;
-          }
-          approveBtn.addEventListener('click', function() {
-            approveRequest(requestId, this);
-          });
-          const checkIcon = document.createElement('i');
-          checkIcon.setAttribute('data-lucide', 'check-circle');
-          checkIcon.className = 'w-4 h-4';
-          approveBtn.appendChild(checkIcon);
-          approveBtn.appendChild(document.createTextNode(' Approve Request'));
-          actionsDiv.appendChild(approveBtn);
-
-          // Mark payment button
-          const paymentBtn = document.createElement('button');
-          paymentBtn.className = 'button neutral';
-          if (request.status === 'approved' || request.paymentStatus === 'paid') {
-            paymentBtn.disabled = true;
-          }
-          paymentBtn.addEventListener('click', function() {
-            markManualPayment(requestId, this);
-          });
-          const creditIcon = document.createElement('i');
-          creditIcon.setAttribute('data-lucide', 'credit-card');
-          creditIcon.className = 'w-4 h-4';
-          paymentBtn.appendChild(creditIcon);
-          paymentBtn.appendChild(document.createTextNode(' Mark Payment Received'));
-          actionsDiv.appendChild(paymentBtn);
-
-          // Reject button
-          const rejectBtn = document.createElement('button');
-          rejectBtn.className = 'button danger';
-          if (request.status === 'rejected') {
-            rejectBtn.disabled = true;
-          }
-          rejectBtn.addEventListener('click', function() {
-            rejectRequest(requestId, this);
-          });
-          const xIcon = document.createElement('i');
-          xIcon.setAttribute('data-lucide', 'x-circle');
-          xIcon.className = 'w-4 h-4';
-          rejectBtn.appendChild(xIcon);
-          rejectBtn.appendChild(document.createTextNode(' Reject Request'));
-          actionsDiv.appendChild(rejectBtn);
-
-          card.appendChild(actionsDiv);
-          list.appendChild(card);
-        });
-
-      lucide.createIcons();
+      return card;
     }
 
     async function approveRequest(requestId, button) {
-      setButtonState(button, true, 'Approving...');
-      showLoadingOverlay('Confirming request...');
+      button.disabled = true;
+      showLoadingOverlay('Approving request...');
 
       try {
         const response = await fetch(`/api/admin/connect-requests/${requestId}/approve`, {
           method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json'
-          },
-          credentials: 'include' // Important: include cookies
+          credentials: 'include'
         });
 
-        const data = await response.json();
-        hideLoadingOverlay();
-        setButtonState(button, false);
-
-        if (response.ok && data.success) {
-          alert('Request approved successfully. Meeting details have been generated.');
+        if (response.ok) {
           await refreshDashboard(false);
-        } else if (response.status === 401 || response.status === 403) {
-          // Authentication/Authorization error
-          alert('Your session has expired or you do not have permission. Please log in again.');
-          // Don't auto-logout, let user try to refresh
-          await refreshDashboard(false);
-        } else {
-          alert(data.message || 'Unable to approve request.');
+          hideLoadingOverlay();
+          return;
         }
       } catch (error) {
-        console.error('Approve request error:', error);
-        hideLoadingOverlay();
-        setButtonState(button, false);
-        
-        // Check if it's a network error or auth error
-        if (error.message && error.message.includes('fetch')) {
-          alert('Network error. Please check your connection and try again.');
-        } else {
-          alert('An error occurred while approving the request. Please try again.');
-        }
+        console.warn('Backend not available, using frontend state');
       }
+
+      // Fallback
+      const result = vvelAppState.approveJoinRequest(requestId, {
+        approvedBy: state.admin?.email || 'admin'
+      });
+
+      if (result.success) {
+        await refreshDashboard(false);
+      }
+      
+      hideLoadingOverlay();
+      button.disabled = false;
+    }
+
+    async function rejectRequest(requestId, button) {
+      const reason = prompt('Rejection reason (optional):');
+      button.disabled = true;
+      showLoadingOverlay('Rejecting request...');
+
+      try {
+        const response = await fetch(`/api/admin/connect-requests/${requestId}/reject`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ reason: reason || 'Rejected by admin' })
+        });
+
+        if (response.ok) {
+          await refreshDashboard(false);
+          hideLoadingOverlay();
+          return;
+        }
+      } catch (error) {
+        console.warn('Backend not available, using frontend state');
+      }
+
+      // Fallback
+      vvelAppState.rejectJoinRequest(requestId, {
+        adminEmail: state.admin?.email || 'admin',
+        reason: reason || 'Rejected by admin'
+      });
+
+      await refreshDashboard(false);
+      hideLoadingOverlay();
+      button.disabled = false;
     }
 
     async function markManualPayment(requestId, button) {
-      const request = state.requests.find(item => item.id === requestId || item._id === requestId);
-      if (!request) {
-        alert('Request not found.');
-        return;
-      }
-
-      setButtonState(button, true, 'Recording...');
-      showLoadingOverlay('Recording manual payment...');
+      button.disabled = true;
+      showLoadingOverlay('Recording payment...');
 
       try {
         const response = await fetch(`/api/admin/connect-requests/${requestId}/payment`, {
@@ -860,400 +2736,890 @@
           body: JSON.stringify({ paymentMethod: 'Manual confirmation' })
         });
 
-        const data = await response.json();
-        hideLoadingOverlay();
-        setButtonState(button, false);
-
-        if (response.ok && data.success) {
-          alert('Manual payment recorded. Meeting details have been shared with the member.');
+        if (response.ok) {
           await refreshDashboard(false);
-        } else if (response.status === 401 || response.status === 403) {
-          alert('Your session has expired or you do not have permission. Please log in again.');
-          await refreshDashboard(false);
-        } else {
-          alert(data.message || 'Unable to record payment.');
-        }
-      } catch (error) {
-        console.error('Record payment error:', error);
-        hideLoadingOverlay();
-        setButtonState(button, false);
-        alert('An error occurred while recording payment. Please try again.');
-      }
-    }
-
-    async function rejectRequest(requestId, button) {
-      const reason = prompt('Add an optional note for the member (leave blank to skip):', '');
-      if (reason === null) return; // User cancelled
-      
-      setButtonState(button, true, 'Rejecting...');
-      showLoadingOverlay('Updating request status...');
-
-      try {
-        const response = await fetch(`/api/admin/connect-requests/${requestId}/reject`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({ reason: reason || 'Request declined by admin' })
-        });
-
-        const data = await response.json();
-        hideLoadingOverlay();
-        setButtonState(button, false);
-
-        if (response.ok && data.success) {
-          alert('Request rejected. The member has been notified.');
-          await refreshDashboard(false);
-        } else if (response.status === 401 || response.status === 403) {
-          alert('Your session has expired or you do not have permission. Please log in again.');
-          await refreshDashboard(false);
-        } else {
-          alert(data.message || 'Unable to reject the request.');
-        }
-      } catch (error) {
-        console.error('Reject request error:', error);
-        hideLoadingOverlay();
-        setButtonState(button, false);
-        alert('An error occurred while rejecting the request. Please try again.');
-      }
-    }
-
-    function renderAdminAccounts() {
-      const container = document.getElementById('adminAccountsList');
-      container.innerHTML = '';
-      const accounts = vvelAppState.getAdminAccounts();
-
-      accounts.forEach(account => {
-        const card = document.createElement('div');
-        card.className = 'admin-card';
-        card.innerHTML = `
-          <div style="font-weight: 600; font-size: 1rem;">
-            ${account.name || account.email}
-          </div>
-          <div style="font-size: 0.85rem; color: rgba(226,232,240,0.7); margin: 0.35rem 0;">
-            ${account.email}
-          </div>
-          <div style="font-size: 0.75rem; color: rgba(226,232,240,0.5); margin-bottom: 0.75rem;">
-            ${account.source === 'config' ? 'Super Admin (config-managed)' : `Granted by ${account.addedBy || 'admin'}`}
-          </div>
-          <div>
-            ${(account.permissions || []).map(perm => `<span class="chip">${perm}</span>`).join('')}
-          </div>
-          ${account.source === 'override' ? `
-            <button class="button danger" style="margin-top: 0.75rem;" onclick="revokeAdmin('${account.email}')">
-              <i data-lucide="user-x" class="w-4 h-4"></i>
-              Revoke Access
-            </button>
-          ` : ''}
-        `;
-        container.appendChild(card);
-      });
-
-      if (!accounts.length) {
-        container.innerHTML = `<div style="color: rgba(226,232,240,0.6); padding: 0.75rem;">
-          No delegated admin accounts yet.
-        </div>`;
-      }
-
-      lucide.createIcons();
-    }
-
-    function syncRequestsAndRender() {
-      refreshRequests();
-      renderStats();
-      renderRequests();
-      loadAdminAccounts();
-    }
-
-    const grantForm = document.getElementById('grantAdminForm');
-    grantForm.addEventListener('submit', async event => {
-      event.preventDefault();
-      const email = document.getElementById('newAdminEmail').value.trim();
-      const name = document.getElementById('newAdminName').value.trim();
-      const password = document.getElementById('newAdminPassword').value.trim();
-
-      if (!email || !password) {
-        alert('Email and password are required to grant access.');
-        return;
-      }
-
-      try {
-        const response = await fetch('/api/admin/grant-admin', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({ email, name, password })
-        });
-
-        const data = await response.json();
-
-        if (response.ok && data.success) {
-          alert('Admin access granted. Share the credentials securely with the delegate.');
-          grantForm.reset();
-          await loadAdminAccounts();
-        } else {
-          alert(data.message || 'Unable to grant admin access.');
-        }
-      } catch (error) {
-        console.error('Grant admin error:', error);
-        
-        // Fallback to frontend
-        const result = vvelAppState.grantAdminAccess({
-          email,
-          name,
-          password,
-          addedBy: state.admin?.email || 'admin@panel',
-          permissions: ['requests:read', 'requests:write']
-        });
-
-        if (result.success) {
-          alert('Admin access granted. Share the credentials securely with the delegate.');
-          grantForm.reset();
-          renderAdminAccounts();
-        } else {
-          alert(result.reason || 'Unable to grant admin access.');
-        }
-      }
-    });
-
-    async function loadAdminAccounts() {
-      try {
-        const response = await fetch('/api/admin/admins', {
-          credentials: 'include'
-        });
-        const data = await response.json();
-
-        if (response.ok && data.success) {
-          renderAdminAccountsFromBackend(data.admins);
+          hideLoadingOverlay();
           return;
         }
       } catch (error) {
-        console.warn('Failed to load admins from backend:', error);
+        console.warn('Backend not available');
       }
 
-      // Fallback to frontend
-      renderAdminAccounts();
-    }
-
-    function renderAdminAccountsFromBackend(admins) {
-      const container = document.getElementById('adminAccountsList');
-      container.innerHTML = '';
-
-      if (!admins || admins.length === 0) {
-        container.innerHTML = `<div style="color: rgba(226,232,240,0.6); padding: 0.75rem;">
-          No admin accounts found.
-        </div>`;
-        return;
-      }
-
-      admins.forEach(account => {
-        const card = document.createElement('div');
-        card.className = 'admin-card';
-
-        // Name or email
-        const nameDiv = document.createElement('div');
-        nameDiv.style.fontWeight = '600';
-        nameDiv.style.fontSize = '1rem';
-        nameDiv.textContent = account.name || account.email;
-        card.appendChild(nameDiv);
-
-        // Email
-        const emailDiv = document.createElement('div');
-        emailDiv.style.fontSize = '0.85rem';
-        emailDiv.style.color = 'rgba(226,232,240,0.7)';
-        emailDiv.style.margin = '0.35rem 0';
-        emailDiv.textContent = account.email;
-        card.appendChild(emailDiv);
-
-        // Created date
-        const dateDiv = document.createElement('div');
-        dateDiv.style.fontSize = '0.75rem';
-        dateDiv.style.color = 'rgba(226,232,240,0.5)';
-        dateDiv.style.marginBottom = '0.75rem';
-        dateDiv.textContent = `Admin since ${new Date(account.createdAt).toLocaleDateString()}`;
-        card.appendChild(dateDiv);
-
-        // Permissions
-        const permissionsDiv = document.createElement('div');
-        (account.adminPermissions || []).forEach(perm => {
-          const chip = document.createElement('span');
-          chip.className = 'chip';
-          chip.textContent = perm;
-          permissionsDiv.appendChild(chip);
-        });
-        card.appendChild(permissionsDiv);
-
-        container.appendChild(card);
-      });
-    }
-
-    function revokeAdmin(email) {
-      if (!confirm(`Revoke delegated access for ${email}?`)) {
-        return;
-      }
-      const result = vvelAppState.revokeAdminAccess(email);
-      alert(result.success ? 'Access revoked.' : 'Unable to revoke access.');
-      renderAdminAccounts();
+      hideLoadingOverlay();
+      button.disabled = false;
     }
 
     function toggleAutopaySetting() {
       const wallet = vvelAppState.getWallet();
       vvelAppState.setAutopayEnabled(!wallet.autopayEnabled);
-      const stateMessage = !wallet.autopayEnabled ? 'enabled' : 'disabled';
-      alert(`Wallet auto-pay ${stateMessage}.`);
-      renderStats();
+      alert(`Auto-pay ${!wallet.autopayEnabled ? 'enabled' : 'disabled'}`);
+      refreshDashboard(false);
+    }
+
+    function renderAdminAccounts() {
+      const list = document.getElementById('adminAccountsList');
+      const accounts = vvelAppState.getAdminAccounts();
+      
+      list.innerHTML = '';
+      accounts.forEach(account => {
+        const card = document.createElement('div');
+        card.className = 'admin-card';
+        card.innerHTML = `
+          <div class="admin-name">${account.name}</div>
+          <div class="admin-email">${account.email}</div>
+          <div>
+            ${account.permissions.map(p => `<span class="chip">${p}</span>`).join('')}
+            ${account.super ? '<span class="chip" style="background: rgba(251, 191, 36, 0.2); color: #fbbf24;">Super Admin</span>' : ''}
+          </div>
+        `;
+        list.appendChild(card);
+      });
+    }
+
+    // Grant Admin Form
+    document.getElementById('grantAdminForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('newAdminEmail').value.trim();
+      const name = document.getElementById('newAdminName').value.trim();
+      const password = document.getElementById('newAdminPassword').value;
+
+      const result = vvelAppState.grantAdminAccess({
+        email,
+        name: name || email.split('@')[0],
+        password,
+        permissions: ['requests:read', 'requests:write'],
+        addedBy: state.admin?.email || 'admin'
+      });
+
+      if (result.success) {
+        alert('Admin access granted successfully!');
+        document.getElementById('grantAdminForm').reset();
+        renderAdminAccounts();
+      } else {
+        alert('Failed to grant admin access.');
+      }
+    });
+
+    // Category Management Functions
+    let categories = [];
+
+    async function loadCategories() {
+      showLoadingOverlay('Loading categories...');
+      try {
+        const response = await fetch('/api/admin/categories', {
+          credentials: 'include'
+        });
+
+        const data = await response.json();
+        console.log('Categories API response:', data); // Debug log
+        if (data.success) {
+          categories = data.data || data.categories || [];
+          renderCategories();
+        } else {
+          console.error('Failed to load categories:', data);
+        }
+      } catch (error) {
+        console.error('Load categories error:', error);
+      }
+      hideLoadingOverlay();
+    }
+
+    function renderCategories() {
+      const grid = document.getElementById('categoriesGrid');
+      const empty = document.getElementById('categoriesEmpty');
+      
+      grid.innerHTML = '';
+
+      if (!categories.length) {
+        empty.style.display = 'block';
+        return;
+      }
+
+      empty.style.display = 'none';
+      
+      categories
+        .sort((a, b) => (a.order || 0) - (b.order || 0))
+        .forEach(category => {
+          const card = document.createElement('div');
+          card.className = 'category-card';
+          
+          card.innerHTML = `
+            <div class="category-color-indicator" style="background-color: ${category.color || '#6366f1'}"></div>
+            <div class="category-icon">${category.icon || '📁'}</div>
+            <div class="category-name">${category.name}</div>
+            <div class="category-description">${category.description || 'No description'}</div>
+            <div class="category-meta">
+              <span class="category-badge">
+                <i data-lucide="layers" class="w-3 h-3"></i>
+                ${category.subcategories?.length || 0} subcategories
+              </span>
+              <span class="category-badge ${category.isActive ? '' : 'text-red-400'}">
+                <i data-lucide="${category.isActive ? 'eye' : 'eye-off'}" class="w-3 h-3"></i>
+                ${category.isActive ? 'Active' : 'Inactive'}
+              </span>
+            </div>
+            <div class="category-actions">
+              <button class="category-action-btn" onclick="editCategory('${category._id}')" title="Edit">
+                <i data-lucide="edit" class="w-4 h-4"></i>
+              </button>
+              <button class="category-action-btn" onclick="toggleCategoryStatus('${category._id}', ${category.isActive})" title="${category.isActive ? 'Deactivate' : 'Activate'}">
+                <i data-lucide="${category.isActive ? 'eye-off' : 'eye'}" class="w-4 h-4"></i>
+              </button>
+              <button class="category-action-btn danger" onclick="deleteCategory('${category._id}', '${category.name}')" title="Delete">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+              </button>
+            </div>
+          `;
+          
+          grid.appendChild(card);
+        });
+
+      setTimeout(() => lucide.createIcons(), 100);
+    }
+
+    // Add Category Form Submit
+    document.getElementById('addCategoryForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const name = document.getElementById('categoryName').value.trim();
+      const icon = document.getElementById('categoryIcon').value.trim() || '📁';
+      const color = document.getElementById('categoryColor').value;
+      const order = parseInt(document.getElementById('categoryOrder').value) || 0;
+      const description = document.getElementById('categoryDescription').value.trim();
+      
+      const errorDiv = document.getElementById('addCategoryError');
+      errorDiv.classList.remove('show');
+
+      showLoadingOverlay('Creating category...');
+
+      try {
+        const response = await fetch('/api/admin/categories', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            name,
+            icon,
+            color,
+            order,
+            description
+          })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          document.getElementById('addCategoryForm').reset();
+          document.getElementById('categoryColor').value = '#6366f1';
+          await loadCategories();
+          hideLoadingOverlay();
+          alert('Category created successfully!');
+        } else {
+          hideLoadingOverlay();
+          errorDiv.textContent = data.message || 'Failed to create category';
+          errorDiv.classList.add('show');
+        }
+      } catch (error) {
+        console.error('Create category error:', error);
+        hideLoadingOverlay();
+        errorDiv.textContent = 'Network error. Please try again.';
+        errorDiv.classList.add('show');
+      }
+    });
+
+    async function editCategory(categoryId) {
+      const category = categories.find(c => c._id === categoryId);
+      if (!category) return;
+
+      const name = prompt('Category Name:', category.name);
+      if (!name) return;
+
+      const icon = prompt('Icon (emoji):', category.icon);
+      const description = prompt('Description:', category.description);
+      const color = prompt('Color (hex):', category.color);
+      const order = prompt('Display Order:', category.order);
+
+      showLoadingOverlay('Updating category...');
+
+      try {
+        const response = await fetch(`/api/admin/categories/${categoryId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            name: name || category.name,
+            icon: icon || category.icon,
+            description: description || category.description,
+            color: color || category.color,
+            order: order !== null ? parseInt(order) : category.order
+          })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          await loadCategories();
+          alert('Category updated successfully!');
+        } else {
+          alert(data.message || 'Failed to update category');
+        }
+      } catch (error) {
+        console.error('Update category error:', error);
+        alert('Network error. Please try again.');
+      }
+
+      hideLoadingOverlay();
+    }
+
+    async function toggleCategoryStatus(categoryId, currentStatus) {
+      showLoadingOverlay(currentStatus ? 'Deactivating...' : 'Activating...');
+
+      try {
+        const response = await fetch(`/api/admin/categories/${categoryId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            isActive: !currentStatus
+          })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          await loadCategories();
+        } else {
+          alert(data.message || 'Failed to update category status');
+        }
+      } catch (error) {
+        console.error('Toggle category error:', error);
+        alert('Network error. Please try again.');
+      }
+
+      hideLoadingOverlay();
+    }
+
+    async function deleteCategory(categoryId, categoryName) {
+      if (!confirm(`Are you sure you want to delete "${categoryName}"?\n\nThis action cannot be undone.`)) {
+        return;
+      }
+
+      showLoadingOverlay('Deleting category...');
+
+      try {
+        const response = await fetch(`/api/admin/categories/${categoryId}`, {
+          method: 'DELETE',
+          credentials: 'include'
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+          await loadCategories();
+          alert('Category deleted successfully!');
+        } else {
+          alert(data.message || 'Failed to delete category');
+        }
+      } catch (error) {
+        console.error('Delete category error:', error);
+        alert('Network error. Please try again.');
+      }
+
+      hideLoadingOverlay();
     }
 
     function adminLogout() {
       sessionStorage.removeItem(ADMIN_SESSION_KEY);
+      loginView.style.display = 'flex';
+      dashboardView.style.display = 'none';
       state.admin = null;
-      hideLoadingOverlay();
-      if (dashboardView) {
-        dashboardView.style.display = 'none';
-      }
-      if (loginView) {
-        loginView.style.display = 'block';
-      }
-      if (loginForm) {
-        loginForm.reset();
-      }
-      if (loginError) {
-        loginError.style.display = 'none';
-      }
-      document.getElementById('adminNameLabel').textContent = '';
-    }
-
-    function formatCurrency(value) {
-      return `₹${Number(value || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-    }
-
-    function formatRelativeTime(timestamp) {
-      if (!timestamp) return 'Just now';
-      const date = typeof timestamp === 'number' ? new Date(timestamp) : new Date(timestamp);
-      if (Number.isNaN(date.getTime())) return 'Just now';
-      const diff = date.getTime() - Date.now();
-      const absDiff = Math.abs(diff);
-      const ranges = [
-        { limit: 60 * 1000, divisor: 1000, unit: 'second' },
-        { limit: 60 * 60 * 1000, divisor: 60 * 1000, unit: 'minute' },
-        { limit: 24 * 60 * 60 * 1000, divisor: 60 * 60 * 1000, unit: 'hour' },
-        { limit: 7 * 24 * 60 * 60 * 1000, divisor: 24 * 60 * 60 * 1000, unit: 'day' },
-        { limit: 30 * 24 * 60 * 60 * 1000, divisor: 7 * 24 * 60 * 60 * 1000, unit: 'week' },
-        { limit: 365 * 24 * 60 * 60 * 1000, divisor: 30 * 24 * 60 * 60 * 1000, unit: 'month' }
-      ];
-      let unit = 'year';
-      let divisor = 365 * 24 * 60 * 60 * 1000;
-      for (const range of ranges) {
-        if (absDiff < range.limit) {
-          unit = range.unit;
-          divisor = range.divisor;
-          break;
-        }
-      }
-      const rtf = new Intl.RelativeTimeFormat(undefined, { numeric: 'auto' });
-      return rtf.format(Math.round(diff / divisor), unit);
+      state.requests = [];
+      document.getElementById('adminLoginForm').reset();
     }
 
     function getStatusClass(status) {
-      switch (status) {
-        case 'approved':
-          return 'status-approved';
-        case 'needs_payment':
-          return 'status-needs_payment';
-        case 'rejected':
-          return 'status-rejected';
-        default:
-          return 'status-pending';
-      }
+      return 'status-' + (status || 'pending').toLowerCase().replace(/_/g, '_');
     }
 
     function getStatusLabel(status) {
-      switch (status) {
-        case 'approved':
-          return 'Confirmed';
-        case 'needs_payment':
-          return 'Needs Payment';
-        case 'rejected':
-          return 'Rejected';
-        case 'pending':
-        default:
-          return 'Pending';
-      }
+      const labels = {
+        pending: 'Pending',
+        approved: 'Approved',
+        needs_payment: 'Needs Payment',
+        rejected: 'Rejected'
+      };
+      return labels[status] || status;
     }
 
-    function setButtonState(button, isLoading, text) {
-      if (!button) return;
-      if (isLoading) {
-        button.dataset.originalText = button.innerHTML;
-        button.innerHTML = text || 'Processing...';
-        button.disabled = true;
-      } else {
-        button.innerHTML = button.dataset.originalText || button.innerHTML;
-        button.disabled = false;
-      }
+    function formatCurrency(amount) {
+      return '₹' + Number(amount || 0).toFixed(2);
     }
 
-    async function attemptAutoSignIn() {
-      const stored = sessionStorage.getItem(ADMIN_SESSION_KEY);
-      if (!stored) return;
+    function formatRelativeTime(timestamp) {
+      const now = Date.now();
+      const diff = now - (typeof timestamp === 'string' ? new Date(timestamp).getTime() : timestamp);
+      const minutes = Math.floor(diff / 60000);
+      const hours = Math.floor(diff / 3600000);
+      const days = Math.floor(diff / 86400000);
+
+      if (minutes < 1) return 'Just now';
+      if (minutes < 60) return `${minutes}m ago`;
+      if (hours < 24) return `${hours}h ago`;
+      return `${days}d ago`;
+    }
+
+    // Content Mode Toggle (Static/Dynamic)
+    function initContentModeToggle() {
+      const toggle = document.getElementById('contentModeToggle');
+      const modeText = document.getElementById('contentModeText');
       
-      try {
-        const creds = JSON.parse(stored);
-        if (!creds || !creds.email) {
-          sessionStorage.removeItem(ADMIN_SESSION_KEY);
-          return;
-        }
-
-        // Check if user is still authenticated
-        const authStatusResponse = await fetch('/api/auth/status', {
-          credentials: 'include'
+      // Load saved preference
+      const savedMode = localStorage.getItem('vvel_content_mode') || 'static';
+      const isDynamic = savedMode === 'dynamic';
+      
+      if (toggle) {
+        toggle.checked = isDynamic;
+        updateContentModeUI(isDynamic);
+        
+        // Handle toggle change
+        toggle.addEventListener('change', function() {
+          const isNowDynamic = this.checked;
+          localStorage.setItem('vvel_content_mode', isNowDynamic ? 'dynamic' : 'static');
+          updateContentModeUI(isNowDynamic);
+          
+          // Show notification
+          showContentModeNotification(isNowDynamic);
         });
-        const authData = await authStatusResponse.json();
-
-        if (authData.success && authData.authenticated) {
-          state.admin = authData.user;
-          document.getElementById('adminNameLabel').textContent = state.admin.name || state.admin.email;
-          if (loginView) {
-            loginView.style.display = 'none';
-          }
-          if (dashboardView) {
-            dashboardView.style.display = 'flex';
-          }
-          await refreshDashboard(false);
-          return;
-        }
-
-        // Fallback to frontend if password is stored
-        if (creds.password) {
-          const result = vvelAppState.authenticateAdmin(creds.email, creds.password);
-          if (result.success) {
-            state.admin = result.account;
-            document.getElementById('adminNameLabel').textContent = state.admin.name || state.admin.email;
-            if (loginView) {
-              loginView.style.display = 'none';
-            }
-            if (dashboardView) {
-              dashboardView.style.display = 'flex';
-            }
-            await refreshDashboard(false);
-            return;
-          }
-        }
-
-        sessionStorage.removeItem(ADMIN_SESSION_KEY);
-      } catch (error) {
-        console.warn('Failed to restore admin session:', error);
-        sessionStorage.removeItem(ADMIN_SESSION_KEY);
       }
     }
 
-    window.addEventListener('storage', (event) => {
-      if (event.key === 'vvelUniverseAppState.v1' && state.admin) {
-        syncRequestsAndRender();
+    function updateContentModeUI(isDynamic) {
+      const modeText = document.getElementById('contentModeText');
+      const toggle = document.getElementById('contentModeToggle');
+      
+      if (modeText) {
+        if (isDynamic) {
+          modeText.textContent = 'Dynamic Mode:';
+          modeText.parentElement.querySelector('div:last-of-type').textContent = 'Content loaded from database/API';
+        } else {
+          modeText.textContent = 'Static Mode:';
+          modeText.parentElement.querySelector('div:last-of-type').textContent = 'Content loaded from static files';
+        }
       }
+      
+      // Update toggle appearance
+      if (toggle) {
+        const slider = toggle.nextElementSibling;
+        const knob = slider.querySelector('span');
+        
+        if (isDynamic) {
+          slider.style.backgroundColor = '#6366f1';
+          knob.style.transform = 'translateX(26px)';
+        } else {
+          slider.style.backgroundColor = '#374151';
+          knob.style.transform = 'translateX(0)';
+        }
+      }
+    }
+
+    function showContentModeNotification(isDynamic) {
+      const message = isDynamic 
+        ? '✅ Switched to Dynamic Mode - Content will be loaded from database/API'
+        : '✅ Switched to Static Mode - Content will be loaded from static files';
+      
+      // Create notification element
+      const notification = document.createElement('div');
+      notification.style.cssText = `
+        position: fixed;
+        top: 90px;
+        right: 20px;
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+        z-index: 10000;
+        animation: slideInRight 0.3s ease-out;
+        font-weight: 600;
+      `;
+      notification.textContent = message;
+      document.body.appendChild(notification);
+      
+      // Auto-remove after 3 seconds
+      setTimeout(() => {
+        notification.style.animation = 'slideOutRight 0.3s ease-out';
+        setTimeout(() => notification.remove(), 300);
+      }, 3000);
+    }
+
+    // Add CSS for notifications
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes slideInRight {
+        from {
+          transform: translateX(400px);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+      @keyframes slideOutRight {
+        from {
+          transform: translateX(0);
+          opacity: 1;
+        }
+        to {
+          transform: translateX(400px);
+          opacity: 0;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+
+    // Initialize content mode toggle when page loads
+    window.addEventListener('DOMContentLoaded', () => {
+      // Wait a bit for the dashboard to load
+      setTimeout(() => {
+        initContentModeToggle();
+        initDashboardCharts();
+      }, 500);
     });
 
-    attemptAutoSignIn();
+    // ========================================
+    // DASHBOARD CHARTS INITIALIZATION
+    // ========================================
+
+    let revenueChart, userDistributionChart, categoryChart, sessionActivityChart;
+
+    function initDashboardCharts() {
+      // Only initialize if on dashboard page
+      const dashboardPage = document.getElementById('dashboardPage');
+      if (!dashboardPage || dashboardPage.style.display === 'none') return;
+
+      // Initialize all charts
+      initRevenueChart();
+      initUserDistributionChart();
+      initCategoryChart();
+      initSessionActivityChart();
+    }
+
+    // Revenue & Growth Chart (Line Chart)
+    function initRevenueChart() {
+      const ctx = document.getElementById('revenueChart');
+      if (!ctx) return;
+
+      if (revenueChart) revenueChart.destroy();
+
+      const gradient = ctx.getContext('2d').createLinearGradient(0, 0, 0, 300);
+      gradient.addColorStop(0, 'rgba(99, 102, 241, 0.4)');
+      gradient.addColorStop(1, 'rgba(99, 102, 241, 0.0)');
+
+      revenueChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+          datasets: [{
+            label: 'Revenue (₹)',
+            data: [8500, 12300, 15800, 18900],
+            borderColor: '#6366f1',
+            backgroundColor: gradient,
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 6,
+            pointBackgroundColor: '#6366f1',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointHoverRadius: 8
+          }, {
+            label: 'Sessions',
+            data: [45, 67, 82, 94],
+            borderColor: '#10b981',
+            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+            borderWidth: 3,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 6,
+            pointBackgroundColor: '#10b981',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointHoverRadius: 8
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: true,
+              position: 'top',
+              labels: {
+                color: '#e2e8f0',
+                font: {
+                  size: 12,
+                  family: 'Outfit'
+                },
+                padding: 15,
+                usePointStyle: true
+              }
+            },
+            tooltip: {
+              backgroundColor: 'rgba(15, 23, 42, 0.95)',
+              titleColor: '#fff',
+              bodyColor: '#e2e8f0',
+              borderColor: 'rgba(99, 102, 241, 0.5)',
+              borderWidth: 1,
+              padding: 12,
+              cornerRadius: 8,
+              displayColors: true
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              grid: {
+                color: 'rgba(255, 255, 255, 0.05)',
+                drawBorder: false
+              },
+              ticks: {
+                color: 'rgba(226, 232, 240, 0.7)',
+                font: {
+                  size: 11,
+                  family: 'Outfit'
+                }
+              }
+            },
+            x: {
+              grid: {
+                display: false,
+                drawBorder: false
+              },
+              ticks: {
+                color: 'rgba(226, 232, 240, 0.7)',
+                font: {
+                  size: 11,
+                  family: 'Outfit'
+                }
+              }
+            }
+          },
+          interaction: {
+            intersect: false,
+            mode: 'index'
+          }
+        }
+      });
+    }
+
+    // User Distribution Chart (Doughnut)
+    function initUserDistributionChart() {
+      const ctx = document.getElementById('userDistributionChart');
+      if (!ctx) return;
+
+      if (userDistributionChart) userDistributionChart.destroy();
+
+      userDistributionChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Influencers', 'Clients', 'Admins'],
+          datasets: [{
+            data: [342, 890, 15],
+            backgroundColor: [
+              '#6366f1',
+              '#10b981',
+              '#f59e0b'
+            ],
+            borderColor: '#0f172a',
+            borderWidth: 3,
+            hoverOffset: 10
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: true,
+              position: 'bottom',
+              labels: {
+                color: '#e2e8f0',
+                font: {
+                  size: 12,
+                  family: 'Outfit'
+                },
+                padding: 15,
+                usePointStyle: true,
+                generateLabels: function(chart) {
+                  const data = chart.data;
+                  return data.labels.map((label, i) => {
+                    const value = data.datasets[0].data[i];
+                    const total = data.datasets[0].data.reduce((a, b) => a + b, 0);
+                    const percentage = ((value / total) * 100).toFixed(1);
+                    return {
+                      text: `${label}: ${value} (${percentage}%)`,
+                      fillStyle: data.datasets[0].backgroundColor[i],
+                      hidden: false,
+                      index: i
+                    };
+                  });
+                }
+              }
+            },
+            tooltip: {
+              backgroundColor: 'rgba(15, 23, 42, 0.95)',
+              titleColor: '#fff',
+              bodyColor: '#e2e8f0',
+              borderColor: 'rgba(99, 102, 241, 0.5)',
+              borderWidth: 1,
+              padding: 12,
+              cornerRadius: 8,
+              callbacks: {
+                label: function(context) {
+                  const label = context.label || '';
+                  const value = context.parsed;
+                  const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                  const percentage = ((value / total) * 100).toFixed(1);
+                  return `${label}: ${value} users (${percentage}%)`;
+                }
+              }
+            }
+          },
+          cutout: '65%'
+        }
+      });
+    }
+
+    // Category Performance Chart (Bar Chart)
+    function initCategoryChart() {
+      const ctx = document.getElementById('categoryChart');
+      if (!ctx) return;
+
+      if (categoryChart) categoryChart.destroy();
+
+      categoryChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: ['Sports', 'Medical', 'Spiritual', 'Legal', 'Financial'],
+          datasets: [{
+            label: 'Sessions',
+            data: [145, 132, 98, 76, 54],
+            backgroundColor: [
+              'rgba(99, 102, 241, 0.8)',
+              'rgba(16, 185, 129, 0.8)',
+              'rgba(245, 158, 11, 0.8)',
+              'rgba(139, 92, 246, 0.8)',
+              'rgba(236, 72, 153, 0.8)'
+            ],
+            borderColor: [
+              '#6366f1',
+              '#10b981',
+              '#f59e0b',
+              '#8b5cf6',
+              '#ec4899'
+            ],
+            borderWidth: 2,
+            borderRadius: 8,
+            borderSkipped: false
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              backgroundColor: 'rgba(15, 23, 42, 0.95)',
+              titleColor: '#fff',
+              bodyColor: '#e2e8f0',
+              borderColor: 'rgba(99, 102, 241, 0.5)',
+              borderWidth: 1,
+              padding: 12,
+              cornerRadius: 8
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              grid: {
+                color: 'rgba(255, 255, 255, 0.05)',
+                drawBorder: false
+              },
+              ticks: {
+                color: 'rgba(226, 232, 240, 0.7)',
+                font: {
+                  size: 11,
+                  family: 'Outfit'
+                }
+              }
+            },
+            x: {
+              grid: {
+                display: false,
+                drawBorder: false
+              },
+              ticks: {
+                color: 'rgba(226, 232, 240, 0.7)',
+                font: {
+                  size: 11,
+                  family: 'Outfit'
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Session Activity Chart (Area Chart)
+    function initSessionActivityChart() {
+      const ctx = document.getElementById('sessionActivityChart');
+      if (!ctx) return;
+
+      if (sessionActivityChart) sessionActivityChart.destroy();
+
+      const gradient = ctx.getContext('2d').createLinearGradient(0, 0, 0, 300);
+      gradient.addColorStop(0, 'rgba(16, 185, 129, 0.4)');
+      gradient.addColorStop(1, 'rgba(16, 185, 129, 0.0)');
+
+      const hours = [];
+      for (let i = 0; i < 24; i++) {
+        hours.push(`${i.toString().padStart(2, '0')}:00`);
+      }
+
+      const activityData = [2, 1, 0, 1, 3, 8, 15, 24, 32, 28, 25, 22, 20, 23, 26, 30, 28, 24, 20, 15, 12, 8, 5, 3];
+
+      sessionActivityChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: hours,
+          datasets: [{
+            label: 'Active Sessions',
+            data: activityData,
+            borderColor: '#10b981',
+            backgroundColor: gradient,
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 0,
+            pointHoverRadius: 6,
+            pointHoverBackgroundColor: '#10b981',
+            pointHoverBorderColor: '#fff',
+            pointHoverBorderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              backgroundColor: 'rgba(15, 23, 42, 0.95)',
+              titleColor: '#fff',
+              bodyColor: '#e2e8f0',
+              borderColor: 'rgba(16, 185, 129, 0.5)',
+              borderWidth: 1,
+              padding: 12,
+              cornerRadius: 8,
+              callbacks: {
+                label: function(context) {
+                  return `Sessions: ${context.parsed.y}`;
+                }
+              }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              grid: {
+                color: 'rgba(255, 255, 255, 0.05)',
+                drawBorder: false
+              },
+              ticks: {
+                color: 'rgba(226, 232, 240, 0.7)',
+                font: {
+                  size: 11,
+                  family: 'Outfit'
+                },
+                stepSize: 10
+              }
+            },
+            x: {
+              grid: {
+                display: false,
+                drawBorder: false
+              },
+              ticks: {
+                color: 'rgba(226, 232, 240, 0.7)',
+                font: {
+                  size: 9,
+                  family: 'Outfit'
+                },
+                maxRotation: 0,
+                autoSkip: true,
+                maxTicksLimit: 12
+              }
+            }
+          },
+          interaction: {
+            intersect: false,
+            mode: 'index'
+          }
+        }
+      });
+    }
+
+    // Update revenue chart based on time period
+    function updateRevenueChart(period) {
+      if (!revenueChart) return;
+
+      let labels, revenueData, sessionData;
+
+      switch(period) {
+        case '7d':
+          labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+          revenueData = [3200, 4100, 3800, 4500, 5200, 4800, 5100];
+          sessionData = [18, 23, 21, 25, 29, 27, 28];
+          break;
+        case '90d':
+          labels = ['Month 1', 'Month 2', 'Month 3'];
+          revenueData = [32000, 38500, 45890];
+          sessionData = [180, 215, 247];
+          break;
+        default: // 30d
+          labels = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
+          revenueData = [8500, 12300, 15800, 18900];
+          sessionData = [45, 67, 82, 94];
+      }
+
+      revenueChart.data.labels = labels;
+      revenueChart.data.datasets[0].data = revenueData;
+      revenueChart.data.datasets[1].data = sessionData;
+      revenueChart.update();
+    }
+
+    // Reinitialize charts when navigating to dashboard
+    const originalNavigateToPage = navigateToPage;
+    navigateToPage = function(pageName) {
+      originalNavigateToPage(pageName);
+      if (pageName === 'dashboard') {
+        setTimeout(() => {
+          initDashboardCharts();
+          lucide.createIcons();
+        }, 100);
+      }
+    };
   </script>
 </body>
 </html>
-
